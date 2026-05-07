@@ -145,15 +145,23 @@ class GFEAgent:
             # belief updating
             for k in range(self.time_horizon):
                 if k == self.time_horizon - 1:
-                    try:
-                        self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k])
-                    except RuntimeError:
+                    #if k < self.current_observation_timestep:
+                    if False:
                         self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
+                    else:
+                        try:
+                            self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k])
+                        except RuntimeError:
+                            self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
                 else:
-                    try:
-                        self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k], leftward_state_messages[k])
-                    except RuntimeError:
-                        self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k])   
+                    #if k < self.current_observation_timestep:
+                    if False:
+                        self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) 
+                    else:
+                        try:
+                            self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k], leftward_state_messages[k])
+                        except RuntimeError:
+                            self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k])   
             for k in range(self.current_observation_timestep + 1, self.time_horizon):
                 self.observation_beliefs[k] = np.einsum('ij,j->i', self.A, self.state_beliefs[k])
             for k in range(self.time_horizon - 1):
@@ -161,6 +169,7 @@ class GFEAgent:
 
             result = self.free_energy()
             current_free_energy = result[0]
+            print(current_free_energy)
 
 
     def act(self, action = None):
