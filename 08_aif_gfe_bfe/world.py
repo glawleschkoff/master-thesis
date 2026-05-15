@@ -7,13 +7,13 @@ from environment import Environment
 from environment_param import a, b, d
 
 class World:
-    def __init__(self, agent_type, time_horizon=3):
+    def __init__(self, agent_type, time_horizon=3, c=2, alpha=0.9):
         self.time_horizon = time_horizon
         if agent_type == 'gfe':
-            (A, B, C, D, U) = generate_gfe_params()
+            (A, B, C, D, U) = generate_gfe_params(c=c, alpha=alpha)
             self.agent = GFEAgent(A, B, C, D, U, time_horizon)
         elif agent_type == 'bfe':
-            (A, B, C, D, U) = generate_bfe_params()
+            (A, B, C, D, U) = generate_bfe_params(c=c, alpha=alpha)
             self.agent = BFEAgent(A, B, C, D, U, time_horizon)
         self.environment = Environment(a, b, d)
         self.observations = np.zeros(self.time_horizon)

@@ -53,7 +53,7 @@ def optimize_q_s(A, C, *messages):
     q_s_init = np.ones(num_states) / num_states
     
     # Solver aufrufen (die verschachtelte Funktion greift automatisch auf p_A, etc. zu)
-    solution = root(error_function, x0=q_s_init, method='hybr')
+    solution = root(error_function, x0=q_s_init, method='hybr', tol=1e-3)
     
     # --- 3. Ergebnisverarbeitung ---
     
@@ -67,5 +67,17 @@ def optimize_q_s(A, C, *messages):
         
         return q_s_star
     else:
+        # Falls der Solver mal nicht konvergiert, printen wir die genauen Details
+        max_error = np.max(np.abs(solution.fun))
+        
+        print("\n" + "="*50)
+        print("FEHLER: Newton-Solver ist nicht konvergiert!")
+        print("="*50)
+        print(f"Ursache (Message): {solution.message}")
+        print(f"Status-Code:       {solution.status}")
+        print(f"Maximaler Fehler:  {max_error:.4e} (sollte nahe 0 sein)")
+        print(f"Letzter Stand q_s: {solution.x}")
+        print("="*50 + "\n")
+
         # Falls der Solver mal nicht konvergiert, werfen wir einen sauberen Fehler
         raise RuntimeError(f"Newton-Solver hat keine Lösung gefunden: {solution.message}")

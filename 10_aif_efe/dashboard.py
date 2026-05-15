@@ -48,6 +48,28 @@ if 'world' not in st.session_state:
     initial_res = world_instance.dashboard_get_beliefs()
     update_history_all(initial_res, is_append=True)
     
+    # 1. Maximalwert aller KLEINEN E/H/F Metriken ermitteln
+    global_max = 1.0 
+    for k, v_list in st.session_state.history.items():
+        if k.endswith("_metrics") and k != "total_metrics":
+            abs_vals = [abs(v.item() if hasattr(v, 'item') else float(v)) for v in v_list[0]]
+            local_max = max(abs_vals)
+            if local_max > global_max:
+                global_max = local_max
+    st.session_state.global_metrics_max = global_max
+
+    # 2. NEU: Maximalwert der GROSSEN total_metrics ermitteln
+    total_max = 1.0
+    if "total_metrics" in st.session_state.history:
+        total_vals = st.session_state.history["total_metrics"][0]
+        abs_total_vals = [abs(v.item() if hasattr(v, 'item') else float(v)) for v in total_vals]
+        if max(abs_total_vals) > 0:
+            total_max = max(abs_total_vals)
+    
+    # Wir multiplizieren mit 1.15 (15% Puffer), damit die Beschriftungen über den Balken 
+    # (textposition='outside') nicht vom oberen Rand des Plots abgeschnitten werden.
+    st.session_state.global_total_max = total_max * 1.15
+    
 if 'history' not in st.session_state:
     st.session_state.history = {
         # Beliefs (wie bisher)
@@ -217,9 +239,8 @@ def plot_cffg(G, edge_beliefs=None):
             idx = min(st.session_state.step_counter, len(st.session_state.history[key]) - 1)
             vals = st.session_state.history[key][idx]
 
-        # 1. Dynamisches Maximum finden
-        abs_vals = [abs(v.item() if hasattr(v, 'item') else float(v)) for v in vals]
-        max_val = max(abs_vals) if max(abs_vals) > 0 else 1.0
+        # 1. FIXIERTES globales Maximum statt dynamischem verwenden
+        max_val = st.session_state.get('global_metrics_max', 1.0)
         
         width, height = 0.3, 0.2
         bar_w = width / 3
@@ -230,7 +251,7 @@ def plot_cffg(G, edge_beliefs=None):
         fig.add_shape(type="rect", x0=x_pos, y0=y_pos, x1=x_pos+width, y1=y_pos+height, 
                       fillcolor="rgba(245,245,245,0.95)", line=dict(color="gray", width=0.5))
 
-        # 2. Pseudo-Y-Achse rechts
+        # 2. Pseudo-Y-Achse rechts (zeigt jetzt immer den gleichen Max-Wert an)
         fig.add_annotation(
             x=x_pos + width + 0.02, y=y_pos + height,
             text=f"{max_val:.2f}", showarrow=False, font=dict(size=9, color="gray"),
@@ -247,7 +268,10 @@ def plot_cffg(G, edge_beliefs=None):
             # Balken-Koordinaten
             bx0 = x_pos + i * bar_w + 0.02
             bx1 = x_pos + (i + 1) * bar_w - 0.02
-            h = (abs(v.item() if hasattr(v, 'item') else float(v)) / max_val) * height
+            
+            # Höhe relativ zum fixen Maximum berechnen (begrenzen auf 100%, falls doch mal ein Wert leicht steigen sollte)
+            current_val = abs(v.item() if hasattr(v, 'item') else float(v))
+            h = min(current_val / max_val, 1.0) * height
             
             # Balken zeichnen
             fig.add_shape(type="rect", x0=bx0, y0=y_pos, x1=bx1, y1=y_pos + h,
@@ -549,44 +573,98 @@ with col_controls:
         st.session_state.clear()
         st.rerun()
 
-    st.markdown("---")
-    st.subheader("Global Metrics")
+    st.markdown("<hr style='margin-top: 15px; margin-bottom: -50px;'>", unsafe_allow_html=True)
+
+    #st.subheader("Global Metrics")
+    st.markdown("<h4 style='font-size: 20px; margin-top: 0px; margin-bottom: -15px;'>Global Metrics</h4>", unsafe_allow_html=True)
     
     if "total_metrics" in st.session_state.history and len(st.session_state.history["total_metrics"]) > 0:
         # Den aktuellen Stand abgreifen
         idx = min(st.session_state.step_counter, len(st.session_state.history["total_metrics"]) - 1)
         raw_vals = st.session_state.history["total_metrics"][idx]
         
-        # Sicherstellen, dass es einfache Floats sind (falls es numpy arrays sind)
-        # Ändere diese Zeilen:
-        e_total = raw_vals[0].item()
-        h_total = raw_vals[1].item()
-        f_total = raw_vals[2].item()
+        e_total = raw_vals[0].item() if hasattr(raw_vals[0], 'item') else float(raw_vals[0])
+        h_total = raw_vals[1].item() if hasattr(raw_vals[1], 'item') else float(raw_vals[1])
+        f_total = raw_vals[2].item() if hasattr(raw_vals[2], 'item') else float(raw_vals[2])
         
-        # Plotly Bar Chart
-        fig_total = go.Figure(data=[
-            go.Bar(
-                x=["Energy (E)", "Entropy (H)", "Free Energy (F)"],
-                y=[e_total, h_total, f_total],
-                marker_color=["#666666", "#999999", "#9b59b6"],
-                # Jetzt funktioniert die Formatierung, da es Floats sind
-                text=[f"{e_total:.2f}", f"{h_total:.2f}", f"{f_total:.2f}"],
-                textposition='outside',
-            )
-        ])
+        # Den gespeicherten Maximalwert abrufen
+        y_max = st.session_state.get('global_total_max', 1.0)
         
+        # NEU: Wir berechnen ein "gepolstertes" Maximum, damit der Text noch in die graue Box passt
+        padded_max = y_max * 1.2 
+        
+        fig_total = go.Figure()
+
+        # 1. DUMMY-TRACE: Nutzt jetzt padded_max
+        fig_total.add_trace(go.Scatter(
+            x=[0, 3], y=[0, padded_max], 
+            mode='markers', 
+            marker=dict(color='rgba(0,0,0,0)', size=1), 
+            hoverinfo='none',
+            showlegend=False
+        ))
+
+        # 2. Hintergrund als Shape: Zieht sich jetzt bis padded_max hoch
+        fig_total.add_shape(
+            type="rect", x0=0, x1=3, y0=0, y1=padded_max, 
+            fillcolor="rgba(245,245,245,0.95)", 
+            line=dict(color="gray", width=1),
+            layer="below" 
+        )
+
+        # 3. Balken als Shapes zeichnen
+        bar_w = 0.6 
+        fig_total.add_shape(type="rect", x0=0.5 - bar_w/2, x1=0.5 + bar_w/2, y0=0, y1=e_total, fillcolor="gray", line=dict(width=0))
+        fig_total.add_shape(type="rect", x0=1.5 - bar_w/2, x1=1.5 + bar_w/2, y0=0, y1=h_total, fillcolor="gray", line=dict(width=0))
+        fig_total.add_shape(type="rect", x0=2.5 - bar_w/2, x1=2.5 + bar_w/2, y0=0, y1=f_total, fillcolor="#9b59b6", line=dict(width=0))
+
+        # ==========================================
+        # 4. NEU: Text-Annotationen (mit 1 Nachkommastelle)
+        # ==========================================
+        # yanchor="bottom" und yshift=5 setzen den Text exakt auf die obere Kante des Balkens, mit 5 Pixeln Abstand
+        fig_total.add_annotation(x=0.5, y=e_total, text=f"{e_total:.1f}", showarrow=False, font=dict(size=13, color="gray"), yanchor="bottom", yshift=5)
+        fig_total.add_annotation(x=1.5, y=h_total, text=f"{h_total:.1f}", showarrow=False, font=dict(size=13, color="gray"), yanchor="bottom", yshift=5)
+        fig_total.add_annotation(x=2.5, y=f_total, text=f"{f_total:.1f}", showarrow=False, font=dict(size=13, color="#9b59b6"), yanchor="bottom", yshift=5)
+
+        # ==========================================
+        # 5. Layout (Ränder auf 0 für volle Breite)
+        # ==========================================
         fig_total.update_layout(
-            height=220,
-            margin=dict(l=10, r=10, t=30, b=40),
-            xaxis=dict(tickfont=dict(size=11)),
-            yaxis=dict(title="Value", showgrid=True, gridcolor="lightgrey"),
-            plot_bgcolor='white',
+            height=150, 
+            
+            # HIER IST DER FIX: l=0 und r=0 entfernen den unsichtbaren Abstand zum Container-Rand
+            margin=dict(l=0, r=2, t=20, b=25), 
+            
+            xaxis=dict(
+                range=[0, 3], 
+                autorange=False, 
+                tickvals=[0.5, 1.5, 2.5], 
+                ticktext=[
+                    "<b><span style='color:gray; font-size:16px;'>E</span></b>", 
+                    "<b><span style='color:gray; font-size:16px;'>H</span></b>", 
+                    "<b><span style='color:#9b59b6; font-size:16px;'>F</span></b>"
+                ],
+                showgrid=False,
+                zeroline=False,
+                showline=False, 
+                mirror=False 
+            ),
+            yaxis=dict(
+                range=[0, padded_max],
+                autorange=False, 
+                showticklabels=False, 
+                showgrid=False, 
+                zeroline=False,
+                showline=False, 
+                mirror=False
+            ),
+            plot_bgcolor="rgba(0,0,0,0)", 
+            paper_bgcolor="rgba(0,0,0,0)",              
             showlegend=False
         )
         
         st.plotly_chart(fig_total, use_container_width=True, config={'displayModeBar': False})
         
-        # Optionale Text-Zusammenfassung für den schnellen Check
         st.caption(f"**F = {f_total:.4f}**")
 
 with col_graph:

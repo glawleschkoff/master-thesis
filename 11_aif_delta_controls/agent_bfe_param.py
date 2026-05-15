@@ -16,7 +16,7 @@ u = {
     'O' : 0, 'C' : 1, 'L' : 2, 'R' : 3
 }
 
-def generate_gfe_params(alpha=0.9, c=2):
+def generate_bfe_params(alpha=0.9, c=2):
     # A-Matrix "p(o|s)" (likelihood mapping from hidden states to observations)
     A = np.zeros((16, 8))
     A[o['O_CL'], s['O_RL']] = 0.5

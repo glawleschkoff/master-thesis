@@ -1,12 +1,12 @@
 import numpy as np
-from utils import optimize_q_s, safelog
+from utils import safelog
 np.set_printoptions(
     linewidth=200,       # Längere Zeilen
     precision=3,         # Nur 3 Nachkommastellen anzeigen
     suppress=True        # Verhindert die wissenschaftliche Notation (z.B. 1e-05 wird zu 0.000)
 )
 
-class GFEAgent:
+class BFEAgent:
     def __init__(self, A, B, C, D, U, time_horizon):
         self.A = A
         self.B = B
@@ -112,13 +112,16 @@ class GFEAgent:
             rightward_state_messages = np.zeros((self.time_horizon, self.number_states))
             upward_state_messages = np.zeros((self.time_horizon, self.number_states))
             downward_action_messages = np.zeros((self.time_horizon - 1, self.number_actions))
+            upward_observation_messages = np.zeros((self.time_horizon, self.number_observations))
 
             # messages for backward sweep
             upward_action_messages = np.zeros((self.time_horizon - 1, self.number_actions))
-            leftward_state_messages =  np.zeros((self.time_horizon - 1, self.number_states))
+            leftward_state_messages = np.zeros((self.time_horizon - 1, self.number_states))
+            downward_observation_messages = np.zeros((self.time_horizon, self.number_observations))
 
-            # message forward sweep (0 to T-1)
+            # forward sweep (0 to T-1)
             for k in range(self.time_horizon):
+                upward_observation_messages[k] = self.C
                 if k == 0:
                     rightward_state_messages[0] = self.D
                 else:
@@ -126,57 +129,59 @@ class GFEAgent:
                 if self.current_observation_timestep > k:
                     upward_state_messages[k] = self.A[np.argmax(self.observation_beliefs[k])]
                 else:
-                    upward_state_messages[k] = np.exp(np.einsum('ij,ij->j', self.A, safelog((self.A * self.C[:, np.newaxis]) / np.clip(self.observation_beliefs[k][:, np.newaxis], a_min=np.finfo(float).eps, a_max=None))))
+                    upward_state_messages[k] = np.exp(np.einsum('ij,i->j', safelog(self.A), self.C))
                 if k < self.time_horizon - 1:
                     if k < self.current_action_timestep:
                         downward_action_messages[k] = self.U
                     else:
                         downward_action_messages[k] = self.U
 
-            # message backward sweep (T-2 to 0)
-            for k in reversed(range(self.time_horizon - 1)):
-                if k == self.time_horizon - 2:
+            # backward sweep (T-1 to 0)
+            for k in reversed(range(self.time_horizon)):
+                if k == self.time_horizon - 1:
+                    downward_observation_messages[k] = np.exp(np.einsum('ij,j->i', safelog(self.A), rightward_state_messages[k]))
+                elif k == self.time_horizon - 2:
                     upward_action_messages[k] = np.einsum('ijk,j,j,i->k', self.B, rightward_state_messages[k], upward_state_messages[k], upward_state_messages[k + 1])
                     leftward_state_messages[k] = np.einsum('ijk,k,i->j', self.B, downward_action_messages[k], upward_state_messages[k + 1])
+                    downward_observation_messages[k] = np.exp(np.einsum('ij,j,j->i', safelog(self.A), rightward_state_messages[k], leftward_state_messages[k]))
                 else:
                     upward_action_messages[k] = np.einsum('ijk,j,j,i,i->k', self.B, rightward_state_messages[k], upward_state_messages[k], upward_state_messages[k + 1], leftward_state_messages[k + 1])
                     leftward_state_messages[k] = np.einsum('ijk,k,i,i->j', self.B, downward_action_messages[k], upward_state_messages[k + 1], leftward_state_messages[k + 1])
-
+                    downward_observation_messages[k] = np.exp(np.einsum('ij,j,j->i', safelog(self.A), rightward_state_messages[k], leftward_state_messages[k]))
+                
             # belief updating
             for k in range(self.time_horizon):
                 if k == self.time_horizon - 1:
-                    #if k < self.current_observation_timestep:
-                    if False:
-                        self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
-                    else:
-                        try:
-                            self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k])
-                        except RuntimeError:
-                            self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
-                else:
-                    #if k < self.current_observation_timestep:
-                    if False:
-                        self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) 
-                    else:
-                        try:
-                            self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k], leftward_state_messages[k])
-                        except RuntimeError:
-                            self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k])   
-            for k in range(self.current_observation_timestep + 1, self.time_horizon):
-                self.observation_beliefs[k] = np.einsum('ij,j->i', self.A, self.state_beliefs[k])
+                    self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
+                else:  
+                    self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) 
+            for k in range(self.current_observation_timestep, self.time_horizon):
+                self.observation_beliefs[k] = (upward_observation_messages[k] * downward_observation_messages[k]) / np.sum(upward_observation_messages[k] * downward_observation_messages[k])
+            for k in range(self.current_action_timestep, self.time_horizon - 1):
+                action_belief = (downward_action_messages[k] * upward_action_messages[k]) / np.sum(downward_action_messages[k] * upward_action_messages[k])
+                self.action_beliefs[k, :] = 0
+                self.action_beliefs[k, np.argmax(action_belief)] = 1
+            for k in range(self.time_horizon):
+                self.A_beliefs[k, :, :] = np.einsum('i,j->ij', self.observation_beliefs[k], self.state_beliefs[k])
             for k in range(self.time_horizon - 1):
-                self.action_beliefs[k] = (downward_action_messages[k] * upward_action_messages[k]) / np.sum(downward_action_messages[k] * upward_action_messages[k])
+                belief = np.einsum('ijk,j,k,i->ijk', self.B, self.state_beliefs[k], downward_action_messages[k], self.state_beliefs[k + 1])
+                self.B_beliefs[k, :, :, :] = belief / np.sum(belief)
 
             result = self.free_energy()
             current_free_energy = result[0]
-            print(current_free_energy)
+            #print(current_free_energy)
 
 
     def act(self, action = None):
         if action == None:
             current_action_belief = self.action_beliefs[self.current_action_timestep]
-            number_actions = len(current_action_belief)
-            action = np.random.choice(number_actions, p=current_action_belief)
+            action = np.random.choice(self.number_actions, p=current_action_belief)
+            
+            self.action_beliefs[self.current_action_timestep, :] = 0
+            self.action_beliefs[self.current_action_timestep, action] = 1
+        else:
+            self.action_beliefs[self.current_action_timestep, :] = 0
+            self.action_beliefs[self.current_action_timestep, action] = 1
         self.current_action_timestep += 1
         return action
     
