@@ -130,7 +130,7 @@ class GFEAgent:
                 else:
                     rightward_state_messages[k] = np.einsum('ijk,j,j,k->i', self.B, rightward_state_messages[k - 1], upward_state_messages[k - 1], downward_action_messages[k - 1])
                 if self.current_observation_timestep > k:
-                    upward_state_messages[k] = self.A[np.argmax(self.observation_beliefs[k])]
+                    upward_state_messages[k] = np.einsum('ij,i->j', self.A, self.observation_beliefs[k])
                 else:
                     upward_state_messages[k] = np.exp(np.einsum('ij,ij->j', self.A, safelog((self.A * self.C[:, np.newaxis]) / np.clip(self.observation_beliefs[k][:, np.newaxis], a_min=np.finfo(float).eps, a_max=None))))
                 if k < self.time_horizon - 1:
@@ -155,29 +155,24 @@ class GFEAgent:
                         self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
                     else:
                         try:
-                            #print('davor')
                             self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k])
-                            #print('danach')
                         except RuntimeError:
-                            #print('error')
                             self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k])
                 else:
                     if k < self.current_observation_timestep:
                         self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) 
                     else:
                         try:
-                            #print('davor')
                             self.state_beliefs[k] = optimize_q_s(self.A, self.C, rightward_state_messages[k], leftward_state_messages[k])
-                            #print('danach')
                         except RuntimeError:
-                            #print('error')
                             self.state_beliefs[k] = (rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k]) / np.sum(rightward_state_messages[k] * upward_state_messages[k] * leftward_state_messages[k])   
             for k in range(self.current_observation_timestep, self.time_horizon):
                 self.observation_beliefs[k] = np.einsum('ij,j->i', self.A, self.state_beliefs[k])
             for k in range(self.current_action_timestep, self.time_horizon - 1):
                 self.action_beliefs[k] = (downward_action_messages[k] * upward_action_messages[k]) / np.sum(downward_action_messages[k] * upward_action_messages[k])
             for k in range(self.time_horizon):
-                self.A_beliefs[k, :, :] = np.einsum('i,j->ij', self.observation_beliefs[k], self.state_beliefs[k])
+                self.A_beliefs[k, :, :] = np.einsum('ij,i,j->ij', self.A, self.observation_beliefs[k], self.state_beliefs[k])
+                #self.A_beliefs[k, :, :] = np.einsum('i,j->ij', self.observation_beliefs[k], self.state_beliefs[k])
             for k in range(self.time_horizon - 1):
                 belief = np.einsum('ijk,j,k,i->ijk', self.B, self.state_beliefs[k], downward_action_messages[k], self.state_beliefs[k + 1])
                 self.B_beliefs[k, :, :, :] = belief / np.sum(belief)

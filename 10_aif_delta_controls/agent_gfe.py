@@ -177,10 +177,11 @@ class GFEAgent:
                 self.observation_beliefs[k] = np.einsum('ij,j->i', self.A, self.state_beliefs[k])
             for k in range(self.current_action_timestep, self.time_horizon - 1):
                 action_belief = (downward_action_messages[k] * upward_action_messages[k]) / np.sum(downward_action_messages[k] * upward_action_messages[k])
+                #self.action_beliefs[k] = action_belief
                 self.action_beliefs[k, :] = 0
                 self.action_beliefs[k, np.argmax(action_belief)] = 1
             for k in range(self.time_horizon):
-                self.A_beliefs[k, :, :] = np.einsum('i,j->ij', self.observation_beliefs[k], self.state_beliefs[k])
+                self.A_beliefs[k, :, :] = np.einsum('ij,i,j->ij', self.A, self.observation_beliefs[k], self.state_beliefs[k])
             for k in range(self.time_horizon - 1):
                 belief = np.einsum('ijk,j,k,i->ijk', self.B, self.state_beliefs[k], downward_action_messages[k], self.state_beliefs[k + 1])
                 self.B_beliefs[k, :, :, :] = belief / np.sum(belief)

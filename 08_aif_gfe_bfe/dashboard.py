@@ -38,7 +38,7 @@ def update_history_all(res, is_append=True):
             st.session_state.history[k][-1] = v
 
 if 'world' not in st.session_state:
-    world_instance = World(agent_type='bfe')
+    world_instance = World(agent_type='gfe')
     st.session_state.world = world_instance
     st.session_state.step_counter = 0
     st.session_state.inference_done = False
