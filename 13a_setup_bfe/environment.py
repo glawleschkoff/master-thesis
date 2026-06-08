@@ -7,10 +7,8 @@ class Environment:
         self.d = d
         self.state = None
 
-
     def reset(self):
         self.state = None
-
 
     def generate_observation(self):
         if self.state == None:

@@ -9,13 +9,13 @@ np.set_printoptions(
 
 
 class Agent:
-    def __init__(self, A, B, C, D, U, time_horizon):
+    def __init__(self, A, B, C, D, U):
         self.A = A
         self.B = B
         self.C = C
         self.D = D
         self.U = U
-        self.time_horizon = time_horizon
+        self.time_horizon = 3
 
         self.current_observation_timestep = 0
         self.current_action_timestep = 0
@@ -43,6 +43,88 @@ class Agent:
         self.q_o1 = np.ones(self.number_observations) / self.number_observations
         self.q_o2 = np.ones(self.number_observations) / self.number_observations
 
+    def infer(self, iterations):
+        tolerance = 1e-4
+        previous_free_energy = 0
+        current_free_energy = float("inf")
+
+        mu_down_s0_II = np.ones(8) / 8
+        mu_down_s1_II = np.ones(8) / 8
+        mu_down_s2 = np.ones(8) / 8
+
+        for iteration in range(iterations):
+            mu_right_s0 = self.D
+            if self.observed_o0:
+                mu_up_s0_II = normalize(np.exp(np.einsum('i,ij->j', self.q_o0, safelog(self.A))))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s0_II, mu_down_s0_II)
+                mu_up_s0_II = normalize(safedivide(q_s, mu_down_s0_II))
+            mu_right_s0_I = normalize(mu_right_s0 * mu_up_s0_II)
+            if self.acted_u0:
+                mu_down_u0 = self.q_u0
+            else:
+                mu_down_u0 = self.U
+            mu_right_s1 = normalize(np.einsum('i,j,kij->k', mu_right_s0_I, mu_down_u0, self.B))
+            if self.observed_o1:
+                mu_up_s1_II = normalize(np.exp(np.einsum('i,ij->j', self.q_o1, safelog(self.A))))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s1_II, mu_down_s1_II)
+                mu_up_s1_II = normalize(safedivide(q_s, mu_down_s1_II))
+            mu_right_s1_I = normalize(mu_right_s1 * mu_up_s1_II)
+            if self.acted_u1:
+                mu_down_u1 = self.q_u1
+            else:
+                mu_down_u1 = self.U
+            mu_down_s2 = normalize(np.einsum('i,j,kij->k', mu_right_s1_I, mu_down_u1, self.B))
+
+            if self.observed_o2:
+                mu_left_s2 = normalize(np.exp(np.einsum('i,ij->j', self.q_o2, safelog(self.A))))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s2, mu_down_s2)
+                mu_left_s2 = normalize(safedivide(q_s, mu_down_s2))
+            if self.acted_u1:
+                mu_up_u1 = self.q_u1
+            else:
+                mu_up_u1 = normalize(np.einsum('i,j,jik->k', mu_right_s1_I, mu_left_s2, self.B))
+            mu_left_s1_I = normalize(np.einsum('i,j,jki->k', mu_down_u1, mu_left_s2, self.B))
+            mu_down_s1_II = normalize(mu_right_s1 * mu_left_s1_I)
+            mu_left_s1 = normalize(mu_up_s1_II * mu_left_s1_I)
+            if self.acted_u0:
+                mu_up_u0 = self.q_u0
+            else:
+                mu_up_u0 = normalize(np.einsum('i,j,jik->k', mu_right_s0_I, mu_left_s1, self.B))
+            mu_left_s0_I = normalize(np.einsum('i,j,jki->k', mu_down_u0, mu_left_s1, self.B))
+            mu_down_s0_II = normalize(mu_right_s0 * mu_left_s0_I)
+            mu_left_s0 = normalize(mu_up_s0_II * mu_left_s0_I)
+
+            self.q_s0 = normalize(mu_left_s0 * mu_right_s0)
+            self.q_s0_I = normalize(mu_left_s0_I * mu_right_s0_I)
+            self.q_s0_II = normalize(mu_up_s0_II * mu_down_s0_II)
+            self.q_s1 = normalize(mu_left_s1 * mu_right_s1)
+            self.q_s1_I = normalize(mu_left_s1_I * mu_right_s1_I)
+            self.q_s1_II = normalize(mu_up_s1_II * mu_down_s1_II)
+            self.q_s2 = normalize(mu_left_s2 * mu_down_s2)
+            if not self.acted_u0:
+                q_u = normalize(mu_up_u0 * mu_down_u0)
+                x = np.zeros(self.number_actions)
+                x[np.argmax(q_u)] = 1
+                #self.q_u0 = x
+                self.q_u0 = q_u
+            if not self.acted_u1:
+                q_u = normalize(mu_up_u1 * mu_down_u1)
+                x = np.zeros(self.number_actions)
+                x[np.argmax(q_u)] = 1
+                #self.q_u1 = x
+                self.q_u1 = q_u
+            if not self.observed_o0:
+                self.q_o0 = np.einsum('i,ji->j', self.q_s0_II, self.A)
+            if not self.observed_o1:
+                self.q_o1 = np.einsum('i,ji->j', self.q_s1_II, self.A)
+            if not self.observed_o2:
+                self.q_o2 = np.einsum('i,ji->j', self.q_s2, self.A)
+
+            # result = self.free_energy()
+            # current_free_energy = result[0]
 
     def free_energy(self):
         # energies
@@ -136,7 +218,6 @@ class Agent:
             action_entropies,
         )
 
-
     def observe(self, observation):
         if not self.observed_o0:
             self.q_o0[:] = 0
@@ -150,7 +231,6 @@ class Agent:
             self.q_o2[:] = 0
             self.q_o2[observation] = 1
             self.observed_o2 = True
-
 
     def act(self, action=None):
         if not self.acted_u0:
@@ -167,129 +247,7 @@ class Agent:
             self.acted_u1 = True
         return action
 
-
-    def next_trial(self):
-        self.D_c = np.einsum("ij,j->i", self.B_c, self.context_belief)
-
-        self.current_observation_timestep = 0
-        self.current_action_timestep = 0
-        self.state_beliefs = np.ones((self.time_horizon, self.number_states)) * (
-            1 / self.number_states
-        )
-        self.observation_beliefs = np.ones(
-            (self.time_horizon, self.number_observations)
-        ) * (1 / self.number_observations)
-        self.action_beliefs = np.ones((self.time_horizon - 1, self.number_actions)) * (
-            1 / self.number_actions
-        )
-        self.A_beliefs = np.ones(
-            (
-                self.time_horizon,
-                self.number_observations,
-                self.number_states,
-                self.number_contexts,
-            )
-        ) * (1 / self.number_observations)
-        self.B_beliefs = np.ones(
-            (
-                self.time_horizon - 1,
-                self.number_states,
-                self.number_states,
-                self.number_actions,
-            )
-        ) * (1 / self.number_states)
-
-
-    def infer(self, iterations):
-        tolerance = 1e-4
-        previous_free_energy = 0
-        current_free_energy = float("inf")
-
-        mu_down_s0_II = np.ones(8) / 8
-        mu_down_s1_II = np.ones(8) / 8
-        mu_down_s2 = np.ones(8) / 8
-
-        for iteration in range(iterations):
-
-            mu_right_s0 = self.D
-            if self.observed_o0:
-                mu_up_s0_II = normalize(np.exp(np.einsum('i,ij->j', self.q_o0, safelog(self.A))))
-            else:
-                q_s = optimize_s(self.A, self.C, self.q_s0_II, mu_down_s0_II)
-                mu_up_s0_II = normalize(safedivide(q_s, mu_down_s0_II))
-            mu_right_s0_I = normalize(mu_right_s0 * mu_up_s0_II)
-            if self.acted_u0:
-                mu_down_u0 = self.q_u0
-            else:
-                mu_down_u0 = self.U
-            mu_right_s1 = normalize(np.einsum('i,j,kij->k', mu_right_s0_I, mu_down_u0, self.B))
-            if self.observed_o1:
-                mu_up_s1_II = normalize(np.exp(np.einsum('i,ij->j', self.q_o1, safelog(self.A))))
-            else:
-                q_s = optimize_s(self.A, self.C, self.q_s1_II, mu_down_s1_II)
-                mu_up_s1_II = normalize(safedivide(q_s, mu_down_s1_II))
-            mu_right_s1_I = normalize(mu_right_s1 * mu_up_s1_II)
-            if self.acted_u1:
-                mu_down_u1 = self.q_u1
-            else:
-                mu_down_u1 = self.U
-            mu_down_s2 = normalize(np.einsum('i,j,kij->k', mu_right_s1_I, mu_down_u1, self.B))
-
-
-            if self.observed_o2:
-                mu_left_s2 = normalize(np.exp(np.einsum('i,ij->j', self.q_o2, safelog(self.A))))
-            else:
-                q_s = optimize_s(self.A, self.C, self.q_s2, mu_down_s2)
-                mu_left_s2 = normalize(safedivide(q_s, mu_down_s2))
-            if self.acted_u1:
-                mu_up_u1 = self.q_u1
-            else:
-                mu_up_u1 = normalize(np.einsum('i,j,jik->k', mu_right_s1_I, mu_left_s2, self.B))
-            mu_left_s1_I = normalize(np.einsum('i,j,jki->k', mu_down_u1, mu_left_s2, self.B))
-            mu_down_s1_II = normalize(mu_right_s1 * mu_left_s1_I)
-            mu_left_s1 = normalize(mu_up_s1_II * mu_left_s1_I)
-            if self.acted_u0:
-                mu_up_u0 = self.q_u0
-            else:
-                mu_up_u0 = normalize(np.einsum('i,j,jik->k', mu_right_s0_I, mu_left_s1, self.B))
-            mu_left_s0_I = normalize(np.einsum('i,j,jki->k', mu_down_u0, mu_left_s1, self.B))
-            mu_down_s0_II = normalize(mu_right_s0 * mu_left_s0_I)
-            mu_left_s0 = normalize(mu_up_s0_II * mu_left_s0_I)
-
-
-            self.q_s0 = normalize(mu_left_s0 * mu_right_s0)
-            self.q_s0_I = normalize(mu_left_s0_I * mu_right_s0_I)
-            self.q_s0_II = normalize(mu_up_s0_II * mu_down_s0_II)
-            self.q_s1 = normalize(mu_left_s1 * mu_right_s1)
-            self.q_s1_I = normalize(mu_left_s1_I * mu_right_s1_I)
-            self.q_s1_II = normalize(mu_up_s1_II * mu_down_s1_II)
-            self.q_s2 = normalize(mu_left_s2 * mu_down_s2)
-            if not self.acted_u0:
-                q_u = normalize(mu_up_u0 * mu_down_u0)
-                x = np.zeros(self.number_actions)
-                x[np.argmax(q_u)] = 1
-                #self.q_u0 = x
-                self.q_u0 = q_u
-            if not self.acted_u1:
-                q_u = normalize(mu_up_u1 * mu_down_u1)
-                x = np.zeros(self.number_actions)
-                x[np.argmax(q_u)] = 1
-                #self.q_u1 = x
-                self.q_u1 = q_u
-            if not self.observed_o0:
-                self.q_o0 = np.einsum('i,ji->j', self.q_s0_II, self.A)
-            if not self.observed_o1:
-                self.q_o1 = np.einsum('i,ji->j', self.q_s1_II, self.A)
-            if not self.observed_o2:
-                self.q_o2 = np.einsum('i,ji->j', self.q_s2, self.A)
-
-            # result = self.free_energy()
-            # current_free_energy = result[0]
-
-    
-
     def print_beliefs(self):
-
         print("Beliefs:")
 
         print("\033[1mTimestep 0:\033[0m")

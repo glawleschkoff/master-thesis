@@ -9,7 +9,7 @@ np.set_printoptions(
 
 
 class Agent:
-    def __init__(self, A, B, B_c, C, D, D_c, U, time_horizon):
+    def __init__(self, A, B, B_c, C, D, D_c, U):
         self.A = A
         self.B = B
         self.B_c = B_c
@@ -17,7 +17,7 @@ class Agent:
         self.D = D
         self.D_c = D_c
         self.U = U
-        self.time_horizon = time_horizon
+        self.time_horizon = 3
 
         self.current_observation_timestep = 0
         self.current_action_timestep = 0
@@ -53,6 +53,125 @@ class Agent:
         self.q_o1 = np.ones(self.number_observations) / self.number_observations
         self.q_o2 = np.ones(self.number_observations) / self.number_observations
 
+    def infer(self, iterations):
+        tolerance = 1e-4
+        previous_free_energy = 0
+        current_free_energy = float("inf")
+
+        mu_down_s0_II = np.ones(4) / 4
+        mu_down_s1_II = np.ones(4) / 4
+        mu_down_s2 = np.ones(4) / 4
+        mu_down_c0_II = np.ones(2) / 2
+        mu_down_c0_IV = np.ones(2) / 2
+        mu_down_c0_VI = np.ones(2) / 2
+
+        for iteration in range(iterations):
+            mu_right_s0 = self.D
+            if self.observed_o0:
+                mu_up_s0_II = normalize(np.exp(np.einsum('i,j,ikj->k', self.q_o0, self.q_c0_II, safelog(self.A))))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s0_II, self.q_c0_II, mu_down_s0_II)
+                mu_up_s0_II = normalize(safedivide(q_s, mu_down_s0_II))
+            mu_right_s0_I = normalize(mu_right_s0 * mu_up_s0_II)
+            if self.acted_u0:
+                mu_down_u0 = self.q_u0
+            else:
+                mu_down_u0 = self.U
+            mu_right_s1 = normalize(np.einsum('i,j,kij->k', mu_right_s0_I, mu_down_u0, self.B))
+            if self.observed_o1:
+                mu_up_s1_II = normalize(np.exp(np.einsum('i,j,ikj->k', self.q_o1, self.q_c0_IV, safelog(self.A))))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s1_II, self.q_c0_IV, mu_down_s1_II)
+                mu_up_s1_II = normalize(safedivide(q_s, mu_down_s1_II))
+            mu_right_s1_I = normalize(mu_right_s1 * mu_up_s1_II)
+            if self.acted_u1:
+                mu_down_u1 = self.q_u1
+            else:
+                mu_down_u1 = self.U
+            mu_down_s2 = normalize(np.einsum('i,j,kij->k', mu_right_s1_I, mu_down_u1, self.B))
+
+            if self.observed_o2:
+                mu_left_s2 = normalize(np.exp(np.einsum('i,j,ikj->k', self.q_o2, self.q_c0_VI, safelog(self.A))))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s2, self.q_c0_VI, mu_down_s2)
+                mu_left_s2 = normalize(safedivide(q_s, mu_down_s2))
+            if self.acted_u1:
+                mu_up_u1 = self.q_u1
+            else:
+                mu_up_u1 = normalize(np.einsum('i,j,jik->k', mu_right_s1_I, mu_left_s2, self.B))
+            mu_left_s1_I = normalize(np.einsum('i,j,jki->k', mu_down_u1, mu_left_s2, self.B))
+            mu_down_s1_II = normalize(mu_right_s1 * mu_left_s1_I)
+            mu_left_s1 = normalize(mu_up_s1_II * mu_left_s1_I)
+            if self.acted_u0:
+                mu_up_u0 = self.q_u0
+            else:
+                mu_up_u0 = normalize(np.einsum('i,j,jik->k', mu_right_s0_I, mu_left_s1, self.B))
+            mu_left_s0_I = normalize(np.einsum('i,j,jki->k', mu_down_u0, mu_left_s1, self.B))
+            mu_down_s0_II = normalize(mu_right_s0 * mu_left_s0_I)
+            mu_left_s0 = normalize(mu_up_s0_II * mu_left_s0_I)
+
+            mu_right_c0 = self.D_c
+            if self.observed_o0:
+                mu_up_c0_II = normalize(np.exp(np.einsum('i,j,ijk->k', self.q_o0, self.q_s0_II, safelog(self.A))))
+            else:
+                q_c = optimize_c(self.A, self.C, self.q_c0_II, self.q_s0_II, mu_down_c0_II)
+                mu_up_c0_II = normalize(safedivide(q_c, mu_down_c0_II))
+            mu_right_c0_I = normalize(mu_right_c0 * mu_up_c0_II)
+            if self.observed_o1:
+                mu_up_c0_IV = normalize(np.exp(np.einsum('i,j,ijk->k', self.q_o1, self.q_s1_II, safelog(self.A))))
+            else:
+                q_c = optimize_c(self.A, self.C, self.q_c0_IV, self.q_s1_II, mu_down_c0_IV)
+                mu_up_c0_IV = normalize(safedivide(q_c, mu_down_c0_IV))
+            mu_right_c0_III = normalize(mu_right_c0_I * mu_up_c0_IV)
+            if self.observed_o2:
+                mu_up_c0_VI = normalize(np.exp(np.einsum('i,j,ijk->k', self.q_o2, self.q_s2, safelog(self.A))))
+            else:
+                q_c = optimize_c(self.A, self.C, self.q_c0_VI, self.q_s2, mu_down_c0_VI)
+                mu_up_c0_VI = normalize(safedivide(q_c, mu_down_c0_VI))
+            mu_right_c0_V = normalize(mu_right_c0_III * mu_up_c0_VI)
+            mu_left_c0_V = np.array([0.5, 0.5])
+            mu_down_c0_VI = normalize(mu_right_c0_III * mu_left_c0_V)
+            mu_left_c0_III = normalize(mu_up_c0_VI * mu_left_c0_V)
+            mu_down_c0_IV = normalize(mu_right_c0_I * mu_left_c0_III)
+            mu_left_c0_I = normalize(mu_up_c0_IV * mu_left_c0_III)
+            mu_down_c0_II = normalize(mu_right_c0 * mu_left_c0_I)
+            mu_left_c0 = normalize(mu_up_c0_II * mu_left_c0_I)
+
+            self.q_s0 = normalize(mu_left_s0 * mu_right_s0)
+            self.q_s0_I = normalize(mu_left_s0_I * mu_right_s0_I)
+            self.q_s0_II = normalize(mu_up_s0_II * mu_down_s0_II)
+            self.q_s1 = normalize(mu_left_s1 * mu_right_s1)
+            self.q_s1_I = normalize(mu_left_s1_I * mu_right_s1_I)
+            self.q_s1_II = normalize(mu_up_s1_II * mu_down_s1_II)
+            self.q_s2 = normalize(mu_left_s2 * mu_down_s2)
+            self.q_c0 = normalize(mu_left_c0 * mu_right_c0)
+            self.q_c0_I = normalize(mu_left_c0_I * mu_right_c0_I)
+            self.q_c0_II = normalize(mu_up_c0_II * mu_down_c0_II)
+            self.q_c0_III = normalize(mu_left_c0_III * mu_right_c0_III)
+            self.q_c0_IV = normalize(mu_up_c0_IV * mu_down_c0_IV)
+            self.q_c0_V = normalize(mu_left_c0_V * mu_right_c0_V)
+            self.q_c0_VI = normalize(mu_up_c0_VI * mu_down_c0_VI)
+            if not self.acted_u0:
+                q_u = normalize(mu_up_u0 * mu_down_u0)
+                x = np.zeros(self.number_actions)
+                x[np.argmax(q_u)] = 1
+                #self.q_u0 = x
+                self.q_u0 = q_u
+            if not self.acted_u1:
+                q_u = normalize(mu_up_u1 * mu_down_u1)
+                x = np.zeros(self.number_actions)
+                x[np.argmax(q_u)] = 1
+                #self.q_u1 = x
+                self.q_u1 = q_u
+            if not self.observed_o0:
+                self.q_o0 = np.einsum('ijk,j,k->i', self.A, self.q_s0_II, self.q_c0_II)
+            if not self.observed_o1:
+                self.q_o1 = np.einsum('ijk,j,k->i', self.A, self.q_s1_II, self.q_c0_IV)
+            if not self.observed_o2:
+                self.q_o2 = np.einsum('ijk,j,k->i', self.A, self.q_s2, self.q_c0_VI)
+
+            # result = self.free_energy()
+            # current_free_energy = result[0]
 
     def free_energy(self):
         # energies
@@ -146,7 +265,6 @@ class Agent:
             action_entropies,
         )
 
-
     def observe(self, observation):
         if not self.observed_o0:
             self.q_o0[:] = 0
@@ -160,7 +278,6 @@ class Agent:
             self.q_o2[:] = 0
             self.q_o2[observation] = 1
             self.observed_o2 = True
-
 
     def act(self, action=None):
         if not self.acted_u0:
@@ -176,7 +293,6 @@ class Agent:
             self.q_u1[action] = 1
             self.acted_u1 = True
         return action
-
 
     def next_trial(self):
         self.D_c = np.einsum("ij,j->i", self.B_c, self.context_belief)
@@ -209,134 +325,7 @@ class Agent:
             )
         ) * (1 / self.number_states)
 
-
-    def infer(self, iterations):
-        tolerance = 1e-4
-        previous_free_energy = 0
-        current_free_energy = float("inf")
-
-        mu_down_s0_II = np.ones(4) / 4
-        mu_down_s1_II = np.ones(4) / 4
-        mu_down_s2 = np.ones(4) / 4
-        mu_down_c0_II = np.ones(2) / 2
-        mu_down_c0_IV = np.ones(2) / 2
-        mu_down_c0_VI = np.ones(2) / 2
-
-        for iteration in range(iterations):
-            mu_right_s0 = self.D
-            if self.observed_o0:
-                mu_up_s0_II = normalize(np.exp(np.einsum('i,j,ikj->k', self.q_o0, self.q_c0_II, safelog(self.A))))
-            else:
-                q_s = optimize_s(self.A, self.C, self.q_s0_II, self.q_c0_II, mu_down_s0_II)
-                mu_up_s0_II = normalize(safedivide(q_s, mu_down_s0_II))
-            mu_right_s0_I = normalize(mu_right_s0 * mu_up_s0_II)
-            if self.acted_u0:
-                mu_down_u0 = self.q_u0
-            else:
-                mu_down_u0 = self.U
-            mu_right_s1 = normalize(np.einsum('i,j,kij->k', mu_right_s0_I, mu_down_u0, self.B))
-            if self.observed_o1:
-                mu_up_s1_II = normalize(np.exp(np.einsum('i,j,ikj->k', self.q_o1, self.q_c0_IV, safelog(self.A))))
-            else:
-                q_s = optimize_s(self.A, self.C, self.q_s1_II, self.q_c0_IV, mu_down_s1_II)
-                mu_up_s1_II = normalize(safedivide(q_s, mu_down_s1_II))
-            mu_right_s1_I = normalize(mu_right_s1 * mu_up_s1_II)
-            if self.acted_u1:
-                mu_down_u1 = self.q_u1
-            else:
-                mu_down_u1 = self.U
-            mu_down_s2 = normalize(np.einsum('i,j,kij->k', mu_right_s1_I, mu_down_u1, self.B))
-
-
-            if self.observed_o2:
-                mu_left_s2 = normalize(np.exp(np.einsum('i,j,ikj->k', self.q_o2, self.q_c0_VI, safelog(self.A))))
-            else:
-                q_s = optimize_s(self.A, self.C, self.q_s2, self.q_c0_VI, mu_down_s2)
-                mu_left_s2 = normalize(safedivide(q_s, mu_down_s2))
-            if self.acted_u1:
-                mu_up_u1 = self.q_u1
-            else:
-                mu_up_u1 = normalize(np.einsum('i,j,jik->k', mu_right_s1_I, mu_left_s2, self.B))
-            mu_left_s1_I = normalize(np.einsum('i,j,jki->k', mu_down_u1, mu_left_s2, self.B))
-            mu_down_s1_II = normalize(mu_right_s1 * mu_left_s1_I)
-            mu_left_s1 = normalize(mu_up_s1_II * mu_left_s1_I)
-            if self.acted_u0:
-                mu_up_u0 = self.q_u0
-            else:
-                mu_up_u0 = normalize(np.einsum('i,j,jik->k', mu_right_s0_I, mu_left_s1, self.B))
-            mu_left_s0_I = normalize(np.einsum('i,j,jki->k', mu_down_u0, mu_left_s1, self.B))
-            mu_down_s0_II = normalize(mu_right_s0 * mu_left_s0_I)
-            mu_left_s0 = normalize(mu_up_s0_II * mu_left_s0_I)
-
-
-            mu_right_c0 = self.D_c
-            if self.observed_o0:
-                mu_up_c0_II = normalize(np.exp(np.einsum('i,j,ijk->k', self.q_o0, self.q_s0_II, safelog(self.A))))
-            else:
-                q_c = optimize_c(self.A, self.C, self.q_c0_II, self.q_s0_II, mu_down_c0_II)
-                mu_up_c0_II = normalize(safedivide(q_c, mu_down_c0_II))
-            mu_right_c0_I = normalize(mu_right_c0 * mu_up_c0_II)
-            if self.observed_o1:
-                mu_up_c0_IV = normalize(np.exp(np.einsum('i,j,ijk->k', self.q_o1, self.q_s1_II, safelog(self.A))))
-            else:
-                q_c = optimize_c(self.A, self.C, self.q_c0_IV, self.q_s1_II, mu_down_c0_IV)
-                mu_up_c0_IV = normalize(safedivide(q_c, mu_down_c0_IV))
-            mu_right_c0_III = normalize(mu_right_c0_I * mu_up_c0_IV)
-            if self.observed_o2:
-                mu_up_c0_VI = normalize(np.exp(np.einsum('i,j,ijk->k', self.q_o2, self.q_s2, safelog(self.A))))
-            else:
-                q_c = optimize_c(self.A, self.C, self.q_c0_VI, self.q_s2, mu_down_c0_VI)
-                mu_up_c0_VI = normalize(safedivide(q_c, mu_down_c0_VI))
-            mu_right_c0_V = normalize(mu_right_c0_III * mu_up_c0_VI)
-            mu_left_c0_V = np.array([0.5, 0.5])
-            mu_down_c0_VI = normalize(mu_right_c0_III * mu_left_c0_V)
-            mu_left_c0_III = normalize(mu_up_c0_VI * mu_left_c0_V)
-            mu_down_c0_IV = normalize(mu_right_c0_I * mu_left_c0_III)
-            mu_left_c0_I = normalize(mu_up_c0_IV * mu_left_c0_III)
-            mu_down_c0_II = normalize(mu_right_c0 * mu_left_c0_I)
-            mu_left_c0 = normalize(mu_up_c0_II * mu_left_c0_I)
-
-
-            self.q_s0 = normalize(mu_left_s0 * mu_right_s0)
-            self.q_s0_I = normalize(mu_left_s0_I * mu_right_s0_I)
-            self.q_s0_II = normalize(mu_up_s0_II * mu_down_s0_II)
-            self.q_s1 = normalize(mu_left_s1 * mu_right_s1)
-            self.q_s1_I = normalize(mu_left_s1_I * mu_right_s1_I)
-            self.q_s1_II = normalize(mu_up_s1_II * mu_down_s1_II)
-            self.q_s2 = normalize(mu_left_s2 * mu_down_s2)
-            self.q_c0 = normalize(mu_left_c0 * mu_right_c0)
-            self.q_c0_I = normalize(mu_left_c0_I * mu_right_c0_I)
-            self.q_c0_II = normalize(mu_up_c0_II * mu_down_c0_II)
-            self.q_c0_III = normalize(mu_left_c0_III * mu_right_c0_III)
-            self.q_c0_IV = normalize(mu_up_c0_IV * mu_down_c0_IV)
-            self.q_c0_V = normalize(mu_left_c0_V * mu_right_c0_V)
-            self.q_c0_VI = normalize(mu_up_c0_VI * mu_down_c0_VI)
-            if not self.acted_u0:
-                q_u = normalize(mu_up_u0 * mu_down_u0)
-                x = np.zeros(self.number_actions)
-                x[np.argmax(q_u)] = 1
-                #self.q_u0 = x
-                self.q_u0 = q_u
-            if not self.acted_u1:
-                q_u = normalize(mu_up_u1 * mu_down_u1)
-                x = np.zeros(self.number_actions)
-                x[np.argmax(q_u)] = 1
-                #self.q_u1 = x
-                self.q_u1 = q_u
-            if not self.observed_o0:
-                self.q_o0 = np.einsum('ijk,j,k->i', self.A, self.q_s0_II, self.q_c0_II)
-            if not self.observed_o1:
-                self.q_o1 = np.einsum('ijk,j,k->i', self.A, self.q_s1_II, self.q_c0_IV)
-            if not self.observed_o2:
-                self.q_o2 = np.einsum('ijk,j,k->i', self.A, self.q_s2, self.q_c0_VI)
-
-            # result = self.free_energy()
-            # current_free_energy = result[0]
-
-    
-
     def print_beliefs(self):
-
         print("Beliefs:")
         print("q(c_0) = ", self.q_c0)
 
