@@ -18,7 +18,7 @@ def safedivide(numerator, denominator):
     )
 
 def normalize(value):
-    return value / np.sum(value)
+    return safedivide(value, np.sum(value))
 
 def optimize_s(A, C, q_s_init, q_c, message):
 
@@ -52,7 +52,7 @@ def optimize_c(A, C, q_c_init, q_s, message):
         q_c = softmax(nu)
         q_o = np.einsum('ijk,j,k->i', A, q_s, q_c)
         f_tilde = np.exp(np.einsum('ijk,j,ijk->k', A, q_s, safelog((A * C[:, np.newaxis, np.newaxis]) / np.clip(q_o[:, np.newaxis, np.newaxis], a_min=np.finfo(float).eps, a_max=None))))
-        q_c_target = (f_tilde * message) / np.sum(f_tilde * message)
+        q_c_target = safedivide((f_tilde * message), np.sum(f_tilde * message))
         q_c_target = np.clip(q_c_target, 1e-5, None)
         q_c_target = q_c_target / np.sum(q_c_target)
         

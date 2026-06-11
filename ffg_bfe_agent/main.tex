@@ -122,4 +122,16 @@
     \end{alignat}
 \end{minipage}
 
+\begin{alignat*}{2}
+    F = &\sum_{s_0} q(s_0) \log \frac{q(s_0)}{p(s_0)} + \sum_{s_1, s^{\scriptscriptstyle I}_0, u_0} q(s_1, s^{\scriptscriptstyle I}_0, u_0) \log \frac{q(s_1, s^{\scriptscriptstyle I}_0, u_0)}{p(s_1| s^{\scriptscriptstyle I}_0, u_0)} + \sum_{s_2, s^{\scriptscriptstyle I}_1, u_1} q(s_2, s^{\scriptscriptstyle I}_1, u_1) \log \frac{q(s_2, s^{\scriptscriptstyle I}_1, u_1)}{p(s_2| s^{\scriptscriptstyle I}_1, u_1)} \\
+    & + \sum_{u_0} q(u_0) \log \frac{q(u_0)}{p(u_0)} + \sum_{u_1} q(u_1) \log \frac{q(u_1)}{p(u_1)} \\
+    & + \sum_{o_0, s^{\scriptscriptstyle II}_0} q(o_0, s^{\scriptscriptstyle II}_0) \log \frac{q(o_0, s^{\scriptscriptstyle II}_0)}{p(o_0| s^{\scriptscriptstyle II}_0)} + \sum_{o_1, s^{\scriptscriptstyle II}_1} q(o_1, s^{\scriptscriptstyle II}_1) \log \frac{q(o_1, s^{\scriptscriptstyle II}_1)}{p(o_1| s^{\scriptscriptstyle II}_1)} + \sum_{o_2, s_2} q(o_2, s_2) \log \frac{q(o_2, s_2)}{p(o_2| s_2)} \\
+    & + \sum_{o_0} q(o_0) \log \frac{q(o_0)}{\tilde{p}(o_0)} + \sum_{o_1} q(o_1) \log \frac{q(o_1)}{\tilde{p}(o_1)} + \sum_{o_2} q(o_2) \log \frac{q(o_2)}{\tilde{p}(o_2)} \\
+    & + \sum_{s_0, s^{\scriptscriptstyle I}_0, s^{\scriptscriptstyle II}_0} q(s_0, s^{\scriptscriptstyle I}_0, s^{\scriptscriptstyle II}_0) \log \frac{q(s_0, s^{\scriptscriptstyle I}_0, s^{\scriptscriptstyle II}_0)}{\delta_{s_0, s^{\scriptscriptstyle I}_0} \delta_{s_0, s^{\scriptscriptstyle II}_0}} + \sum_{s_1, s^{\scriptscriptstyle I}_1, s^{\scriptscriptstyle II}_1} q(s_1, s^{\scriptscriptstyle I}_1, s^{\scriptscriptstyle II}_1) \log \frac{q(s_1, s^{\scriptscriptstyle I}_1, s^{\scriptscriptstyle II}_1)}{\delta_{s_1, s^{\scriptscriptstyle I}_1} \delta_{s_1, s^{\scriptscriptstyle II}_1}} \\
+    & - \sum_{s_0} q(s_0) \log q(s_0) - \sum_{s^{\scriptscriptstyle I}_0} q(s^{\scriptscriptstyle I}_0) \log q(s^{\scriptscriptstyle I}_0) - \sum_{s^{\scriptscriptstyle II}_0} q(s^{\scriptscriptstyle II}_0) \log q(s^{\scriptscriptstyle II}_0) \\
+    & - \sum_{s_1} q(s_1) \log q(s_1) - \sum_{s^{\scriptscriptstyle I}_1} q(s^{\scriptscriptstyle I}_1) \log q(s^{\scriptscriptstyle I}_1) - \sum_{s^{\scriptscriptstyle II}_1} q(s^{\scriptscriptstyle II}_1) \log q(s^{\scriptscriptstyle II}_1) \\
+    & - \sum_{u_0} q(u_0) \log q(u_0) - \sum_{u_1} q(u_1) \log q(u_1) \\
+    & - \sum_{o_0} q(o_0) \log q(o_0) - \sum_{o_1} q(o_1) \log q(o_1) - \sum_{o_2} q(o_2) \log q(o_2)
+\end{alignat*}
+
 \end{document}

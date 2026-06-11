@@ -95,3 +95,30 @@ def run_simulation_3():
             xdata.loc[c, alpha] = number_rewards / number_trials
 
     xdata.to_netcdf('artifacts/simulation_3.nc')
+
+def run_simulation_4():
+    c_values = np.arange(0, 11)
+    alpha_values = np.arange(0, 1.1, 0.1)
+    iteration_values = np.arange(1000)
+    values = np.arange(2)
+    data = np.zeros((len(c_values), len(alpha_values), len(iteration_values), len(values)))
+    xdata = xr.DataArray(
+        data,
+        coords={
+            'c': c_values,
+            'alpha': alpha_values,
+            'iteration': iteration_values,
+            'value': values
+        },
+        dims=['c', 'alpha', 'iteration', 'value']
+    )
+
+    for c in c_values:
+        for alpha in alpha_values:
+            A, B, C, D, U = generate_params(c=c, alpha=alpha)
+            agent = Agent(A, B, C, D, U)
+            for iteration in iteration_values:
+                agent.infer(1)
+                xdata.loc[c, alpha, iteration, 0] = agent.q_s0[0]
+                xdata.loc[c, alpha, iteration, 1] = agent.free_energy()
+    xdata.to_netcdf('artifacts/simulation_4.nc')
