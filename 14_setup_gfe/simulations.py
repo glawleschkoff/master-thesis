@@ -24,7 +24,7 @@ def run_simulation_1():
         for alpha in alpha_values:
             A, B, C, D, U = generate_params(c=c, alpha=alpha)
             agent = Agent(A, B, C, D, U)
-            agent.infer(iterations=20)
+            agent.infer(20)
             xdata.loc[c, alpha, :] = agent.q_u0
     xdata.to_netcdf('artifacts/simulation_1.nc')
 
@@ -50,7 +50,7 @@ def run_simulation_2():
             agent.observe(0)
             agent.act(1)
             agent.observe(4)
-            agent.infer(iterations=20)
+            agent.infer(20)
             xdata.loc[c, alpha, :] = agent.q_u1
     xdata.to_netcdf('artifacts/simulation_2.nc')
 
@@ -78,12 +78,12 @@ def run_simulation_3():
                 environment = Environment(a, b, d)
                 o0 = environment.generate_observation()
                 agent.observe(o0)
-                agent.infer(iterations=20)
+                agent.infer(20)
                 a0 = agent.act()
                 environment.act_upon(a0)
                 o1 = environment.generate_observation()
                 agent.observe(o1)
-                agent.infer(iterations=20)
+                agent.infer(20)
                 a1 = agent.act()
                 environment.act_upon(a1)
                 o2 = environment.generate_observation()

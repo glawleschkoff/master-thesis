@@ -142,7 +142,7 @@ class Agent:
         self.q_s0_s0_I_s0_II = normalize(np.einsum('i,i,i->i', mu_right_s0, mu_up_s0_II, mu_left_s0_I))
         self.q_s1_s1_I_s1_II = normalize(np.einsum('i,i,i->i', mu_right_s1, mu_up_s1_II, mu_left_s1_I))
 
-        print('FE:', self.free_energy())
+        #print('FE:', self.free_energy())
     
     def free_energy(self):
         D_free_energy = np.einsum('i,i', self.q_s0, safelog(self.q_s0)) - np.einsum('i,i', self.q_s0, safelog(self.D))

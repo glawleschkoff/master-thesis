@@ -5,10 +5,7 @@ from scipy.special import softmax
 
 
 def safelog(value):
-    eps = np.finfo(float).eps
-    safe_value = np.clip(value, eps, None)
-    safe_log = np.log(safe_value)
-    return safe_log
+    return np.log(value + 1e-16)
 
 def safedivide(numerator, denominator):
     return np.divide(
@@ -19,7 +16,7 @@ def safedivide(numerator, denominator):
     )
 
 def normalize(value):
-    return value / np.sum(value)
+    return safedivide(value, np.sum(value))
 
 def optimize_s(A, C, q_s_init, message):
 
