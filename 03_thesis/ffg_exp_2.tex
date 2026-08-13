@@ -1,0 +1,38 @@
+\begin{tikzpicture}[
+    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+    edge/.style={thick},
+    varlabel/.style={font=\normalsize},
+    greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+]
+
+% Knoten
+\node[factor] (d) {$p(s_0)$};
+\node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+\node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+\node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+\node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,u_0)$};
+\node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+\node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+\node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+\node[factor, right=1.8cm of eq1] (B1) {$p(s_2|s^{\scriptscriptstyle I}_1,u_1)$};
+\node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$p(o_2|s_2)$};
+\node[factor, below=1.5cm of A2] (c2) {$\tilde{p}(o_2)$};
+\node[factor, above=1.5cm of B0] (u0) {$p(u_0)$};
+\node[factor, above=1.5cm of B1] (u1) {$p(u_1)$};
+
+% Kanten zwischen Knoten
+\draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$\textcolor{black}{q(s_0)}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}$};
+\draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$\textcolor{black}{q(s^{\scriptscriptstyle II}_0)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$};
+\draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{black}{q(o_0)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}$};
+\draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$\textcolor{black}{q(s^{\scriptscriptstyle I}_0)}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$};
+\draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$\textcolor{black}{q(u_0)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}u_0\bm{)}}$};
+\draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$\textcolor{black}{q(s_1)}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}$};
+\draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$\textcolor{black}{q(s^{\scriptscriptstyle II}_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$};
+\draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$\textcolor{black}{q(o_1)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}$};
+\draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$\textcolor{black}{q(s^{\scriptscriptstyle I}_1)}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$};
+\draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$\textcolor{black}{q(s_2)}$} node[pos=0.89, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}$} node[pos=0.11, below, varlabel, scale=0.7] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}$};
+\draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$\textcolor{black}{q(o_2)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}$};
+\draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$\textcolor{black}{q(u_1)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{orange}{\bm{{\uparrow}{\mu}(}u_1\bm{)}}$};
+
+\end{tikzpicture}

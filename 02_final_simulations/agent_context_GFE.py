@@ -1,0 +1,370 @@
+import numpy as np
+from utils import safelog, safedivide, normalize, optimize_s, optimize_c, apply_attention
+from scipy.special import softmax
+
+np.set_printoptions(
+    linewidth=200,
+    precision=3,
+    suppress=True
+)
+
+
+class Agent:
+    def __init__(self, A, B, B_c, C, D, D_c, U):
+        self.A = A
+        self.B = B
+        self.B_c = B_c
+        self.C = C
+        self.D = D
+        self.D_c = D_c
+        self.U = U
+        self.time_horizon = 3
+
+        self.current_observation_timestep = 0
+        self.current_action_timestep = 0
+
+        self.number_states = B.shape[0]
+        self.number_contexts = B_c.shape[0]
+        self.number_observations = A.shape[0]
+        self.number_actions = B.shape[2]
+
+        self.acted_u0 = False
+        self.acted_u1 = False
+        self.observed_o0 = False
+        self.observed_o1 = False
+        self.observed_o2 = False
+
+        self.q_s0 = np.ones(self.number_states) / self.number_states
+        self.q_s0_I = np.ones(self.number_states) / self.number_states
+        self.q_s0_II = np.ones(self.number_states) / self.number_states
+        self.q_s1 = np.ones(self.number_states) / self.number_states
+        self.q_s1_I = np.ones(self.number_states) / self.number_states
+        self.q_s1_II = np.ones(self.number_states) / self.number_states
+        self.q_s2 = np.ones(self.number_states) / self.number_states
+        self.q_c0 = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_I = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_II = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_III = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_IV = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_V = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_VI = np.ones(self.number_contexts) / self.number_contexts
+        self.q_u0 = np.ones(self.number_actions) / self.number_actions
+        self.q_u1 = np.ones(self.number_actions) / self.number_actions
+        self.q_o0 = np.ones(self.number_observations) / self.number_observations
+        self.q_o1 = np.ones(self.number_observations) / self.number_observations
+        self.q_o2 = np.ones(self.number_observations) / self.number_observations
+        # B Node Beliefs:
+        self.q_s1_s0_I_u0 = np.ones((self.number_states, self.number_states, self.number_actions)) / (self.number_states * self.number_states * self.number_actions)
+        self.q_s2_s1_I_u1 = np.ones((self.number_states, self.number_states, self.number_actions)) / (self.number_states * self.number_states * self.number_actions)
+        # Equality Node Beliefs:
+        self.q_s0_s0_I_s0_II = np.ones(self.number_states) / self.number_states
+        self.q_s1_s1_I_s1_II = np.ones(self.number_states) / self.number_states
+        self.q_c0_c0_I_c0_II = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_I_c0_III_c0_V = np.ones(self.number_contexts) / self.number_contexts
+        self.q_c0_III_c0_V_c0_VI = np.ones(self.number_contexts) / self.number_contexts
+        # Loop Overarching Messages:
+        self.mu_down_s0_II = np.ones(4) / 4
+        self.mu_down_s1_II = np.ones(4) / 4
+        self.mu_down_s2 = np.ones(4) / 4
+        self.mu_down_c0_II = np.ones(2) / 2
+        self.mu_down_c0_IV = np.ones(2) / 2
+        self.mu_down_c0_VI = np.ones(2) / 2
+
+    def infer(self, iterations=None):
+        tolerance = 1e-4
+        previous_free_energy = 0
+        current_free_energy = float("inf")
+        counter = 0
+
+        while (
+            (iterations is None and abs(current_free_energy - previous_free_energy) > tolerance)
+            or (iterations is not None and iterations > 0)
+        ):
+            previous_free_energy = current_free_energy    
+            if iterations is not None:
+                iterations -= 1  
+
+            # Bethe Forward Sweep (s and u):
+            mu_right_s0 = self.D
+            if self.observed_o0:
+                mu_up_s0_II = softmax(np.einsum('i,j,ikj->k', self.q_o0, self.q_c0_II, safelog(self.A)))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s0_II, self.q_c0_II, self.mu_down_s0_II)
+                mu_up_s0_II = normalize(safedivide(q_s, self.mu_down_s0_II))
+            mu_right_s0_I = normalize(mu_right_s0 * mu_up_s0_II)
+            if self.acted_u0:
+                mu_down_u0 = self.q_u0
+            else:
+                mu_down_u0 = self.U
+            mu_right_s1 = normalize(np.einsum('i,j,kij->k', mu_right_s0_I, mu_down_u0, self.B))
+            if self.observed_o1:
+                mu_up_s1_II = softmax(np.einsum('i,j,ikj->k', self.q_o1, self.q_c0_IV, safelog(self.A)))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s1_II, self.q_c0_IV, self.mu_down_s1_II)
+                mu_up_s1_II = normalize(safedivide(q_s, self.mu_down_s1_II))
+            mu_right_s1_I = normalize(mu_right_s1 * mu_up_s1_II)
+            if self.acted_u1:
+                mu_down_u1 = self.q_u1
+            else:
+                mu_down_u1 = self.U
+            self.mu_down_s2 = normalize(np.einsum('i,j,kij->k', mu_right_s1_I, mu_down_u1, self.B))
+
+            # Bethe Backward Sweep (s and u):
+            if self.observed_o2:
+                mu_left_s2 = softmax(np.einsum('i,j,ikj->k', self.q_o2, self.q_c0_VI, safelog(self.A)))
+            else:
+                q_s = optimize_s(self.A, self.C, self.q_s2, self.q_c0_VI, self.mu_down_s2)
+                mu_left_s2 = normalize(safedivide(q_s, self.mu_down_s2))
+            if self.acted_u1:
+                mu_up_u1 = self.q_u1
+            else:
+                mu_up_u1 = normalize(np.einsum('i,j,jik->k', mu_right_s1_I, mu_left_s2, self.B))
+            mu_left_s1_I = normalize(np.einsum('i,j,jki->k', mu_down_u1, mu_left_s2, self.B))
+            self.mu_down_s1_II = normalize(mu_right_s1 * mu_left_s1_I)
+            mu_left_s1 = normalize(mu_up_s1_II * mu_left_s1_I)
+            if self.acted_u0:
+                mu_up_u0 = self.q_u0
+            else:
+                mu_up_u0 = normalize(np.einsum('i,j,jik->k', mu_right_s0_I, mu_left_s1, self.B))
+            mu_left_s0_I = normalize(np.einsum('i,j,jki->k', mu_down_u0, mu_left_s1, self.B))
+            self.mu_down_s0_II = normalize(mu_right_s0 * mu_left_s0_I)
+            mu_left_s0 = normalize(mu_up_s0_II * mu_left_s0_I)
+
+            # Updating Beliefs (s, u and o):
+            self.q_s0 = normalize(mu_left_s0 * mu_right_s0)
+            self.q_s0_I = normalize(mu_left_s0_I * mu_right_s0_I)
+            self.q_s0_II = normalize(mu_up_s0_II * self.mu_down_s0_II)
+            self.q_s1 = normalize(mu_left_s1 * mu_right_s1)
+            self.q_s1_I = normalize(mu_left_s1_I * mu_right_s1_I)
+            self.q_s1_II = normalize(mu_up_s1_II * self.mu_down_s1_II)
+            self.q_s2 = normalize(mu_left_s2 * self.mu_down_s2)
+            if not self.acted_u0:
+                q_u = normalize(mu_up_u0 * mu_down_u0)
+                x = np.zeros(self.number_actions)
+                x[np.argmax(q_u)] = 1
+                #self.q_u0 = x
+                self.q_u0 = apply_attention(probs=q_u, attention_param=4.0)
+            if not self.acted_u1:
+                q_u = normalize(mu_up_u1 * mu_down_u1)
+                x = np.zeros(self.number_actions)
+                x[np.argmax(q_u)] = 1
+                #self.q_u1 = x
+                self.q_u1 = apply_attention(probs=q_u, attention_param=4.0)
+            if not self.observed_o0:
+                self.q_o0 = np.einsum('ijk,j,k->i', self.A, self.q_s0_II, self.q_c0_II)
+            if not self.observed_o1:
+                self.q_o1 = np.einsum('ijk,j,k->i', self.A, self.q_s1_II, self.q_c0_IV)
+            if not self.observed_o2:
+                self.q_o2 = np.einsum('ijk,j,k->i', self.A, self.q_s2, self.q_c0_VI)
+            self.q_s1_s0_I_u0 = normalize(np.einsum('ijk,i,j,k->ijk', self.B, mu_left_s1, mu_right_s0_I, mu_down_u0))
+            self.q_s2_s1_I_u1 = normalize(np.einsum('ijk,i,j,k->ijk', self.B, mu_left_s2, mu_right_s1_I, mu_down_u1))
+            self.q_s0_s0_I_s0_II = normalize(np.einsum('i,i,i->i', mu_right_s0, mu_up_s0_II, mu_left_s0_I))
+            self.q_s1_s1_I_s1_II = normalize(np.einsum('i,i,i->i', mu_right_s1, mu_up_s1_II, mu_left_s1_I))
+
+            # Bethe Forward Sweep (c):
+            mu_right_c0 = self.D_c
+            if self.observed_o0:
+                mu_up_c0_II = softmax(np.einsum('i,j,ijk->k', self.q_o0, self.q_s0_II, safelog(self.A)))
+            else:
+                q_c = optimize_c(self.A, self.C, self.q_c0_II, self.q_s0_II, self.mu_down_c0_II)
+                mu_up_c0_II = normalize(safedivide(q_c, self.mu_down_c0_II))
+            mu_right_c0_I = normalize(mu_right_c0 * mu_up_c0_II)
+            if self.observed_o1:
+                mu_up_c0_IV = softmax(np.einsum('i,j,ijk->k', self.q_o1, self.q_s1_II, safelog(self.A)))
+            else:
+                q_c = optimize_c(self.A, self.C, self.q_c0_IV, self.q_s1_II, self.mu_down_c0_IV)
+                mu_up_c0_IV = normalize(safedivide(q_c, self.mu_down_c0_IV))
+            mu_right_c0_III = normalize(mu_right_c0_I * mu_up_c0_IV)
+            if self.observed_o2:
+                mu_up_c0_VI = softmax(np.einsum('i,j,ijk->k', self.q_o2, self.q_s2, safelog(self.A)))
+            else:
+                q_c = optimize_c(self.A, self.C, self.q_c0_VI, self.q_s2, self.mu_down_c0_VI)
+                mu_up_c0_VI = normalize(safedivide(q_c, self.mu_down_c0_VI))
+            mu_right_c0_V = normalize(mu_right_c0_III * mu_up_c0_VI)
+
+            # Bethe Backward Sweep (c):
+            mu_left_c0_V = np.array([0.5, 0.5])
+            self.mu_down_c0_VI = normalize(mu_right_c0_III * mu_left_c0_V)
+            mu_left_c0_III = normalize(mu_up_c0_VI * mu_left_c0_V)
+            self.mu_down_c0_IV = normalize(mu_right_c0_I * mu_left_c0_III)
+            mu_left_c0_I = normalize(mu_up_c0_IV * mu_left_c0_III)
+            self.mu_down_c0_II = normalize(mu_right_c0 * mu_left_c0_I)
+            mu_left_c0 = normalize(mu_up_c0_II * mu_left_c0_I)
+
+            # Updating Beliefs (c):
+            self.q_c0 = normalize(mu_left_c0 * mu_right_c0)
+            self.q_c0_I = normalize(mu_left_c0_I * mu_right_c0_I)
+            self.q_c0_II = normalize(mu_up_c0_II * self.mu_down_c0_II)
+            self.q_c0_III = normalize(mu_left_c0_III * mu_right_c0_III)
+            self.q_c0_IV = normalize(mu_up_c0_IV * self.mu_down_c0_IV)
+            self.q_c0_V = normalize(mu_left_c0_V * mu_right_c0_V)
+            self.q_c0_VI = normalize(mu_up_c0_VI * self.mu_down_c0_VI)
+            self.q_c0_c0_I_c0_II = normalize(np.einsum('i,i,i->i', mu_right_c0, mu_up_c0_II, mu_left_c0_I))
+            self.q_c0_I_c0_III_c0_V = normalize(np.einsum('i,i,i->i', mu_right_c0_I, mu_up_c0_IV, mu_left_c0_III))
+            self.q_c0_III_c0_V_c0_VI = normalize(np.einsum('i,i,i->i', mu_right_c0_III, mu_up_c0_VI, mu_left_c0_V))
+
+            current_free_energy = self.free_energy()
+            #print('Iteration:', str(counter)+",", 'FE:', current_free_energy)
+            counter += 1
+
+    def free_energy(self):
+        D_free_energy = np.einsum('i,i', self.q_s0, safelog(self.q_s0)) - np.einsum('i,i', self.q_s0, safelog(self.D))
+        B0_free_energy = np.einsum('ijk,ijk', self.q_s1_s0_I_u0, safelog(self.q_s1_s0_I_u0)) - np.einsum('ijk,ijk', self.q_s1_s0_I_u0, safelog(self.B))
+        B1_free_energy = np.einsum('ijk,ijk', self.q_s2_s1_I_u1, safelog(self.q_s2_s1_I_u1)) - np.einsum('ijk,ijk', self.q_s2_s1_I_u1, safelog(self.B))
+        U0_free_energy = np.einsum('i,i', self.q_u0, safelog(self.q_u0)) - np.einsum('i,i', self.q_u0, safelog(self.U))
+        U1_free_energy = np.einsum('i,i', self.q_u1, safelog(self.q_u1)) - np.einsum('i,i', self.q_u1, safelog(self.U))
+        if self.observed_o0:
+            A0_free_energy = (
+                np.einsum('i,i', self.q_o0, safelog(self.q_o0))
+                + np.einsum('i,i', self.q_s0_II, safelog(self.q_s0_II))
+                + np.einsum('i,i', self.q_c0_II, safelog(self.q_c0_II))
+                - np.einsum('i,j,k,ijk', self.q_o0, self.q_s0_II, self.q_c0_II, safelog(self.A))
+            )
+        else:
+            A0_free_energy = (
+                np.einsum('ijk,j,k,i', self.A, self.q_s0_II, self.q_c0_II, safelog(self.q_o0))
+                + np.einsum('ijk,j,k,j->', self.A, self.q_s0_II, self.q_c0_II, safelog(self.q_s0_II))
+                + np.einsum('ijk,j,k,k->', self.A, self.q_s0_II, self.q_c0_II, safelog(self.q_c0_II))
+                - np.einsum('ijk,j,k,ijk', self.A, self.q_s0_II, self.q_c0_II, safelog(self.A))
+            )
+        if self.observed_o1:
+            A1_free_energy = (
+                np.einsum('i,i', self.q_o1, safelog(self.q_o1))
+                + np.einsum('i,i', self.q_s1_II, safelog(self.q_s1_II))
+                + np.einsum('i,i', self.q_c0_IV, safelog(self.q_c0_IV))
+                - np.einsum('i,j,k,ijk', self.q_o1, self.q_s1_II, self.q_c0_IV, safelog(self.A))
+            )
+        else:
+            A1_free_energy = (
+                np.einsum('ijk,j,k,i', self.A, self.q_s1_II, self.q_c0_IV, safelog(self.q_o1))
+                + np.einsum('ijk,j,k,j->', self.A, self.q_s1_II, self.q_c0_IV, safelog(self.q_s1_II))
+                + np.einsum('ijk,j,k,k->', self.A, self.q_s1_II, self.q_c0_IV, safelog(self.q_c0_IV))
+                - np.einsum('ijk,j,k,ijk', self.A, self.q_s1_II, self.q_c0_IV, safelog(self.A))
+            )
+        if self.observed_o2:
+            A2_free_energy = (
+                np.einsum('i,i', self.q_o2, safelog(self.q_o2))
+                + np.einsum('i,i', self.q_s2, safelog(self.q_s2))
+                + np.einsum('i,i', self.q_c0_VI, safelog(self.q_c0_VI))
+                - np.einsum('i,j,k,ijk', self.q_o2, self.q_s2, self.q_c0_VI, safelog(self.A))
+            )
+        else:
+            A2_free_energy = (
+                np.einsum('ijk,j,k,i', self.A, self.q_s2, self.q_c0_VI, safelog(self.q_o2))
+                + np.einsum('ijk,j,k,j->', self.A, self.q_s2, self.q_c0_VI, safelog(self.q_s2))
+                + np.einsum('ijk,j,k,k->', self.A, self.q_s2, self.q_c0_VI, safelog(self.q_c0_VI))
+                - np.einsum('ijk,j,k,ijk', self.A, self.q_s2, self.q_c0_VI, safelog(self.A))
+            )
+        C0_free_energy = np.einsum('i,i', self.q_o0, safelog(self.q_o0)) - np.einsum('i,i', self.q_o0, safelog(self.C))
+        C1_free_energy = np.einsum('i,i', self.q_o1, safelog(self.q_o1)) - np.einsum('i,i', self.q_o1, safelog(self.C))
+        C2_free_energy = np.einsum('i,i', self.q_o2, safelog(self.q_o2)) - np.einsum('i,i', self.q_o2, safelog(self.C))
+        EQ0_free_energy = np.einsum('i,i', self.q_s0_s0_I_s0_II, safelog(self.q_s0_s0_I_s0_II))
+        EQ1_free_energy = np.einsum('i,i', self.q_s1_s1_I_s1_II, safelog(self.q_s1_s1_I_s1_II))
+        DC_free_energy = np.einsum('i,i', self.q_c0, safelog(self.q_c0)) - np.einsum('i,i', self.q_c0, safelog(self.D_c))
+        EQ2_free_energy = np.einsum('i,i', self.q_c0_c0_I_c0_II, safelog(self.q_c0_c0_I_c0_II))
+        EQ3_free_energy = np.einsum('i,i', self.q_c0_I_c0_III_c0_V, safelog(self.q_c0_I_c0_III_c0_V))
+        EQ4_free_energy = np.einsum('i,i', self.q_c0_III_c0_V_c0_VI, safelog(self.q_c0_III_c0_V_c0_VI))
+
+        s0_entropy = - np.einsum('i,i', self.q_s0, safelog(self.q_s0))
+        s0_I_entropy = - np.einsum('i,i', self.q_s0_I, safelog(self.q_s0_I))
+        s0_II_entropy = - np.einsum('i,i', self.q_s0_II, safelog(self.q_s0_II))
+        s1_entropy = - np.einsum('i,i', self.q_s1, safelog(self.q_s1))
+        s1_I_entropy = - np.einsum('i,i', self.q_s1_I, safelog(self.q_s1_I))
+        s1_II_entropy = - np.einsum('i,i', self.q_s1_II, safelog(self.q_s1_II))
+        s2_entropy = - np.einsum('i,i', self.q_s2, safelog(self.q_s2))
+        u0_entropy = - np.einsum('i,i', self.q_u0, safelog(self.q_u0))
+        u1_entropy = - np.einsum('i,i', self.q_u1, safelog(self.q_u1))
+        o0_entropy = - np.einsum('i,i', self.q_o0, safelog(self.q_o0))
+        o1_entropy = - np.einsum('i,i', self.q_o1, safelog(self.q_o1))
+        o2_entropy = - np.einsum('i,i', self.q_o2, safelog(self.q_o2))
+        c0_entropy = - np.einsum('i,i', self.q_c0, safelog(self.q_c0))
+        c0_I_entropy = - np.einsum('i,i', self.q_c0_I, safelog(self.q_c0_I))
+        c0_II_entropy = - np.einsum('i,i', self.q_c0_II, safelog(self.q_c0_II))
+        c0_III_entropy = - np.einsum('i,i', self.q_c0_III, safelog(self.q_c0_III))
+        c0_IV_entropy = - np.einsum('i,i', self.q_c0_IV, safelog(self.q_c0_IV))
+        c0_VI_entropy = - np.einsum('i,i', self.q_c0_VI, safelog(self.q_c0_VI))
+
+        summed_free_energy = D_free_energy + B0_free_energy + B1_free_energy + U0_free_energy + U1_free_energy + A0_free_energy + A1_free_energy + A2_free_energy + C0_free_energy + C1_free_energy + C2_free_energy + EQ0_free_energy + EQ1_free_energy + DC_free_energy + EQ2_free_energy + EQ3_free_energy + EQ4_free_energy
+        overcounted_entropy = s0_entropy + s0_I_entropy + s0_II_entropy + s1_entropy + s1_I_entropy + s1_II_entropy + s2_entropy + u0_entropy + u1_entropy + o0_entropy + o1_entropy + o2_entropy + c0_entropy + c0_I_entropy + c0_II_entropy + c0_III_entropy + c0_IV_entropy + c0_VI_entropy
+        free_energy = summed_free_energy + overcounted_entropy
+
+        return free_energy
+
+    def observe(self, observation):
+        if not self.observed_o0:
+            self.q_o0[:] = 0
+            self.q_o0[observation] = 1
+            self.observed_o0 = True
+        elif not self.observed_o1:
+            self.q_o1[:] = 0
+            self.q_o1[observation] = 1
+            self.observed_o1 = True
+        elif not self.observed_o2:
+            self.q_o2[:] = 0
+            self.q_o2[observation] = 1
+            self.observed_o2 = True
+
+    def act(self, action=None):
+        if not self.acted_u0:
+            if action == None:
+                action = np.random.choice(self.number_actions, p=self.q_u0)
+            self.q_u0[:] = 0
+            self.q_u0[action] = 1
+            self.acted_u0 = True
+        elif not self.acted_u1:
+            if action == None:
+                action = np.random.choice(self.number_actions, p=self.q_u1)
+            self.q_u1[:] = 0
+            self.q_u1[action] = 1
+            self.acted_u1 = True
+        return action
+
+    def next_trial(self):
+        self.D_c = np.einsum("ij,j->i", self.B_c, self.context_belief)
+
+        self.current_observation_timestep = 0
+        self.current_action_timestep = 0
+        self.state_beliefs = np.ones((self.time_horizon, self.number_states)) * (
+            1 / self.number_states
+        )
+        self.observation_beliefs = np.ones(
+            (self.time_horizon, self.number_observations)
+        ) * (1 / self.number_observations)
+        self.action_beliefs = np.ones((self.time_horizon - 1, self.number_actions)) * (
+            1 / self.number_actions
+        )
+        self.A_beliefs = np.ones(
+            (
+                self.time_horizon,
+                self.number_observations,
+                self.number_states,
+                self.number_contexts,
+            )
+        ) * (1 / self.number_observations)
+        self.B_beliefs = np.ones(
+            (
+                self.time_horizon - 1,
+                self.number_states,
+                self.number_states,
+                self.number_actions,
+            )
+        ) * (1 / self.number_states)
+
+    def print_beliefs(self):
+        print("Beliefs:")
+        print("q(c_0) = ", self.q_c0)
+
+        print("\033[1mTimestep 0:\033[0m")
+        print("q(s_0) = ", self.q_s0)
+        print("q(o_0) = ", self.q_o0)
+        print("q(u_0) = ", self.q_u0)
+
+        print("\033[1mTimestep 1:\033[0m")
+        print("q(s_1) = ", self.q_s1)
+        print("q(o_1) = ", self.q_o1)
+        print("q(u_1) = ", self.q_u1)
+
+        print("\033[1mTimestep 2:\033[0m")
+        print("q(s_2) = ", self.q_s2)
+        print("q(o_2) = ", self.q_o2)
+        print()

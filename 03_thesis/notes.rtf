@@ -1,0 +1,54 @@
+- decide for hat or apostrophe for observation variables (duplicated variables also have apostrophes)
+- "with" before equations?
+- section "belief updating" not necessary (elaborate a bit more on this in the Foundation)
+- citations
+- naming mu(u_0) vs p(u_0) (arguments as function identifiers vs arguments not as function identifiers)
+- equality node messages and terminating node messages and messages from delta constraints are all Bethe messages!
+- describe how generative process differs from generative model
+- differentiate instead of derive
+- irgendwo sagen, dass in AIF eigentlich control states u anstatt action a verwendet werden
+- context state c clasht mit parameter c
+
+
+Am Anfang eine Section "Agents" machen, worin die Action-Perception-Loop (mit Bild) und das generative Modell/generativer Prozess und der FFG erklärt wird. Die vier Agenten könnten dann subsections davon sein. Nur der Bethe Agent wird nochmal ausführlich erklärt, d.h., an dessen FFG entlang hangeln. Vor den vier Agenten könnte auf die approximation assumptions (Bethe/MF) eingegangen werden (wobei etwas diffus an diesem Punkt).
+
+
+2 Methods
+
+2.1 Foundation
+Hier skizziere ich, was ich in dieser Foundation section vorstelle – nämlich die ganze Ableitung angefangen von einem probabilistischen Modell hin zu einem Message Passing Algorithmus.
+Was genau will ich hier eigentlich präsentieren?
+=> Quasi das Rezept, mit dem man einen Inferenz-Algorithmus von einem zugrundeliegenden probabilistischen Modell ableitet. Das ist ja auch das, was ich nahezu durchgehend in meiner Arbeit mache. Mit dieser Methode entwickle ich vier verschiedene Agenten.
+
+2.1.1 The Probabilistic Generative Model
+Ich führe ein sehr einfaches probabilistisches (generatives) Modell ein, an dem ich die ganze Ableitung durchführe.
+
+2.1.2 The Forney Factor Graph Representation
+Hier stelle ich FFGs als visuelles Werkzeug vor, um probabilistische Modelle darzustellen.
+
+2.1.3 Belief Distributions
+Hier führe ich die Belief Verteilungen q ein. Diese stellen approximative Posterior Verteilungen dar, die das Ergebnis des Inferenz-Prozesses des Agenten sind. Die Inferenz ist nötig, um auf Constraints im FFG zu "reagieren" – z.B. Delta Constraints, die gemachte Observationen darstellen. Ich ordne auch ein, wo die Belief Verteilungen im FFG existieren und was sie dort bedeuten.
+
+2.1.4 The Free Energy Functional
+Ich stelle fest, dass die q Verteilungen durch die Minimierung einer Loss Function – der Variational Free Energy (VFE) – optimiert werden müssen. Ich erkläre, wie die VFE aussieht und in welche Bestandteile sie sich zerlegen lässt, die wiederum sich auf lokale "Gebiete" des FFG beziehen lassen.
+
+2.1.5 The Lagrangian of the Free Energy
+Hier stelle ich fest, dass nicht direkt die VFE für die Optimierung der q Verteilungen herangezogen werden kann weil die q Verteilungen noch zusätzlichen Constraints unterliegen, die garantiert werden müssen. Dies kann durch einen Lagrangian erreicht werden, der eben die VFE aber auch die Constraints mit Lagrange Multipliers enthält. Die Constraints beziehen sich auf die Normalisierung und die Marginalisierungsbedingungen "benachbarter" q Verteilungen im FFG.
+
+2.1.6 Messages and Belief Updates
+Das ist quasi der funktionale Kern meiner Arbeit. Hier leite ich aus dem Lagrangian die Messages und Belief Updates ab. Das Normalisierungs-Thema wird auch hinreichend behandelt.
+
+2.1.7 Messages in the Factor Graph
+Hier zeige ich, wie sich die eben abgeleiteten Messages elegant als Messages im FFG darstellen lassen.
+
+2.1.8 Schedule
+Hier erinnere ich daran, dass das Hauptziel des ganzen Message Passing Algorithmus die Berechnung der Kanten Beliefs ist. Erst hier führe ich diesen Algorithmus konkret ein und zeige, dass dieser einfach die Berechnung der verschiedenen Messages im FFG in einer bestimmten Reihenfolge ist. Die Einhaltung der Reihenfolge ist wichtig, da einzelne Messages von anderen Messages abhängen und entsprechend erst berechnet werden können, sobald das Ergebnis dieser anderen Messages vorliegt. Erst nach Berechung aller Messages können die Beliefs q berechnet werden, was dann das Ergebnis des Message Passing Algorithmus darstellt.
+
+2.1.9 Remarks
+Hier weise ich darauf hin, dass der vorgestellte Ansatz nicht approximative, sondern exakte Ergebnisse liefert, obwohl der ganze Mechanismus anfangs entsprechend als approximatives Verfahren motiviert wurde. Ich stelle klar, dass dies mit einer bestimmten Modellierung von q Verteilungen zu tun hat, die sich über mehrere Variablen erstrecken. Genauer gesagt geht es darum, dass diese "Joint" q Verteilungen Abhängigkeiten der beteiligten Variablen explizit modelliert und dadurch exakte Inferenz ermöglicht.
+
+
+
+2.2 Bethe Free Energy (BFE) Agent
+
+2.2.1
