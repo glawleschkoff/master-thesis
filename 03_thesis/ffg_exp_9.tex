@@ -1,0 +1,31 @@
+\begin{tikzpicture}[
+    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+    edge/.style={thick},
+    varlabel/.style={font=\normalsize},
+    greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+]
+
+% Knoten der linken Hälfte (t=0)
+\node[factor] (d) {$p(s_0)$};
+\node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+\node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+\node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+\node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,a_0)$};
+\node[factor, above=1.5cm of B0] (u0) {$p(a_0)$};
+
+% Unsichtbarer Endpunkt für die ausgehende Kante
+\coordinate[right=1.2cm of B0] (out_s1);
+
+% Kanten
+\draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$q(s_0)$};
+\draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$q(s^{\scriptscriptstyle II}_0)$};
+\draw[edge] (A0.south) -- (c0.north) 
+    node[midway, left=0.3cm, varlabel] {{\Large \textcolor{orange!90!black}{$\hat{o}_0$}} $\rightarrow q(o_0)$} 
+    node[midway, greycircle] {$\delta$};\draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$q(s^{\scriptscriptstyle I}_0)$};
+\draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$q(a_0)$};
+
+% Abgebrochene Kante, die anzeigt, dass der Graph weitergeht (optional gestrichelt)
+\draw[edge, densely dashed] (B0.east) -- (out_s1) node[midway, above, varlabel] {$q(s_1)$};
+
+\end{tikzpicture}

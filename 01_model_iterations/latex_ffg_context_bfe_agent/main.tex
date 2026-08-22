@@ -46,43 +46,24 @@
 
         % Kanten zwischen Knoten
         \draw[edge] (d.east) -- (eq0.west) node[pos=0.75, above, varlabel] {$s_0$} node[near start, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}s_0\bm{)}$} node[near end, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}s_0\bm{)}$};
-
         \draw[edge] (eq0.south) -- (eq0.south |- A0.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}$} {};
-
         \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3cm, varlabel] {$o_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}o_0\bm{)}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}o_0\bm{)}$} {};
-
         \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_0$} node[near start, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}$} node[near end, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}$};
-
         \draw[edge] (B0.north) -- (u0.south) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$u_0$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}u_0\bm{)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}u_0\bm{)}$};
-
         \draw[edge] (B0.east) -- (eq1.west) node[pos=0.75, above, varlabel] {$s_1$} node[near start, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}s_1\bm{)}$} node[near end, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}s_1\bm{)}$};
-
         \draw[edge] (eq1.south) -- (eq1.south |- A1.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}$} {};
-
         \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$o_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}o_1\bm{)}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}o_1\bm{)}$} {};
-
         \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_1$} node[near start, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}$} node[near end, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}$};
-
         \draw[edge] (B1.east) -| ([xshift=0.57cm]A2.north) node[pos=0.4, above, varlabel] {$s_2$} node[pos=0.11, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}s_2\bm{)}$} node[pos=0.915, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}s_2\bm{)}$} {};
-
         \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$o_2$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}o_2\bm{)}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}o_2\bm{)}$} {};
-
         \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$u_1$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}u_1\bm{)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}u_1\bm{)}$};
-
         \draw[edge] (dc.east) -- (eq3.west) node[midway, above, varlabel] {$c_0$} node[near start, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}c_0\bm{)}$} node[near end, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}c_0\bm{)}$};
-
         \draw[edge] (eq3.east) -- (eq4.west) node[midway, above, varlabel] {$c^{\scriptscriptstyle I}_0$} node[pos=0.09, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}c^{\scriptscriptstyle I}_0\bm{)}$} node[pos=0.91, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}c^{\scriptscriptstyle I}_0\bm{)}$};
-
         \draw[edge] (eq4.east) -- (eq5.west) node[midway, above, varlabel] {$c^{\scriptscriptstyle III}_0$} node[pos=0.09, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}c^{\scriptscriptstyle III}_0\bm{)}$} node[pos=0.91, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}c^{\scriptscriptstyle III}_0\bm{)}$};
-
         \draw[edge] (eq5.east) -- (Bc.west) node[midway, above, varlabel] {$c^{\scriptscriptstyle V}_0$} node[near start, below, varlabel, scale=0.7] {$\bm{\overleftarrow{\mu}(}c^{\scriptscriptstyle V}_0\bm{)}$} node[near end, below, varlabel, scale=0.7] {$\bm{\overrightarrow{\mu}(}c^{\scriptscriptstyle V}_0\bm{)}$};
-
         \draw[edge] (eq3.south) -- (eq3.south |- A0.north) node[midway, left, varlabel] {$c^{\scriptscriptstyle II}_0$} node[pos=0.06, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle II}_0\bm{)}$} node[pos=0.94, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}c^{\scriptscriptstyle II}_0\bm{)}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
-
         \draw[edge] (eq4.south) -- (eq4.south |- A1.north) node[midway, left, varlabel] {$c^{\scriptscriptstyle IV}_0$} node[pos=0.06, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle IV}_0\bm{)}$} node[pos=0.94, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}c^{\scriptscriptstyle IV}_0\bm{)}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
-
         \draw[edge] (eq5.south) -- (eq5.south |- A2.north) node[midway, left, varlabel] {$c^{\scriptscriptstyle VI}_0$} node[pos=0.06, right=0.05, varlabel, scale=0.7] {$\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle VI}_0\bm{)}$} node[pos=0.94, right=0.05, varlabel, scale=0.7] {$\bm{{\downarrow}{\mu}(}c^{\scriptscriptstyle VI}_0\bm{)}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
-
         \draw[edge] (Bc.east) -- ++(0.6cm, 0) node[midway, above, varlabel] {$c_1$};
 
         \draw[edge, rounded corners=3.5pt]

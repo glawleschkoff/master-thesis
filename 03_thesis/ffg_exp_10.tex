@@ -1,0 +1,49 @@
+\begin{tikzpicture}[
+    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+    edge/.style={thick},
+    varlabel/.style={font=\normalsize},
+    greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+]
+
+% --- KNOTEN ---
+% Wir starten mit eq0 als "Anker" für diesen Ausschnitt
+\node[eqfactor] (eq0) {$=$};
+
+% Knoten t=0 (unterhalb eq0)
+\node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+\node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+
+% Übergang & Knoten t=1
+\node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,a_0)$};
+\node[factor, above=1.5cm of B0] (u0) {$p(a_0)$};
+
+\node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+\node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+\node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+
+% Unsichtbare Koordinaten für die gestrichelten Enden links und rechts
+\coordinate[left=1.2cm of eq0] (in_s0);
+\coordinate[right=1.2cm of eq1] (out_sI1);
+
+
+% --- KANTEN ---
+
+% 1. Gestrichelte Eingangskante q(s_0)
+\draw[edge, densely dashed] (in_s0) -- (eq0.west) node[midway, above, varlabel] {$q^*(s_0)$};
+
+% 2. Durchgezogene innere Kanten
+\draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$q^*(s^{\scriptscriptstyle II}_0)$};
+\draw[edge] (A0.south) -- (c0.north) node[midway, left=0.3, varlabel] {$q(o_0)$} node[midway, greycircle] {$\delta$};
+
+\draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$q^*(s^{\scriptscriptstyle I}_0)$};
+\draw[edge] (B0.north) -- (u0.south) node[midway, left=0.3cm, varlabel] {{\Large \textcolor{orange!90!black}{$\hat{a}_0$}} $\sim q^*(a_0)$} node[midway, greycircle] {$\delta$};
+\draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$q^*(s_1)$};
+
+\draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$q^*(s^{\scriptscriptstyle II}_1)$};
+\draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$q^*(o_1)$};
+
+% 3. Gestrichelte Ausgangskante q(s^I_1)
+\draw[edge, densely dashed] (eq1.east) -- (out_sI1) node[midway, above, varlabel] {$q^*(s^{\scriptscriptstyle I}_1)$};
+
+\end{tikzpicture}
