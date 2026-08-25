@@ -1,0 +1,64 @@
+\begin{appendices}
+
+    \chapter{Equality Node Messages}
+    \label[appendix]{app:1}
+
+    In this section I present the messages sent by equality nodes. As mentioned before edges in the factor graph are allowed to have a maximum number of connected nodes of two. This is a technical problem because there are variables (edges) that occur in more than two factor function (nodes). As a remedy factor graphs support equality nodes that artificially duplicate the variables and enforce an equality relation between the duplicated variables. This relation is implemented in the factor function of these nodes as a product of Kronecker (or Dirac) delta functions. As an example consider the the factor graph in \cref{fig:39} where we are interested in \(\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}}\), \(\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}}\), and \(\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}\).
+    \begin{figure}[htbp]
+        \centering
+
+        \begin{tikzpicture}[
+                factor/.style={draw=black, thick, rectangle, minimum size=0.8cm,
+                        font=\normalsize},
+                eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+                edge/.style={thick},
+                varlabel/.style={font=\normalsize}
+            ]
+
+            % Knoten
+            \node[eqfactor, label={[varlabel, yshift=0.1cm, scale=0.9]above:$q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})$}] (b) {$=$};
+
+            % Kanten
+            \draw[edge] ([xshift=-3cm]b.west) -- (b.west) node[midway, above, varlabel, scale=0.9] {$q_i(s)$} node[near start, below, varlabel, scale=0.9] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}}$} node[near end, below, varlabel, scale=0.9] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s\bm{)}}$};
+            \draw[edge] (b.south) -- ([yshift=-2.5cm]b.south) node[midway, left, varlabel, scale=0.9] {$q_k(s^{\scriptscriptstyle II})$} node[pos=0.75, right, varlabel, scale=0.9] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}$} node[pos=0.25, right, varlabel, scale=0.9] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}$};
+            \draw[edge] (b.east) -- ([xshift=3cm]b.east) node[midway, above, varlabel, scale=0.9] {$q_j(s^{\scriptscriptstyle I})$} node[near end, below, varlabel, scale=0.9] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}}$} node[near start, below, varlabel, scale=0.9] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}}$};
+
+        \end{tikzpicture}
+
+        \caption{Example FFG with messages sent by the equality node (\(\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}}\), \(\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}}\), and \(\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}\)).}
+        \label{fig:39}
+    \end{figure}
+    The factor function of the equality node is given by
+    \begin{equation}
+        f_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}) = \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}}.
+    \end{equation}
+    This function is a discrete probability distribution that has probability 1 only if the values of all variables are equal. In other cases it is 0.
+    Building on this the Lagrangian (without normalization constraints) of the factor graph is
+    \begin{equation}
+        \begin{split}
+            L = & \sum_{s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}) \log \frac{q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})}{\delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}}} + \sum_s \lambda_{ia}(s) (q_i(s) - \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})) \\
+                & + \sum_{s^{\scriptscriptstyle I}} \lambda_{ja}(s^{\scriptscriptstyle I}) (q_j(s^{\scriptscriptstyle I}) - \sum_{s,s^{\scriptscriptstyle II}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})) + \sum_{s^{\scriptscriptstyle II}} \lambda_{ka}(s^{\scriptscriptstyle II}) (q_k(s^{\scriptscriptstyle II}) - \sum_{s,s^{\scriptscriptstyle I}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}))
+        \end{split}
+    \end{equation}
+    Differentiating \(L\) with respect to \(q_a\) then yields:
+    \begin{alignat}{3}
+         & \frac{\delta L}{\delta q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})} &  & = \log q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}) + 1 - \log (\delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}}) - \lambda_{ia}(s) - \lambda_{ja}(s^{\scriptscriptstyle I}) - \lambda_{ka}(s^{\scriptscriptstyle II})               & \; \overset{!}{=} 0 \\
+         &                                                                                   &  & \Rightarrow q_a^*(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}) \propto \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}} \exp(\lambda_{ia}(s)) \exp(\lambda_{ja}(s^{\scriptscriptstyle I})) \exp(\lambda_{ka}(s^{\scriptscriptstyle II}))
+    \end{alignat}
+    Finally, we use the result of \cref{sec:1} for the local stationary points of \(q_i(s)\), \(q_j(s^{\scriptscriptstyle I})\), and \(q_k(s^{\scriptscriptstyle II})\) and use the marginalization constraints \(q_i(s) \overset{!}{=} \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})\), \(q_j(s^{\scriptscriptstyle I}) \overset{!}{=} \sum_{s,s^{\scriptscriptstyle II}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})\), and \(q_k(s^{\scriptscriptstyle II}) \overset{!}{=} \sum_{s,s^{\scriptscriptstyle I}} q_a(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})\) to determine the messages \(\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}}\), \(\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}}\), and \(\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}\) sent by the equality node:
+    \begin{alignat}{2}
+         & q_i^*(s)                                                                                                                                                                                                                                                                                                                                                                  &  & \overset{!}{=} \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} q_a^*(s,s^{\scriptscriptstyle I},s^{\scriptscriptstyle II})                                                                                                                        \\
+         & \exp(\lambda_{ia}(s)) \exp(\lambda_{i\bullet}(s))                                                                                                                                                                                                                                                                                                                               &  & \propto \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}} \exp(\lambda_{ia}(s)) \exp(\lambda_{ja}(s^{\scriptscriptstyle I})) \exp(\lambda_{ka}(s^{\scriptscriptstyle II})) \\
+         & \mathrlap{\Rightarrow \exp(\lambda_{i\bullet}(s))              \propto \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}} \exp(\lambda_{ja}(s^{\scriptscriptstyle I})) \exp(\lambda_{ka}(s^{\scriptscriptstyle II}))}                                                                                                                                                                                                                                                                                                                                            \\
+         & \mathrlap{\Rightarrow \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}} \propto \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}} \textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}}                                                                                                                                                                                                                                                                 \label{eq:21} \\
+         & \mathrlap{\left(\Rightarrow \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}} \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}s\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}s\bm{)}}\right)} \label{eq:22}
+    \end{alignat}
+    The "\(\bullet\)" signs in the lambdas indicate the other nodes (not shown in \cref{fig:39}) the respective edge is connected to. The terms that contain these lambdas (i.e., \(\exp \left( \lambda_{i\bullet}(s) \right)\)) are the outgoing messages to these other nodes.
+    Analogously, it follows:
+    \begin{alignat}{2}
+         & \Rightarrow \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}} \propto \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}} \textcolor{black}{\bm{\overrightarrow{\mu}(}s\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}   \\
+         & \Rightarrow \textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}} \propto \sum_{s^{\scriptscriptstyle I},s^{\scriptscriptstyle II}} \delta_{s,s^{\scriptscriptstyle I}} \delta_{s,s^{\scriptscriptstyle II}} \textcolor{black}{\bm{\overrightarrow{\mu}(}s\bm{)}} \textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}}.
+    \end{alignat}
+    This reveals that outgoing messages from equality nodes (e.g., \(\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s\bm{)}}\) in \cref{eq:21}) are the product of incoming messages (\(\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}\bm{)}}\)) (except from the neighoring node that is the addresse of the message to be sent) where variables of incoming messages get substituted with the variable of the outgoing message as a result of the summation and the two Kronecker deltas. While in principle this substitution leads to \cref{eq:22} I refrain from that further step because the resulting messages (\(\textcolor{black}{\bm{\overleftarrow{\mu}(}s\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}s\bm{)}}\)) might be misunderstood for the messages that are actually sent on the edge of variable \(s\). Instead they really are the incoming messages from the edges of variables \(s^{\scriptscriptstyle I}\) and \(s^{\scriptscriptstyle II}\) respectively where the variables got substituted with \(s\).
+
+\end{appendices}

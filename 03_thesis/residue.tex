@@ -1,0 +1,1136 @@
+\chapter{letzte einleitung}
+
+Humans face the challenge of survival in complex environments with limited cognitive resources. Although they are capable of simulating complex future scenarios to act purposefully, in many cases evolution instead has shown that behaving habitually also leads to its survival while not allocating as many cognitive resources compared to complex planning. A recent approach from the computational psychiatries has shown how an individual might achieve the balancing between these two modes of behavior. The Balancing-Contextual-Control (BCC) model from ... introduces an abstract context state, which the individual first has to infer to decide wether it should perform planning, which is computationally demanding, or if it suffices to act habitually. An example for this mechanism could be a person who commutes from its home to its workplace regularly. After a short time of doing so, she would not need think about how to get there anymore. Taking the right turns will become habitual and the person is then cognitively free to think about other things than the exact route to her workplace. A context change would occur when there is construction work on the route that blocks the road. In this case, she should realize this context change and actively plan another route. Now, the person cannot rely anymore on computationally cheap habitual behavior but must take an effort to perform planning. In other words, she has inferred that the context has changed and switches her mode from habitual behavior to planning. The BCC model has shown to explain data from ... using this mechanism.
+
+In line with this argument of surviving while saving cognitive resources, it might be plausible that the individual does not solely rely on the environment occasionally giving hints about the context but it rather actively tries to find out about the current context by itself. Relating to the commuting example, the person might have decided to listen to the local radio---not only because she likes the 90s popsongs playing there but also because of the current traffic news given there. In other words, she is curious about wether she can save ressources and just take the same route like every day or if there is a reason (e.g., construction work) that requires her to think about another route.
+
+This curiosity was formally described by a recent theory from the computional neurosciences which is Active Inference. It is based on the premise that an individual has a model of the environment that allows it to form probabilistic beliefs about it. Being curious about something in the environment then means to resolve uncertainty about the respective beliefs by acting puposefully to seek information.
+
+In this thesis I will do a step forward at uniting the two principles (1. context dependent balancing between habitual behavior and planning and 2. curiosity) that both together could allow the individual to save cognitive ressources in even more effective ways. Specifically, the resulting behavioral model will be curious about the context it is currently in and acts purposefully to resolve uncertainty about this context. Importantly, this attempt will not completely unite the two principles outlined above but will only focus on the mechanism of finding out about the context as a consequence of curiousity. A next step, which is not part of this thesis, could then add habitual and planning modes that depend on the context. In other words the resulting model might describe why the person in the commuting example switches on the radio to learn about possible constructions works on its route but not what exactly she is then supposed to do with this new information, i.e., the discovered context does not yet allow for the balancing of habitual behavior and planning in this work. Moreover, the object to be developed in this thesis can be viewed from two perspectives. First, it might be seen as a hypothesis about behavior resulting from brain function that can be evaluated using real empirical data regarding its plausibility. Second, the resulting model can be viewed as an (artificial) agent that interacts with an environment and thus directly allows for investigating the model's behavior. In this work, it is central to prove that the model shows the expected behavior, which is why the developed object will be viewed from the perspective of an agent.
+
+In the following I will outline how this model will be developed in this thesis. As mentioned before, context dependent balancing of habitual behavior and planning was already worked out in the BBC model and curiousity is an integral part of the theory of Active Inference. Consequently, the approach in this work will be based upon these two lines of research. So far, I have not detailed what Active Inference is about. In short, it is about the kind of behavior that is expected from a living creature that faces the challenge of survival in an a chaotic environment. These behaviors then allow for the development of artificial Active Inference agents, that are assumed to possess the same basic principles (that apparently includes curiousity) that ensure the survival of real biological individuals. Conveniently, the BCC model itself is strongly inspired by Active Inference but misses out on the curiousity part. Following this, the model to be depeloped here can be viewed from the following two perspectives (not to be confused with the two views of understanding it either as a hypothesis of behavior and as an artificial agent): First, it can be seen as the BCC model that gets expanded by the curiousity mechanism for its context but leaves out on the balancing between habitual behavior and planning. Second, it might also be understood as an Active Inference agent (that naturally comes with curiousity), that models curiousity over an added context in its model. In this work, I regularly refer to this second perspective. This view requires us to understand in detail what Active Inference is about, which is explained in the following.
+
+\subsubsection{Active Inference}
+
+Active Inference is an emerging cognitive theory about behavior and brain function of many living creatures. It assumes that individuals must solve the problem of survival in chaotic environments that potentially desintegrate their physical bodies and thus end their existences. Furthermore, the theory takes the perspective that these dangerous environmental effects on the individual's body are dependent on the current state of the environment itself, e.g., getting burn wounds from touching a hot plate is dependent on the state of that plate itself (is it hot or cold?), which is part of the environment. Unfortunately, the individual does not immediately know about the state of the environment. As a remedy for this problem it has developed sensors (e.g., eyes, ears, nociceptors etc.) to make observations that yield information about the current environmental state. In other words, the theory makes the central assumption, that in general the state of the environment is hidden but has an effect on the individual in two ways: First, it may influences the individual's body in harmful ways (e.g., changing the chemical composition of skin as a result of burn wounds), and second by generating observations that the animal can sense (e.g., nociceptor-based pain as a result of heat) that are somehow related to the true but unobservable state of the environment. Intuitively, the individual should then regularly receive observations that are related to these unobservable environmental states that do not have dangerous effects on its body. As a counter example, consider an individual, that regularly receives observations that are related to environmental states that also usually have the effect of ending the individuals existence. Such a creature would just not exist.
+
+So far, we have bluntly stated that animals have sensors that allow them to receive information about unobservable environmental states. This knowledge is not immediately useful for the animal--except in the case when it has the means to exert influence over these states. Just as we considered the existence of sensors as given, we can also notice that animals can perform actions upon the environment (e.g., turning the hot plate off). Influencing the environment's hidden states via actions means the individual implicitly controls the kind of observations it receives in return. Because it needs observations that hint at environmental states that are not dangerous for its continued existence it must somehow infer these hidden states based on observations to be able to influence them in purposeful ways using actions. In conclusion, first, the individual must possess a model that relates observations to environmental hidden states to be able to infer the latter given the current observation. Second, it then should also have a model of the relation between its actions and how they influence hidden states in the environment over time.
+
+Regarding the first requirement, this is usually formalized as a generative model \(p(s,o)\) that formulates the probabilistic dependencies between hidden states \(s\) and observations \(o\). Because observations are influenced by the environment--i.e., they are initially out of control of the individual--it maintains a stable model by explictly modeling the prior \(p(s)\) and also how it relates to observations via the likelihood \(p(o|s)\), i.e., the generative model is available to the individual explicitly as these two terms. Upon receiving a specific observation \(\hat o\) the individual can then infer the likely hidden states that led to this observation by computing (approximating) \(p(s|\hat o)\). In a second step this result can then be used to infer useful actions (this will be explained later in this section).
+
+First, we must consider how the animal could compute \(p(s|\hat o)\) as a basis for future actions. In principle this can be achieved by leveraging Bayes theorem via \(p(s|\hat o) = \frac{p(s)p(o|s)}{\int p(s)p(o|s)\,ds}\). In reality the integration in the denominator usually is not tractable for the animal because it would need to consider a possibly arbitrary amount of hidden states \(s\). As a remedy, the individual can do something different: Instead of exactly calculating \(p(s|\hat o)\) it can optimize a variational distribution \(q(s)\) that assumes the true \(p(s|\hat o)\) after optimization has finished. Note, that the loss function that drives this optimization already takes into account \(\hat o\) such that it does not need to be made an explicit dependency in \(q(s)\), i.e, \(q(s)\) is implicitly dependent on \(\hat o\). In the following, I will introduce this loss function that enables the animal to optimize \(q(s)\) step by step.
+
+In principle, we can use a distance measure to quantify the (dis)similarity between the true posterior \(p(s|\hat o)\) and the variational distribution \(q(s)\). In Active Inference this is achieved by the Kullback-Leibler (KL) divergence
+\begin{equation}
+    D_{\text{KL}}[q(s) \parallel p(s|\hat o)] = \int q(s) \ln \frac{q(s)}{p(s|\hat o)} \, ds
+    \label{eq:32}
+\end{equation}
+that becomes 0 exactly when \(q(s)\) assumes the true \(p(s|\hat o)\). Conversely, the quantity becomes larger the more dissimilar both distributions are. In theory, this quantity (KL divergence between \(q(s)\) and \(p(s|\hat o)\)) suffices as loss function for optimizing \(q(s)\). In reality, to goal of finding the distribution \(p(s|\hat o)\) via \(q(s)\) is the reason why this optimization is done in the first place, i.e., \(p(s|\hat o)\) is not available and thus \cref{eq:32} is not computable.
+
+There is a solution for this problem. Instead of minimizing (by optimizing \(q(s)\)) the KL divergence with respect to the true but unavailable posterior \(p(s|\hat o)\), it can be minimized with respect to the whole generative model \(p(s,o)=p(s)p(o|s)\), which apperently has the same effect. This circumstance will be explained in the following. First, we consider the KL divergence between \(q(s)\) and the generative model:
+\begin{equation}
+    D_{\text{KL}}[q(s) \parallel p(s)p(\hat o|s)] = \int q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)} \, ds.
+    \label{eq:33}
+\end{equation}
+\cref{eq:33} clearly shows that the individual is able to compute this loss function because it has access to \(p(s)\) and \(p(\hat o|s)\). Next, \cref{eq:33} will be rearranged to reveal the kind of objective that is measured by it:
+\begin{equation}
+    \begin{split}
+        D_{\text{KL}}[q(s) \parallel p(s)p(\hat o|s)] & = \int q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)} \, ds             \\
+                                                      & = \int q(s) \ln \frac{q(s)}{p(s,\hat o)} \, ds                 \\
+                                                      & = \int q(s) \ln \frac{q(s)}{p(s|\hat o)p(o)} \, ds             \\
+                                                      & = \int q(s) \ln \frac{q(s)}{p(s|\hat o)} \, ds - \ln p(\hat o)
+        \label{eq:34}
+    \end{split}
+\end{equation}
+The last line in \cref{eq:34} makes it obvious that the (computable) loss function of \cref{eq:33} consists of the uncomputable loss function of \cref{eq:32} which is appended by the summand \(- \ln p(\hat o)\). In other words, by minimizing \cref{eq:33}, the individual achieves to optimize \(q(s)\) with respect to \(p(s|\hat o)\) but the loss function will not become 0 when both distributions are equal but instead settle at the value given by the constant \(- \ln p(\hat o)\). Summarizing, the animal is able to compute the true posterior \(p(s|\hat o)\) (via optimizing \(q(s)\)) by minimizing a quantity that yields \(- \ln p(\hat o)\) at its minimimum. This residue is known as "suprise" of the observation \(\hat o\) and the quantity itself is called Variational Free Energy (VFE) and given the letter \(F\)
+\begin{equation}
+    F[q(s), \hat o] = \int q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)} \, ds = \int q(s) \ln \frac{q(s)}{p(s|\hat o)} \, ds - \ln p(\hat o),
+\end{equation}
+that is a functional of the variational distribution \(q(s)\) and the current observation \(\hat o\). Therefore \(F\) is also referred to as an upper bound on surprise, i.e, the bound is reached from above exactly when \(q(s)\) assumes the true posterior \(p(s|\hat o)\).
+
+In conclusion, the individual should minimize this quantity \(F\) to infer the hidden environmental states, which then allows it to act in a way that support its existence.
+
+
+
+\chapter{blüb}
+
+
+Note, that by defining the (indispensable) generative model, we have created an intricate situation. This is because now the individual explicitly assigns probabilities to hidden environmental states as a consequence of the necessity of knowing their probabilistic relationship to observations, i.e., the prior \(p(s)\) exists. This alone is not interesting. What makes this situation special is the animal's dependency on very specific hidden states that do not pose a threat to its continued existence. Following this, the marginal \(p(s)\) should then describe exactly these states, i.e., it should assign high probabilites to hidden states that are not dangerous. In other words \(p(s)\) might be viewed as the ecological niche of the animal in the environment that it should not leave if it "wants" to survive. As a side note, do not understand \(p(s)\) as an exact image of that environmental niche, rather it might be viewed as a functional abstraction or homomorphism of the real environmental conditions.
+
+Understanding \(p(s)\) as the animal's niche in the environment has intriguing consequences. In short, the individual must receive specific observations \(o\) that are related to specific states \(s\) (via \(p(s,o)\)), that have a high probability as given by \(p(s)\), i.e., the observations must hint that the animal did not leave its niche. This is then formally given as the marginal (evidence) \(p(o) = \int p(s,o)\,ds\) of its generative model that describes how much it "wants" to see certain observations as given by their respective probabilities, i.e., favourable observations have a higher probability in \(p(o)\).
+
+As a result the animal should then somehow act in certain ways that result in observations as defined by \(p(o)\). Crucially, acting purpuseful requires the animal to quantify this affordance. In principle this quantity is already given as the probability \(p(o)\). In reality, the individualy only has acces to \(p(s)\) and \(p(o|s)\). While these terms allow for the computation of \(p(o)\) via \(p(o) = \int p(s) p(o|s) \, ds\), in practice this integration is oftentimes intractable because of the possibly arbitrary amount of states \(s\). As a remedy for this problem, the individual can instead compute a quantity called Variational Free Energy (VFE) that can serve as a proxy to measure how well an observation fits \(p(o)\).
+
+
+
+
+\chapter{blub}
+
+
+The thesis aims at developing an Active Inference Agent that has a context state as part of its generative model and acts goal-oriented to resolve uncertainty about this context. This development task is achieved as a synthesis of three approaches: The first is Active Inference which allows for the development of behaving Agents that are intrinsically driven to be curious about the world and act purposeful to resolve uncertainty about hidden states in their generative models. The second approach entails the recently introduced Bayesian-Contextual-Control model that is strongly inspired by Active Inference and includes an additional context state in its generative model that allows for dynamic balancing between habitual and goal-directed behavior, although this balancing is beyond this work. The third is a certain modeling approach of such agents that represents their generative models as Forney factor graphs and views the behavior-underpinning inference process as custom messages sent in this graph. The three approaches are detailed in the following.
+
+\subsubsection{Active Inference}
+
+Active Inference is an emerging theory in the neurosciences that accounts for cognitive function and behavior of most living creatures. It is based on the premise that an individual survives by maintaining its body's integrity. This active maintenance is necessary because it is situated in an environement that could potentially destroy this integrity and thus end the individuals existence. In the case of animals that are capable of higher level reasoning this might be achieved as follows. Animals have developed sensors (e.g., eyes, ears, etc.) that allow them to acquire information (observations) about the outside world. Additionally, evolution has equipped them with preferences (or aversions) for certain observations. These preferences have developed in parallel with its physical bodies and are optimized to secure its integrity. As an example, consider the fear of heights. The animal does not exactly know what falling off a cliff means to the structural integrity of its organelles (e.g., tissue, bones, etc.) – the only point of reference it immediately has is strong fear. This evolutionary optimized heuristic is what is meant with preferences or aversions (e.g., the sight of height) for certain observations. Conclusively, the animal somehow "wants" to ensure to only receive the preferred observations. Luckily, most individuals have developed means to do exactly that, which is acting upon the environment. By executing actions and thus influencing the environment the animal can effectively control what it observes. Following this line of argument, it then may choose its actions wisely to receive exactly these observation that it likes (or avoid the ones it dislikes) according to its evolutionary optimized preferences. Doing this wisely requires the individual to "understand" which actions lead to which observations, i.e., it must have a model of the chain of causality starting from its actuators (e.g., limbs) going through the environment and ending at its sensors (e.g., eyes). This understanding comes in the form of a generative model. Let us view this situation in more detail. The individual is equipped with a model of the causality chain that is tuned (by evolution) to predict preferred observations at its "end". Specifically, this chain does not allow all paths of causal steps that might be possible in the outside environment but only the ones that lead to preferred observations that underwrite the animals existence. Formally, the individual's (probabilistic) generative model is given by the likelihood \(p(o|\Omega)\) and prior \(p(\Omega)\), where \(o\) models observations as the end of the causality chain and \(\Omega\) makes up for the rest of that chain including tractable paths through the environment starting from its actors that lead to preferred observations \(o\). The maxime of the animal then becomes to receive observations \(o\) that are most likely under its generative model. Crucially, this requires it to "know" how likely certain observations actually are which necessitates the computation of the marginal evidence \(p(o)\). Unfortunately, this is usually not possible in finite time because it would need to compute \(\int p(o|\Omega)p(\Omega)\, d\Omega\), which requires integration over a possibly intractable amount of states \(\Omega\). Fortunately, there is a remedy for this problem. Instead of exactly calculating the probability of observations \(p(o)\), it can calculate a proxy quantity that enables it to approximately evaluate how likely a specific observation under its generative model is. This quantity is the variational free energy (VFE). To discover this energy in more detail, we must first understand that the intractable probability \(p(o)\) can also be given as a surprise quantity \(-\ln p(o)\), that assigns low and high surprise values to likely and unlikely observations respectively. The variational free energy then becomes an upper bound on surprise, i.e., it is a quantity that needs to be minimized by the individual and reaches the exact surprise \(-\ln p(o)\) at its minimum. The VFE is given by
+\begin{equation}
+    F[o,q(\Omega)] = \int q(\Omega) \ln \frac{q(\Omega)}{p(o|\Omega)p(\Omega)} \, d\Omega.
+    \label{eq:30}
+\end{equation}
+Next, the different parts of \cref{eq:30} will be investigated. The variational free energy \(F\) is a functional (not a function), that has two arguments \(o\) and \(q\). \(o\) is the observation, for which \(F\) assigns a value, that evaluates the observation's fitting under the generative model, i.e., it is the upper bound on suprise \(-\ln p(o)\). The second argument of \(F\) is the variational distribution \(q(\Omega)\), that is subject to optimization. Basically, the variational free energy functional \(F\) is a loss function, that when minimized with respect to the parameters of \(q(\Omega)\) assumes the true surprise \(-\ln p(o)\). In this optimal case, \(q(\Omega)\) also becomes equal to the true posterior \(p(\Omega|o)\). This becomes evident when rearranging \cref{eq:30} as follows:
+\begin{equation}
+    F[o,q(\Omega)] = \int q(\Omega) \ln \frac{q(\Omega)}{p(\Omega|o)} \, d\Omega - \ln p(o).
+    \label{eq:31}
+\end{equation}
+Here, \(F\) becomes minimal exactly when \(\int q(\Omega) \ln \frac{q(\Omega)}{p(\Omega|o)} \, d\Omega\) assumes 0, which is the case when \(q(\Omega)=p(\Omega|o)\). Then, only the term \(-\ln p(o)\) remains as a non-zero contribution to \(F\), i.e., \(F\) is then equal to the true surprise \(-\ln p(o)\) and can thus be used by the individual to evaluate how likely a certain observation is under its generative model. Now, there are two aspects to consider here. First, the individual must minimize \(F\) to be able to evaluate \(-\ln p(o)\). Second, the individual also "wants" observations, that have a low surprise \(-\ln p(o)\), i.e., a high probability under its generative model. Elegantly, this second requirement is also taken into account by \(F\) because it will become even smaller when the surprise also becomes smaller. These insights lead to the central conclusion, that the individual should minimize its variational free energy \(F\) as the premise that underwrites its existence.
+
+There is something more intricate about what is actually achieved by the minimization of \(F\). It can be useful to view this process as physically embodied. Following this, the generative model itself might be realized by the wiring of the animal's nervous system, i.e., most importantly the brain. Building on this, optimizing the variational distribution \(q(\Omega)\) with respect to the variational free energy might be seen as the inference process of the animal as a result of which it forms beliefs about the outside world and also how to act in useful ways. These (stabilized) beliefs are then modeled by \(q(\Omega)\) after it has been optimized. Concluding, minimizing \(F\) can be equated to the process of thinking itself.
+
+Next, we investigate how action and planning might be realized.
+
+\chapter{knöp}
+
+In this section we introduce the general approach how to derive a message passing algorithm from a probabilistic model that enables inference for the agents presented later. Specifically, we start with a probabilistic model and show that it has a representation as a Forney factor graph. Then we introduce belief distributions that exist in the same graph. Next, we formulate a variational (Bethe) free energy functional over the probabilistic model and the belief distributions. Building on this, we identify constraints on the belief distributions. These constraints then expand the free energy functional to form a Lagrangian. This will be the starting point for deriving the messages. Specifically, by finding local stationary solutions of the Lagrangian we identify these local terms as messages on the factor graph. Furthermore, these messages can directly be used to update the belief distributions. The updated distributions are the result of the message passing procedere. Finally, the order in which messages are sent will be addressed leading to a specific schedule of execution. The following is not to be understood as a rigorous formulation nor does it cover all edge cases. Rather it should give an intuition of the procedere using a simple example. The main task in this work of deriving functional agents will be presented in later sections.
+
+\subsection{The Probabilistic Generative Model}
+The probabilistic generative model represents a system (e.g. the brain or a model of behavior) using a range of variables, including their dependencies with probability distributions to account for uncertainties within the system.
+To exemplify the principal method of building behaving agents later in this work, we will now resort to the simple probabilistic model \(p(x,y)\) which can be factorized into a prior \(p(x)\) and a likelihood \(p(y|x)\).
+
+\subsection{The Forney Factor Graph Representation}
+A Forney factor graph (FFG) is a neat tool to represent a factorized probabilistic model where probabilistic factors (e.g., \(p(x)\)) become nodes and variables (e.g., \(x\)) become edges. Our example model \(p(x,y)\) has two variables \(x,y\) and is factorized into two factors \(p(x)\) and \(p(y|x)\). This leads to an FFG that equally has two edges and two nodes as shown in Fig.~\ref{fig:1}.
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (a) {$p(x)$};
+        \node[factor, right=1.5cm of a] (b) {$p(y|x)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$};
+        \draw[edge] (b.east) -- ++(1.5cm, 0) node[midway, above, varlabel] {$y$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\).}
+    \label{fig:1}
+\end{figure}
+
+In this work we utilize a version of an FFG that requires every edge to be terminated by a node on both ends, resulting in a (terminated) Forney factor graph. To this end our model can be extended by a factor 1 resulting in \(p(x,y)=p(x)p(y|x)\cdot1\) with the (terminated) FFG shown in Fig.~\ref{fig:2}
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (a) {$p(x)$};
+        \node[factor, right=1.5cm of a] (b) {$p(y|x)$};
+        \node[factor, right=1.5cm of b] (c) {$1$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$};
+        \draw[edge] (b.east) -- (c.west) node[midway, above, varlabel] {$y$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\) with terminated edges.}
+    \label{fig:2}
+\end{figure}
+
+To facilitate future derivations we rename node factors with functions \(f\) that have indices as unique identifiers. Following this shift, the three nodes become \(p(x)=f_a(x)\), \(p(y|x)=f_b(x,y)\), and \(1=f_c(y)\) resulting in the FFG in Fig.~\ref{fig:3}. Note that \(f_c\) has an argument \(y\) because it is connected to the edge \(y\) but always results into \(1\).
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (a) {$f_a(x)$};
+        \node[factor, right=1.5cm of a] (b) {$f_b(x,y)$};
+        \node[factor, right=1.5cm of b] (c) {$f_c(y)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$};
+        \draw[edge] (b.east) -- (c.west) node[midway, above, varlabel] {$y$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\) with renamed factors (\(f_a(x)\), \(f_b(x,y)\), \(f_c(y)\)).}
+    \label{fig:3}
+\end{figure}
+
+\subsection{Belief Distributions}
+The central task of behaving agents presented later in this work will be inference. Inference basically is the process of calculating posterior distributions of the probabilistic model. For example when variable \(y\) is set to be an observation variable and gets fixed to a specific observation \(\hat{y}\), inference corresponds with calculating the posterior \(p(x|\hat{y})\). In principle this (Bayesian inversion) can exactly be done using Bayes Theorem with \(p(x|\hat{y}) = \frac{p(x)p(\hat{y}|x)}{p(\hat{y})}\). In this work we instead resort to an approximate method that relies on variational (approximate) distributions named \(q\). Refering to the little example, we are not exactly calculating \(p(x|\hat{y})\) but instead \(q(x)\) will be subject to optimization as an approximation of \(p(x|\hat{y})\). In general, \(q\) distributions are driven by any change in the whole (possibly very large) FFG (e.g. fixing multiple variables, other constraints, etc.). In other words these approximate distributions might be seen as beliefs that react to new evidence anywhere in the graph. Following this the terms approximate posteriors/distributions and beliefs (distributions) will be used synonymously in this work. In the Forney factor graph beliefs exist for all edges and nodes resulting in the FFG in Fig.~\ref{fig:4}. Here node beliefs are indexed with the respective indices of the factors (\(a,b,c\)) and edge beliefs get indices \(i,j\).
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]below:$q_b(x,y)$}, right=1.5cm of a] (b) {$f_b(x,y)$};
+        \node[factor, label={[varlabel]below:$q_c(y)$}, right=1.5cm of b] (c) {$f_c(y)$};
+
+        % Kanten
+        \draw[edge, ] (a.east) -- (b.west) node[midway, above, varlabel] {$x$} node[midway, below, varlabel] {$q_i(x)$};
+        \draw[edge] (b.east) -- (c.west) node[midway, above, varlabel] {$y$} node[midway, below, varlabel] {$q_j(y)$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\) with belief distributions.}
+    \label{fig:4}
+\end{figure}
+Edge beliefs have a clear interpretation in terms of approximate posteriors of the respective variables. In contrast, node beliefs might be seen as necessary to propagate information through nodes – although they form posterior beliefs (possibly over multiple variables) similar to edge beliefs. In some cases node beliefs can be interpreted as an approximation to joint beliefs over variables, while edge beliefs are interpreted as marginal posteriors over variables. Having \(y\) as an observations renders its corresponding variational distribution a delta distribution that enforces that the variables gets "clamped" to a specific observation \(\hat{y}\), i.e., \(q_j(y)=\delta_{y,\hat{y}}\). Note, that we use the Kronecker delta because distributions will be discrete in this work. The resulting FFG is shown in Fig.~\ref{fig:5}.
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]below:$q_b(x,y)$}, right=1.5cm of a] (b) {$f_b(x,y)$};
+        \node[factor, label={[varlabel]below:$q_c(y)$}, right=1.5cm of b] (c) {$f_c(y)$};
+
+        % Kanten
+        \draw[edge, ] (a.east) -- (b.west) node[midway, above, varlabel] {$x$} node[midway, below, varlabel] {$q_i(x)$};
+        \draw[edge] (b.east) -- (c.west) node[midway, greycircle] {$\delta$} node[midway, above=0.3, varlabel] {$y$} node[midway, below=0.25, varlabel] {$q_j(y)$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\) with an observation as a delta constraint.}
+    \label{fig:5}
+\end{figure}
+
+\subsection{The (Bethe) Free Energy Functional}
+The belief distributions \(q\) introduced above are optimized with respect to a loss function which is the variational free energy functional \(F\) (to be minimized) (also known as the negative evidence lower bound (ELBO)) of the FFG. Fundamentally, the variational free energy is the (Kullback-Leibler) divergence between the joint belief distribution \(q(x,y)\) and the probabilistic model \(p(x,y)\) with
+\begin{equation}
+    F = D_{\mathrm{KL}}(q(x,y) \parallel p(x,y)) = \sum_{x,y} q(x,y) \log \frac{q(x,y)}{p(x,y)},
+\end{equation}
+where \(q(x,y) = \frac{q_a(x)q_b(x,y)q_c(y)}{q_i(x)q_j(y)}\) and \(p(x,y) = f_a(x)f_b(x,y)f_c(y)\).
+
+This functional can be further decomposed into local free energy terms from each node as well as local entropy terms that correspond to the edges. The free energy functional of the FFG in Fig.~\ref{fig:4} then becomes
+\begin{equation}
+    \begin{split}
+        F = & \underbrace{\sum_x q_a(x) \log \frac{q_a(x)}{f_a(x)} + \sum_{x,y} q_b(x,y) \log \frac{q_b(x,y)}{f_b(x,y)} + \sum_y q_c(y) \log \frac{q_c(y)}{f_c(y)}}_{\text{Local Free Energy Terms}} \\
+            & + \underbrace{\sum_x q_i(x) \log \frac{1}{q_i(x)} + \sum_y q_j(y) \log \frac{1}{q_j(y)}}_{\text{Correcting Entropy Terms}}.
+    \end{split}
+\end{equation}
+Note that we assumed discrete distributions (e.g., categorical), leading to sums instead of integrals.
+Each local free energy at a node measures the Kullback-Leibler divergence between the local belief distribution \(q\) and the local factor \(f\). Importantly, these local free energies contain entropy terms that correspond to the edges entropy it is connected to. As an example consider the local free energy term \(\sum_x q_a(x) \log \frac{q_a(x)}{f_a(x)}\) which can be decomposed into \(- (-\sum_x q_a(x) \log q_a(x)) - \sum_x q_a(x) \log f_a(x)\). The term \(- (-\sum_x q_a(x) \log q_a(x))\) is the entropy of edge \(i\), i.e., it is equivalent to \(- (-\sum_x q_i(x) \log q_i(x))\). Similarly node \(b\) also contains this entropy of edge \(i\) as part of \(- (-\sum_{x,y} q_b(x,y) \log q_b(x,y))\). Consequently, having two nodes for every edge results into overcounting of edge entropies, i.e., it is subtracted twice. To correct for this one entropy term is added for each edge in \(F\), e.g., \(\sum_x q_i(x) \log \frac{1}{q_i(x)}\). Moreover, we still used \(q_j(y)\) in the equation. In following derivations this is substituted by the concrete distribution \(\delta_{y,\hat{y}}\). The herein used free energy functional is also known as the Bethe free energy.
+
+\subsection{The Lagrangian of the Free Energy}
+In this section we will find out that the belief distributions \(q\) will not solely be be found with respect to the variational free energy \(F\), but instead they will be determined by minimizing a Lagrangian \(L\).
+Previously we defined a Forney factor graph that contains variables, factors, and belief distributions for all of which we could define a unified free energy. For the following task of deriving a message passing algorithm we first need to focus on the constraints on beliefs distributions implied by the FFG. The central aspect here is that, first all belief distributions must meet marginalization constraints with respect to neighboring belief distributions with
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        q_i(x) & \overset{!}{=} q_a(x)          \\[0.8em]
+        q_i(x) & \overset{!}{=} \sum_y q_b(x,y)
+    \end{align}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        q_j(y) & \overset{!}{=} \sum_x q_b(x,y) \\
+        q_j(y) & \overset{!}{=} q_c(y).
+    \end{align}
+\end{minipage}
+
+\vspace{1em}
+Equivalently, they all must be normalized to be valid probability distributions with
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \sum_x q_a(x)       & \overset{!}{=} 1 \\[0.1em]
+        \sum_{x,y} q_b(x,y) & \overset{!}{=} 1 \\
+        \sum_y q_c(x)       & \overset{!}{=} 1
+    \end{align}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \sum_x q_i(x) & \overset{!}{=} 1  \\
+        \sum_y q_j(y) & \overset{!}{=} 1.
+    \end{align}
+\end{minipage}
+
+\vspace{1em}
+Adding these constraints to \(F\) leads to the Lagrangian
+\begin{equation}
+    \begin{split}
+        L = F & + \sum_x \lambda_{ia}(x) (q_i(x) - q_a(x)) + \sum_x \lambda_{ib}(x) (q_i(x) - \sum_y q_b(x,y)) \\
+              & + \sum_y \lambda_{jb}(y) (q_j(y) - \sum_x q_b(x,y)) - \sum_y \lambda_{jc}(y) (q_j(y) - q_c(y)) \\
+              & + \psi_a (\sum_x q_a(x) - 1) + \psi_b (\sum_{x,y} q_b(x,y) - 1) + \psi_c (\sum_y q_c(y) - 1)   \\
+              & + \psi_i (\sum_x q_i(x) - 1) + \psi_j (\sum_y q_j(y) - 1),
+    \end{split}
+\end{equation}
+where \(\lambda\) und \(\psi\) are Lagrange multipliers that enforce marginalization and normalization respectively. Crucially, instead of finding the belief distributions \(q\) by minimizing the variational free energy \(F\), they will be determined by minimizing the Lagrangian \(L\).
+
+\subsection{Messages and Belief Updates}
+For the message passing algorithm we now derive the messages necessary for updating the belief distributions from the Lagrangian \(L\) by finding local stationary solutions for the belief distributions. To do this, we use the functional (or variational) derivative, as \(L\) is a functional and our quantities of interest are distributions, not variables. The derivation requires multiple steps. First, \(L\) is partially differentiated with respect to each variational distribution \(q\), then variational derivatives are set to \(0\), and solved for \(q^*\):
+\begin{alignat}{3}
+     & \frac{\delta L}{\delta q_a(x)} &  & = \log q_a(x) + 1 - \log f_a(x) - \lambda_{ia}(x) + \psi_a             & \overset{!}{=} 0 \\
+     &                                &  & \Rightarrow q_a^*(x) = f_a(x) \exp(\lambda_{ia}(x)) \exp(-\psi_a - 1). & \label{eq:6}
+\end{alignat}
+By a similar argument it follows that
+\begin{alignat}{3}
+     & \Rightarrow q_b^*(x,y) &  & = f_b(x,y) \exp(\lambda_{ib}(x)) \exp(\lambda_{jb}(y)) \exp(-\psi_b - 1)                & \label{eq:7} \\
+     & \Rightarrow q_c^*(y)   &  & = f_c(y) \exp(\lambda_{jc}(y)) \exp(-\psi_c - 1)                           \label{eq:8}                \\
+     & \Rightarrow q_i^*(x)   &  & = \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x)) \exp(\psi_i - 1)             \label{eq:9}                \\
+     & \Rightarrow q_j^*(y)   &  & = \exp(\lambda_{jb}(y)) \exp(\lambda_{jc}(y)) \exp(\psi_j - 1).\label{eq:10}
+\end{alignat}
+Second, we partially solve the system of equations (\cref{eq:6,eq:7,eq:8,eq:9,eq:10}) with respect to the normalization constraints with
+\begin{alignat}{2}
+     & \sum_x q_a^*(x)                                       &  & \overset{!}{=} 1                                                             \\
+     & \sum_x f_a(x) \exp(\lambda_{ia}(x)) \exp(-\psi_a - 1) &  & = 1                                                                          \\
+     & \exp(-\psi_a - 1) \sum_x f_a(x) \exp(\lambda_{ia}(x)) &  & = 1                                                                          \\
+     & \exp(-\psi_a - 1)                                     &  & = \frac{1}{\sum_x f_a(x) \exp(\lambda_{ia}(x))}                              \\
+     & \Rightarrow q_a^*(x)                                  &  & = f_a(x) \exp(\lambda_{ia}(x)) \frac{1}{\sum_x f_a(x) \exp(\lambda_{ia}(x))} \\
+     & \Rightarrow q_a^*(x)                                  &  & \propto f_a(x) \exp(\lambda_{ia}(x)). \label{eq:1}
+\end{alignat}
+The term \(\exp(-\psi_a - 1)\) effectively becomes the normalization constant for \(q_a^*(x)\). Instead of doing this derivation repeatedly in subsequent sections, I will directly use the proportional sign \(\propto\) when defining belief distributions.
+Analogously we obtain
+\begin{alignat}{2}
+     & \Rightarrow q_b^*(x,y) &  & \propto f_b(x,y) \exp(\lambda_{ib}(x)) \exp(\lambda_{jb}(y)) \label{eq:2} \\
+     & \Rightarrow q_c^*(y)   &  & \propto f_c(y) \exp(\lambda_{jc}(y))                         \label{eq:3} \\
+     & \Rightarrow q_i^*(x)   &  & \propto \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x))          \label{eq:4} \\
+     & \Rightarrow q_j^*(y)   &  & \propto \exp(\lambda_{jb}(y)) \exp(\lambda_{jc}(y)).\label{eq:5}
+\end{alignat}
+Third, we solve the remaining system of equations (\cref{eq:1,eq:2,eq:3,eq:4,eq:5}) with respect to the marginalization constraints with
+\begin{alignat}{2}
+     & q_a^*(x)                          &  & \overset{!}{=} q_i(x)                               \\
+     & f_a(x) \exp(\lambda_{ia}(x))      &  & \propto \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x)) \\
+     & \Rightarrow \exp(\lambda_{ib}(x)) &  & \propto f_a(x). \label{eq:26}
+\end{alignat}
+Similarly, it can be shown that
+\begin{alignat}{2}
+     & \Rightarrow \exp(\lambda_{ia}(x)) &  & \propto \sum_y f_b(x,y) \exp(\lambda_{jb}(y)) \label{eq:27} \\
+     & \Rightarrow \exp(\lambda_{jc}(y)) &  & \propto \delta_{y,\hat{y}}    \label{eq:28}                 \\
+     & \Rightarrow \exp(\lambda_{jb}(y)) &  & \propto \delta_{y,\hat{y}}. \label{eq:29}
+\end{alignat}
+Note, that we substituted the Kronecker delta \(\delta_{y,\hat{y}}\) for all \(q_j(y)\) in \cref{eq:26,eq:27,eq:28,eq:29}. Finally we substitute the factors \(f\) with the real distributions in \cref{eq:26,eq:27,eq:28,eq:29} leading to
+\begin{alignat}{2}
+     & \exp(\lambda_{ib}(x)) &  & \propto p(x) \label{eq:11}                                \\
+     & \exp(\lambda_{ia}(x)) &  & \propto \sum_y p(x|y) \exp(\lambda_{jb}(y)) \label{eq:12} \\
+     & \exp(\lambda_{jc}(y)) &  & \propto \delta_{y,\hat{y}} \label{eq:13}                  \\
+     & \exp(\lambda_{jb}(y)) &  & \propto \delta_{y,\hat{y}}. \label{eq:14}
+\end{alignat}
+By following the steps above we have derived the messages (\cref{eq:11,eq:12,eq:13,eq:14}) and also how the belief distributions (\cref{eq:1,eq:2,eq:3,eq:4,eq:5}) are formed by them.
+
+\subsection{Messages in the Factor Graph}
+Having derived the four messages above, we can now view them inside the factor graph.
+Their names give a clear interpretation of their position and direction of information flow in the graph. For example, the message \(\exp(\lambda_{ia}(x))\) has indices \(i\) and \(a\), meaning that its location in the FFG is on the edge \(i\) and points towards node \(a\). The resulting graph with all messages is given in Fig.~\ref{fig:6}.
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]below:$q_b(x,y)$}, right=6cm of a] (b) {$f_b(x,y)$};
+        \node[factor, label={[varlabel]below:$q_c(y)$}, right=6cm of b] (c) {$f_c(y)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$} node[midway, below, varlabel] {$q_i(x)$} node[pos=0.2, below, varlabel] {$\exp(\lambda_{ia}(x))$}  node[pos=0.8, below, varlabel] {$\exp(\lambda_{ib}(x))$};
+        \draw[edge] (b.east) -- (c.west) node[midway, greycircle] {$\delta$} node[midway, above=0.3, varlabel] {$y$} node[midway, below=0.25, varlabel] {$q_j(y)$} node[pos=0.2, below, varlabel] {$\exp(\lambda_{jb}(y))$}  node[pos=0.8, below, varlabel] {$\exp(\lambda_{jc}(y))$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\) with messages.}
+    \label{fig:6}
+\end{figure}
+
+Using the full message names renders the FFG visually overloaded.
+Instead we use abbreviations (\(\textcolor{black}{\bm{\overleftarrow{\mu}}},\textcolor{black}{\bm{\overrightarrow{\mu}}}\)) with arrows clearly indicating the direction of information flow with \(\textcolor{black}{\bm{\overleftarrow{\mu}(}x\bm{)}} = \exp(\lambda_{ia}(x))\), \(\textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}} = \exp(\lambda_{ib}(x))\), \(\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}} = \exp(\lambda_{jb}(y))\), and \(\textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}} = \exp(\lambda_{jc}(y))\).
+The resulting FFG is given in Fig.~\ref{fig:7}.
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]below:$q_b(x,y)$}, right=4cm of a] (b) {$f_b(x,y)$};
+        \node[factor, label={[varlabel]below:$q_c(y)$}, right=4cm of b] (c) {$f_c(y)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$} node[midway, below, varlabel] {$q_i(x)$} node[pos=0.15, below, varlabel] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}x\bm{)}}$}  node[pos=0.85, below, varlabel] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}}$};
+        \draw[edge] (b.east) -- (c.west) node[midway, greycircle] {$\delta$} node[midway, above=0.3, varlabel] {$y$} node[midway, below=0.25, varlabel] {$q_j(y)$} node[pos=0.15, below, varlabel] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}$}  node[pos=0.85, below, varlabel] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}}$};
+
+    \end{tikzpicture}
+
+    \caption{FFG of the model \(p(x,y)\) with \(\bm{\mu}\) messages.}
+    \label{fig:7}
+\end{figure}
+
+\subsection{Schedule}
+
+At this point, we have determined the messages for the message passing in the FFG but have not shown how the resulting algorithm works exactly.
+Recall that its core purpose is the calculation of the variables' (edge) belief distributions (\cref{eq:4,eq:5}) with
+\begin{alignat}{2}
+     & q_i(x) &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}x\bm{)}} \textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}}  \\
+     & q_j(y) &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}} \textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}},
+\end{alignat}
+where they are the product of the two messages on the respective edges in the FFG.
+Crucially, next we will show that the four messages depend on each other. When substituting \(\bm{\mu}\) in \cref{eq:11,eq:12,eq:13,eq:14} we get
+\begin{alignat}{2}
+     & \textcolor{black}{\bm{\overleftarrow{\mu}(}x\bm{)}} \propto \sum_y p(y|x) \textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}} \\
+     & \textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}} \propto p(x)                                                             \\
+     & \textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}} \propto \delta_{y,\hat{y}}                                                \\
+     & \textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}} \propto \delta_{y,\hat{y}}.
+\end{alignat}
+This interdependence of messages (\(\textcolor{black}{\bm{\overleftarrow{\mu}(}x\bm{)}}\) depends on \(\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}\)) leads to the following order of execution in \cref{alg:7}.
+\begin{algorithm}[htbp]
+    \caption{Message Passing Algorithm of the Model \(p(x,y)\)}
+    \label{alg:7}
+    \begin{algorithmic}[1]
+        \State \textbf{evaluate} $\textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}}$, $\textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}}$ and $\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{\overleftarrow{\mu}(}x\bm{)}}$
+        \State \textbf{evaluate} $q_i(x)$ and $q_j(y)$
+    \end{algorithmic}
+\end{algorithm}
+Note, that \(\textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}}\) and \(\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}\) can be also be evaluated in step 2 and in general there can exist multiple valid schedules. Moreover, there is no order in each evaluation step, e.g., for $\textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}}$, $\textcolor{black}{\bm{\overrightarrow{\mu}(}y\bm{)}}$ and $\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}$ in step 1.
+
+\subsection{Remarks}
+Previously we mentioned that resulting belief distributions (e.g., \(q_i(x)\) and \(q_j(y)\)) are approximations of their true posteriors. While in general this is the case, in our example the beliefs are in fact exact and therefore equal to these true posteriors. This relates to a certain choice of distributions \(q\). More specifically, for nodes that connect at least two variables (only \(f_b(x,y)\) in our example) we did not assume independence of participating variables in the respective \(q\) distribution (here \(q_b(x,y) \neq q_b(x)q_b(y)\)). This leads to a message passing algorithm that keeps all these local dependencies between variables intact and enables exact inference as long as the FFG is acyclic. In our example this situation specifically leads to the Bethe free energy. Moreover the resulting message passing algorithm is also known as the Sum-Product algorithm or Belief Propagation.
+
+
+\chapter{Agents}
+
+\subsection{Bethe Free Energy (BFE) Agent}
+
+In this section I present the generative model of the BFE Agent and also derive a message passing algorithm on its factor graph represention based on the recipe from \cref{sec:1} that enables it with inference. Aside from this, it will also be explained how the agent can perceive and act which makes its behavioral repetoire complete. These insights will also be the basis for the three agents presented in later sections of this work.
+
+\subsubsection{The Temporal Generative Model}
+
+As outlined previously the temporal generative model is the substrate that enables the agent to understand the environment, integrate observations, keep memories, plan into the future, select useful actions, and perform inference. Throughout this work the time horizon of temporal generative models will be \(T=3\). The resulting POMDP is then given by
+\begin{equation}
+    \begin{split}
+        p(o_0, o_1, o_2, s_0, s_1, s_2, a_0, a_1) = \; & \tilde{p}(o_0) p(o_0|s_0) p(s_0) \tilde{p}(o_1) p(o_1|s_1) p(s_1|s_0,a_0) p(a_0) \\
+                                                       & \tilde{p}(o_2) p(o_2|s_2) p(s_2|s_1,a_1) p(a_1).
+        \label{eq:15}
+    \end{split}
+\end{equation}
+
+The temporal generative model of \cref{eq:15} has a clear representation as a Forney factor graph (\cref{fig:8}).
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q(s_0)$}] (d) {$p(s_0)$};
+        \node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+        \node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+        \node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+        \node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,u_0)$};
+        \node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+        \node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+        \node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+        \node[factor, right=1.8cm of eq1] (B1) {$p(s_2|s^{\scriptscriptstyle I}_1,u_1)$};
+        \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$p(o_2|s_2)$};
+        \node[factor, below=1.5cm of A2] (c2) {$\tilde{p}(o_2)$};
+        \node[factor, above=1.5cm of B0] (u0) {$p(u_0)$};
+        \node[factor, above=1.5cm of B1] (u1) {$p(u_1)$};
+
+        % Kanten zwischen Knoten
+        \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$s_0$};
+
+        \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_0$};
+
+        \draw[edge] (A0.south) -- (c0.north) node[midway, left, varlabel] {$o_0$};
+
+        \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_0$};
+
+        \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$u_0$};
+
+        \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$s_1$};
+
+        \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_1$};
+
+        \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$o_1$};
+
+        \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_1$};
+
+        \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$s_2$};
+
+        \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$o_2$};
+
+        \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$u_1$};
+
+        % Kanten an Knoten
+
+    \end{tikzpicture}
+
+    \caption{Factor graph of the temporal generative model.}
+    \label{fig:8}
+\end{figure}
+The distributions are modeled by nodes while variables exist on edges. Related to this, there is a specialty about factor graphs that needs to be addressed. Edges are allowed to have a maximum number of two of connected nodes. The variables \(s_0\) and \(s_1\) are used in more than two distributions each (\(p(s_0)\), \(p(s_1|s_0,u_0)\), \(p(o_0|s_0)\)) and (\(p(s_1|s_0,u_0)\), \(p(o_0|s_0)\), \(p(s_2|s_1,u_1)\)) respectively. This leads to a situation where the edges of both variables should be connected to three nodes each. To accommodate for this problem equality nodes (\(=\)) are introduced that exist at the respective T-shaped edges in the graph. Effectively, the single T-shaped edge is split into three distinct edges. This leads to a technical duplication of the respective variables in the graph (\(s_0 \rightarrow s_0, s^{\scriptscriptstyle I}_0, s^{\scriptscriptstyle II}_0\)) and (\(s_1 \rightarrow s_1, s^{\scriptscriptstyle I}_1, s^{\scriptscriptstyle II}_1\)). Importantly, the duplication of these variables has no effect on the inference process presented later.
+
+\subsubsection{Inference}
+
+Having the temporal generative model represented as a Forney factor graph allows for a straighforward derivation of the inference procedere based on messages that are sent in the graph. Recall, that the reason for doing inference are the belief distributions \(q\) that exist for all edges and nodes (see \(q\) distributions \cref{fig:24}). During inference these will converge to approximate (marginal) posteriors distributions that eventually enable the agent to sample useful actions from.
+In accordance with \cref{sec:1} inference requires a loss function to be minimized. This function is a Lagrangian \(L\) that entails a variational free energy functional and normalization and marginalization constraints.
+For the temporal generative model it is given by
+
+.
+Here, the constraints are subsumed into the variable C.
+Next, local stationary points of the belief distributions can be derived and using the marginalization constraints we arrive at terms that can be interpreted as messages on the graph's edges that also allows for the final computation of the belief distributions.
+These derivations strictly follow \cref{sec:1}. Instead of indiviually deriving all messages in the whole graph, I will show the derivations for two distinct cases that occur. First, for messages sent from equality nodes, and second for the remaining messages. Fundamentally they all follow the same principles and are named Bethe messages because they stem from a pure Bethe free energy. This clarification will become increasingly important in later sections of the other three agents where the underlying free energy will include additional constraints, thus it is not pure Bethe anymore, such that resulting messages will be totally different.
+
+To show the kind of messages sent from equality nodes we will consider the left equality node in the graph that has an edge to node \(p(s_0)\). The central aspect about equality nodes is that they have a factor function that guarantees that all connected variables (on edges) maintain equal values. Concretely, this is enforced by a product of Kronecker deltas (in the case of discrete distributions). Here the factor function of the left equality node is then given by
+\begin{equation}
+    f_= = \delta_{x,x^{\scriptscriptstyle I}} \delta_{x,x^{\scriptscriptstyle II}}.
+\end{equation}
+
+
+For the following derivation, only parts of the Lagrangian that relate to this node will be necessary. This partial Lagrangian is given by
+
+.
+Following the recipe of \cref{sec:1} the
+
+
+\subsubsection{Terminating-Node Messages}
+
+This section introduces the messages that are sent by terminating nodes in the factor graph. The general approach is as follows. Consider the FFG in \cref{fig:9} where we are interested in \(\textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}\).
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]below:$q_b(x,y)$}, right=4cm of a] (b) {$f_b(x,y)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$} node[midway, below, varlabel] {$q_i(x)$} node[pos=0.85, below, varlabel] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}$};
+        \draw[edge] (b.east) -- ++(1.5cm,0) node[midway, above, varlabel] {$y$};
+
+    \end{tikzpicture}
+
+    \caption{Example FFG with terminating-node message (\textcolor{orange}{orange}).}
+    \label{fig:9}
+\end{figure}
+First, we need to identify the free energy functional of the FFG, which is given by
+\begin{equation}
+    \begin{split}
+        F = & \sum_x q_a(x) \log \frac{q_a(x)}{f_a(x)} + \sum_{x,y} q_b(x,y) \log \frac{q_b(x,y)}{f_b(x,y)} + \sum_x q_i(x) \log \frac{1}{q_i(x)}.
+    \end{split}
+\end{equation}
+Next, the belief distributions must meet the normalization and marginalization constraints
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \sum_x q_a(x)       & \overset{!}{=} 1 \\
+        \sum_{x,y} q_b(x,y) & \overset{!}{=} 1 \\
+        \sum_x q_i(x)       & \overset{!}{=} 1
+    \end{align}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        q_i(x) & \overset{!}{=} q_a(x)           \\[0.8em]
+        q_i(x) & \overset{!}{=} \sum_y q_b(x,y),
+    \end{align}
+\end{minipage}
+
+\vspace{1em}
+which leads to the Lagrangian
+\begin{equation}
+    \begin{split}
+        L = & \sum_x q_a(x) \log \frac{q_a(x)}{f_a(x)} + \sum_{x,y} q_b(x,y) \log \frac{q_b(x,y)}{f_b(x,y)} + \sum_x q_i(x) \log \frac{1}{q_i(x)} \\
+            & + \psi_a (\sum_x q_a(x) - 1) + \psi_b (\sum_{x,y} q_b(x,y) - 1) + \psi_i (\sum_x q_i(x) - 1)                                        \\
+            & + \sum_x \lambda_{ia}(x) (q_i(x) - q_a(x)) + \sum_x \lambda_{ib}(x) (q_i(x) - \sum_y q_b(x,y)).
+    \end{split}
+\end{equation}
+
+Following this, we can now find local stationary solutions with respect to the three belief distributions \(q_a(x), q_b(x,y)\), and \(q_i(x)\) with
+\begin{alignat}{3}
+     & \frac{\delta L}{\delta q_a(x)}   &  & = \log q_a(x) + 1 - \log f_a(x) - \lambda_{ia}(x) + \psi_a                             & \overset{!}{=} 0    \\
+     &                                  &  & \Rightarrow q_a^*(x) \propto f_a(x) \exp(\lambda_{ia}(x))                              & \label{eq:17}       \\
+     & \frac{\delta L}{\delta q_b(x,y)} &  & = \log q_b(x,y) + 1 - \log f_b(x,y) - \lambda_{ib}(x) + \psi_b                         & \; \overset{!}{=} 0 \\
+     &                                  &  & \Rightarrow q_b^*(x) \propto f_b(x) \exp(\lambda_{ib}(x))                              & \label{eq:18}       \\
+     & \frac{\delta L}{\delta q_i(x)}   &  & = - \log q_i(x) - 1 + \lambda_{ia}(x) + \lambda_{ib}(x) + \psi_i                       & \overset{!}{=} 0    \\
+     &                                  &  & \Rightarrow q_i^*(x) \propto \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x)) \label{eq:19}
+\end{alignat}
+and solve the system of equations (\cref{eq:17,eq:18,eq:19}) for \(\textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}(=\exp(\lambda_{ib}(x)))\) using the marginalization constraint \(q_a^*(x) \overset{!}{=} q_i(x)\) with
+\begin{alignat}{2}
+     & q_a^*(x)                                                          &  & \overset{!}{=} q_i(x)                               \\
+     & f_a(x) \exp(\lambda_{ia}(x))                                      &  & \propto \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x)) \\
+     & \Rightarrow \exp(\lambda_{ib}(x))                                 &  & \propto f_a(x)                                      \\
+     & \Rightarrow \textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}} &  & \propto f_a(x).
+\end{alignat}
+This derivation shows that the outgoing message from a terminating node to its neighbor node is the factor function of the terminating node, i.e., \(f_a(x)\) in this example.
+
+Following this the outgoing messages from the terminating nodes in the factor graph of the temporal generative model (\cref{fig:10}) can now be clearly stated with
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \textcolor{blue}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} & \propto p(s_0) \\
+        \textcolor{blue}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}    & \propto p(u_0) \\
+        \textcolor{blue}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}    & \propto p(u_1)
+    \end{align}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \textcolor{blue}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} & \propto \tilde{p}(o_0)  \\
+        \textcolor{blue}{\bm{{\uparrow}{\mu}(}o_1\bm{)}} & \propto \tilde{p}(o_1)  \\
+        \textcolor{blue}{\bm{{\uparrow}{\mu}(}o_2\bm{)}} & \propto \tilde{p}(o_2).
+    \end{align}
+\end{minipage}
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (d) {$p(s_0)$};
+        \node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+        \node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+        \node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+        \node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,u_0)$};
+        \node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+        \node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+        \node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+        \node[factor, right=1.8cm of eq1] (B1) {$p(s_2|s^{\scriptscriptstyle I}_1,u_1)$};
+        \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$p(o_2|s_2)$};
+        \node[factor, below=1.5cm of A2] (c2) {$\tilde{p}(o_2)$};
+        \node[factor, above=1.5cm of B0] (u0) {$p(u_0)$};
+        \node[factor, above=1.5cm of B1] (u1) {$p(u_1)$};
+
+        % Kanten zwischen Knoten
+        \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$s_0$} node[near end, below, varlabel, scale=0.7] {$\textcolor{blue}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}$};
+
+        \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_0$};
+
+        \draw[edge] (A0.south) -- (c0.north) node[midway, left, varlabel] {$o_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$};
+
+        \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_0$};
+
+        \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$u_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}$};
+
+        \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$s_1$};
+
+        \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_1$};
+
+        \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$o_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$};
+
+        \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_1$};
+
+        \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$s_2$};
+
+        \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$o_2$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$};
+
+        \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$u_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}$};
+
+        % Kanten an Knoten
+
+    \end{tikzpicture}
+
+    \caption{Factor graph of the temporal generative model with outgoing messages from terminating nodes (\textcolor{blue}{blue}).}
+    \label{fig:10}
+\end{figure}
+
+\subsubsection{Bethe Messages}
+
+This section focuses on the messages sent by nodes whose local free energy is the Bethe free energy which enables exact local inference. In general we assume that the inference process in the factor graph is driven by a variational free energy, which means the resulting belief distributions are only approximations rather than the result of exact Bayesian inference. The reason for this situation is at the nodes themselves. More precisely, the resulting belief distributions will only be exact if all nodes in the graph propagate information, i.e., incoming messages without a loss. Such a loss of information can occur if a node locally assumes that its variables are stochastically independent. For example, for a node \(n\) with variables \(x\) and \(y\) this is true if \(q_n(x,y) = q_n(x)q_n(y)\). Note that \(f_n(x,y)\) may still model dependencies of \(x\) and \(y\). In this situation the (mean-field) factorization \(q_n(x)q_n(y)\) cannot model these dependencies and can therefore only be an approximation of the true local function \(f_n(x,y)\). On the other hand, if a node locally models these dependencies between its variables with its \(q\) distribution then information gets propagated without a loss and the node-local inference process becomes exact. In this case, the node locally assumes the Bethe free energy. Consider the factor graph in \cref{fig:11} where node \(b\) locally assumes the Bethe free energy \(F_b\) with
+\begin{equation}
+    F_b = \sum_{x,y,z} q_b(x,y,z) \log \frac{q_b(x,y,z)}{f_b(x,y,z)},
+\end{equation}
+i.e., \(q_b(x,y,z)\) respects the dependencies between \(x\), \(y\), and \(z\).
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]above:$q_b(x,y,z)$}, right=4cm of a] (b) {$f_b(x,y,z)$};
+        \node[factor, label={[varlabel]below:$q_d(z)$}, below=3cm of b] (d) {$f_d(z)$};
+        \node[factor, label={[varlabel]below:$q_c(y)$}, right=4cm of b] (c) {$f_c(y)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, above, varlabel] {$x$} node[midway, below, varlabel] {$q_i(x)$} node[pos=0.15, below, varlabel] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}$} node[pos=0.85, below, varlabel] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}}$};
+        \draw[edge] (b.south) -- (d.north) node[midway, left, varlabel] {$z$} node[midway, right, varlabel] {$q_k(z)$} node[pos=0.85, right=0.05, varlabel] {$\textcolor{orange}{\bm{{\downarrow}{\mu}(}z\bm{)}}$} node[pos=0.15, right=0.05, varlabel] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}z\bm{)}}$};
+        \draw[edge] (b.east) -- (c.west) node[midway, above, varlabel] {$y$} node[midway, below, varlabel] {$q_j(y)$} node[pos=0.85, below, varlabel] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}y\bm{)}}$} node[pos=0.15, below, varlabel] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}$};
+
+    \end{tikzpicture}
+
+    \caption{Example FFG with Bethe messages (\textcolor{orange}{orange}).}
+    \label{fig:11}
+\end{figure}
+Now we determine the messages \(\textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}\), \(\textcolor{orange}{\bm{\overrightarrow{\mu}(}y\bm{)}}\), and \(\textcolor{orange}{\bm{{\downarrow}{\mu}(}z\bm{)}}\) which are going out of node \(b\) to its neighbor nodes \(a\), \(c\), and \(d\). First we must define the free energy functional of the FFG as given by
+\begin{equation}
+    \begin{split}
+        F = & \sum_{x,y,z} q_b(x,y,z) \log \frac{q_b(x,y,z)}{f_b(x,y,z)} + \sum_x q_a(x) \log \frac{q_a(x)}{f_a(x)} + \sum_y q_c(y) \log \frac{q_c(y)}{f_c(y)} \\
+            & + \sum_z q_d(z) \log \frac{q_d(z)}{f_d(z)} + \sum_x q_i(x) \log \frac{1}{q_i(x)} + \sum_y q_j(y) \log \frac{1}{q_j(y)}                           \\
+            & + \sum_z q_k(z) \log \frac{1}{q_k(z)}.
+    \end{split}
+\end{equation}
+Adding marginalization and normalization constraints to \(F\) leads to the Lagrangian
+\begin{equation}
+    \begin{split}
+        L = & \; F + \sum_x \lambda_{ib}(x) (q_i(x) - \sum_{y,z} q_b(x,y,z)) + \sum_y \lambda_{jb}(y) (q_j(y) - \sum_{x,z} q_b(x,y,z))     \\
+            & + \sum_z \lambda_{kb}(z) (q_k(z) - \sum_{x,y} q_b(x,y,z)) + \sum_x \lambda_{ia}(x) (q_i(x) - q_a(x))                         \\
+            & + \sum_y \lambda_{jc}(y) (q_j(y) - q_c(y)) + \sum_z \lambda_{kd}(z) (q_k(z) - q_d(z)) + \psi_b (\sum_{x,y,z} q_b(x,y,z) - 1) \\
+            & + \psi_a (\sum_x q_a(x) - 1) + \psi_c (\sum_y q_c(y) - 1) + \psi_d (\sum_z q_d(z) - 1)                                       \\
+            & + \psi_i (\sum_x q_i(x) - 1) + \psi_j (\sum_y q_j(y) - 1) + \psi_k (\sum_z q_k(z) - 1).
+    \end{split}
+\end{equation}
+Solving the belief distributions in \(L\) for the stationary points then yields
+\begin{alignat}{3}
+     & \frac{\delta L}{\delta q_b(x,y,z)} &  & = \log q_b(x,y,z) + 1 - \log f_b(x,y,z) - \lambda_{ib}(x) - \lambda_{jb}(y) - \lambda_{kb}(z) + \psi_b         & \; \overset{!}{=} 0 \\
+     &                                    &  & \Rightarrow q_b^*(x,y,z) \propto f_b(x,y,z) \exp(\lambda_{ib}(x)) \exp(\lambda_{jb}(y)) \exp(\lambda_{kb}(z)).
+\end{alignat}
+Similarly
+\begin{alignat}{3}
+     & \Rightarrow q_a^*(x) \propto f_a(x) \exp(\lambda_{ia}(x))                 \\
+     & \Rightarrow q_c^*(y) \propto f_c(y) \exp(\lambda_{jc}(y))                 \\
+     & \Rightarrow q_d^*(z) \propto f_d(z) \exp(\lambda_{kd}(z))                 \\
+     & \Rightarrow q_i^*(x) \propto \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x))  \\
+     & \Rightarrow q_j^*(y) \propto \exp(\lambda_{jb}(y)) \exp(\lambda_{jc}(y))  \\
+     & \Rightarrow q_k^*(z) \propto \exp(\lambda_{kb}(z)) \exp(\lambda_{kd}(z)).
+\end{alignat}
+Next, we use the marginalization constraint \(\sum_{y,z} q_b^*(x,y,z) \overset{!}{=} q_i^*(x)\) to solve for the message sent by node \(b\) to node \(a\) (via edge \(i\)) with
+\begin{alignat}{2}
+     & \sum_{y,z} q_b^*(x,y,z)                                                                                                                                                                              &  & \overset{!}{=} q_i^*(x)                             \\
+     & \sum_{y,z} f_b(x,y,z) \exp(\lambda_{ib}(x)) \exp(\lambda_{jb}(y)) \exp(\lambda_{kb}(z))                                                                                                              &  & \propto \exp(\lambda_{ia}(x)) \exp(\lambda_{ib}(x)) \\
+     & \Rightarrow \exp(\lambda_{ia}(x))              \propto \sum_{y,z} f_b(x,y,z) \exp(\lambda_{jb}(y)) \exp(\lambda_{kb}(z))                                                                                                                                      \\
+     & \Rightarrow \textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}  \propto \sum_{y,z} f_b(x,y,z) \textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}z\bm{)}}.
+\end{alignat}
+Analogously using the constraints \(\sum_{x,z} q_b^*(x,y,z) \overset{!}{=} q_j^*(y)\) and \(\sum_{x,y} q_b^*(x,y,z) \overset{!}{=} q_k^*(z)\) we obtain
+\begin{alignat}{2}
+     & \Rightarrow \textcolor{orange}{\bm{\overrightarrow{\mu}(}y\bm{)}} \propto \sum_{x,z} f_b(x,y,z) \textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}z\bm{)}} \label{eq:20} \\
+     & \Rightarrow \textcolor{orange}{\bm{{\downarrow}{\mu}(}z\bm{)}} \propto \sum_{x,y} f_b(x,y,z) \textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}} \textcolor{black}{\bm{\overleftarrow{\mu}(}y\bm{)}}.
+\end{alignat}
+This derivation reveals that outgoing messages from a node (\(b\)) that locally assumes the Bethe free energy is the factor function itself (\(f_b\)) multiplied with all incoming messages (e.g., \(\textcolor{black}{\bm{\overrightarrow{\mu}(}x\bm{)}}\), \(\textcolor{black}{\bm{{\uparrow}{\mu}(}z\bm{)}}\) in \cref{eq:20}) from its neighbors (except from the neighbor that is the addressee of the outgoing message) where all variables of the incoming messages get summed over (e.g., \(x\) and \(z\) in \cref{eq:20}).
+
+Using this blueprint we can now clearly state the Bethe messages in the temporal generative model (\cref{fig:12}) with
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{alignat}{2}
+         & \textcolor{blue}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}} &  & =  \sum_{u_0,s_1} p(s_1|s^{\scriptscriptstyle I}_0,u_0) \textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}} \textcolor{gray}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}                                                \\
+         & \textcolor{blue}{\bm{{\uparrow}{\mu}(}u_0\bm{)}}                            &  & = \sum_{s^{\scriptscriptstyle I}_0,s_1} p(s_1|s^{\scriptscriptstyle I}_0,u_0) \textcolor{gray}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}} \textcolor{gray}{\bm{\overleftarrow{\mu}(}s_1\bm{)}} \\
+         & \textcolor{blue}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}                       &  & = \sum_{s^{\scriptscriptstyle I}_0,u_0} p(s_1|s^{\scriptscriptstyle I}_0,u_0) \textcolor{gray}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}  \\
+         & \textcolor{blue}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} &  & = \sum_{u_1,s_2} p(s_2|s^{\scriptscriptstyle I}_1,u_1) \textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}} \textcolor{blue}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}                                                 \\
+         & \textcolor{blue}{\bm{{\uparrow}{\mu}(}u_1\bm{)}}                            &  & = \sum_{s^{\scriptscriptstyle I}_1,s_2} p(s_2|s^{\scriptscriptstyle I}_1,u_1) \textcolor{gray}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} \textcolor{blue}{\bm{\overleftarrow{\mu}(}s_2\bm{)}} \\
+         & \textcolor{blue}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}                          &  & = \sum_{s^{\scriptscriptstyle I}_1,u_1} p(s_2|s^{\scriptscriptstyle I}_1,u_1) \textcolor{gray}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}
+    \end{alignat}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{alignat}{2}
+         & \textcolor{blue}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}    &  & = \sum_{o_0} p(o_0|s^{\scriptscriptstyle II}_0) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}                                                  \\
+         & \textcolor{blue}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}                          &  & = \sum_{s^{\scriptscriptstyle II}_0} p(o_0|s^{\scriptscriptstyle II}_0) \textcolor{gray}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}} \\
+         & \textcolor{blue}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}    &  & = \sum_{o_1} p(o_1|s^{\scriptscriptstyle II}_1) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}                                                  \\
+         & \textcolor{blue}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}                          &  & = \sum_{s^{\scriptscriptstyle II}_1} p(o_1|s^{\scriptscriptstyle II}_1) \textcolor{gray}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}} \\
+         & \textcolor{blue}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} &  & = \sum_{o_2} p(o_0|s_2) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}                                                                          \\
+         & \textcolor{blue}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}                          &  & = \sum_{s_2} p(o_2|s_2) \textcolor{blue}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}
+    \end{alignat}
+\end{minipage}
+\vspace{1em}
+
+Note that we need the messages sent by equality nodes (\textcolor{gray}{gray}) for the definitions of the Bethe messages. They will be properly explained in the next section of this work.
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (d) {$p(s_0)$};
+        \node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+        \node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+        \node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+        \node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,u_0)$};
+        \node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+        \node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+        \node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+        \node[factor, right=1.8cm of eq1] (B1) {$p(s_2|s^{\scriptscriptstyle I}_1,u_1)$};
+        \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$p(o_2|s_2)$};
+        \node[factor, below=1.5cm of A2] (c2) {$\tilde{p}(o_2)$};
+        \node[factor, above=1.5cm of B0] (u0) {$p(u_0)$};
+        \node[factor, above=1.5cm of B1] (u1) {$p(u_1)$};
+
+        % Kanten zwischen Knoten
+        \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$s_0$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}$};
+
+        \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_0$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{gray}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$};
+
+        \draw[edge] (A0.south) -- (c0.north) node[midway, left, varlabel] {$o_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}$};
+
+        \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_0$} node[near start, below, varlabel, scale=0.7] {$\textcolor{blue}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{gray}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$};
+
+        \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$u_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}u_0\bm{)}}$};
+
+        \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$s_1$} node[near end, below, varlabel, scale=0.7] {$\textcolor{blue}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{gray}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}$};
+
+        \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_1$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{gray}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$};
+
+        \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$o_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}$};
+
+        \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_1$} node[near start, below, varlabel, scale=0.7] {$\textcolor{blue}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{gray}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$};
+
+        \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$s_2$} node[pos=0.89, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}$} node[pos=0.11, below, varlabel, scale=0.7] {$\textcolor{blue}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}$};
+
+        \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$o_2$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}$};
+
+        \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$u_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}u_1\bm{)}}$};
+
+        % Kanten an Knoten
+
+    \end{tikzpicture}
+
+    \caption{Factor graph of the temporal generative model with Bethe messages (\textcolor{blue}{blue}).}
+    \label{fig:12}
+\end{figure}
+
+\subsubsection{Equality-Node Messages}
+
+
+
+\subsubsection{Observation (Delta) Constraints}
+
+In this section I present how observations that are generated by the environment can be perceived by the agent by imposing constraints on the factor graph of its temporal generative model. Additionally this section also contains the derivation of messages resulting from these constraints in the graph. The agent explicitly models observations at different time points, e.g., with \(o_0\), \(o_1\), and \(o_2\) as variables in the factor graph of its temporal generative model. In general, perception for the agent means that the observation variable \(o_t\) of the current time step \(t\) gets fixed (clamped) to the actual observed value \(o_t'\). The clamping is realized by constraining the corresponding belief distribution \(q(o_t)\) of the current observation variable with a delta distribution \(\delta_{o_t,o_t'}\). This effectively puts all the probability mass at the event of the actual observed value \(o_t'\). When doing inference, i.e., message passing in the factor graph these observed values persist and thus drive and influence the remaining "free" belief distributions (e.g., from control states) in the graph. I will elaborate on this mechanism later in this section.
+For now I will consider the example FFG in \cref{fig:15} that has a delta constraint and derive the messages (\(\textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}, \textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}\)) following the constraint.
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor, label={[varlabel]below:$q_a(x)$}] (a) {$f_a(x)$};
+        \node[factor, label={[varlabel]below:$q_b(x)$}, right=4cm of a] (b) {$f_b(x)$};
+
+        % Kanten
+        \draw[edge] (a.east) -- (b.west) node[midway, greycircle] {$\delta$} node[midway, above=0.3, varlabel] {$y$} node[midway, below=0.25, varlabel] {$q_i(x)$} node[pos=0.15, below, varlabel] {$\textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}$}  node[pos=0.85, below, varlabel] {$\textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}$};
+
+    \end{tikzpicture}
+
+    \caption{Example FFG with a delta constraint and the resulting messages (\textcolor{orange}{orange}).}
+    \label{fig:15}
+\end{figure}
+
+Having a delta constraint on the edge \(i\) is visualized with a gray bead in the middle of that edge. As mentioned before this implicates that the corresponding belief distribution \(q_i\) is a delta distribution that has its whole probability mass at a certain event \(x'\), i.e., \(q_i(x) = \delta_{x,x'}\). This constraint leads to specific messages \(\textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}, \textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}\) as follows. For the derivation of these messages we follow the usual steps from previous sections and first define the free energy functional, then impose marginalization and normalization constraints to arrive at the Lagrangian and finally solve for the stationary solutions of the \(q\) distributions and rearrange for the messages using the marginalization constraints.
+The free energy functional of the factor graph in \cref{fig:15} is
+\begin{equation}
+    \begin{split}
+        F = & \sum_x q_a(x) \log \frac{q_a(x)}{f_a(x)} + \sum_{x} q_b(x) \log \frac{q_b(x)}{f_b(x)} + \sum_x q_i(x) \log \frac{1}{q_i(x)},
+    \end{split}
+\end{equation}
+where the delta distribution is not yet substituted for \(q_i(x)\). Following this, the Lagrangian then is
+\begin{equation}
+    \begin{split}
+        L = & \; F + \psi_a (\sum_x q_a(x) - 1) + \psi_b (\sum_{x} q_b(x) - 1) + \psi_i (\sum_x q_i(x) - 1) \\
+            & + \sum_x \lambda_{ia}(x) (q_i(x) - q_a(x)) + \sum_x \lambda_{ib}(x) (q_i(x) - q_b(x)).
+    \end{split}
+\end{equation}
+Solving the belief distributions in \(L\) for the stationary points then yields
+\begin{alignat}{3}
+     & \frac{\delta L}{\delta q_a(x)} &  & = \log q_a(x) + 1 - \log f_a(x) - \lambda_{ia}(x) + \psi_b & \; \overset{!}{=} 0 \\
+     &                                &  & \Rightarrow q_a^*(x) \propto f_a(x) \exp(\lambda_{ia}(x)).
+\end{alignat}
+Similarly
+\begin{alignat}{3}
+     & \Rightarrow q_b^*(x) \propto f_b(x) \exp(\lambda_{ib}(x)).
+\end{alignat}
+Solving for the stationary solution of \(q_i(x)\) is not necessary because we already know that it is defined as a delta distribution, i.e.,
+\begin{alignat}{3}
+     & \Rightarrow q_i^*(x) \propto \delta_{x,x'}.
+\end{alignat}
+Next, we use the marginalization constraint \(q_a^*(x) \overset{!}{=} q_i^*(x)\) to solve for the message \(\textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}\) with
+\begin{alignat}{2}
+     & q_a^*(x)                                                                                          &  & \overset{!}{=} q_i^*(x) \\
+     & f_a(x) \exp(\lambda_{ia}(x))                                                                      &  & \propto \delta_{x,x'}   \\
+     & \Rightarrow \exp(\lambda_{ia}(x))              \propto \frac{\delta_{x,x'}}{f_a(x)} \label{eq:23}                              \\
+     & \Rightarrow \exp(\lambda_{ia}(x))              \propto \delta_{x,x'}                                                           \\
+     & \Rightarrow \textcolor{orange}{\bm{\overleftarrow{\mu}(}x\bm{)}}  \propto \delta_{x,x'}.
+\end{alignat}
+Note that \(\frac{\delta_{x,x'}}{f_a(x)}\) in \cref{eq:23} evaluates to \(\delta_{x,x'}\). To understand this, consider the following two cases. First, if \(x \neq x'\) then both \(\frac{\delta_{x,x'}}{f_a(x)}\) and \(\delta_{x,x'}\) yield 0 as the result. Second, if \(x = x'\) then \(\delta_{x,x'}\) will result into 1 and  \(\frac{\delta_{x,x'}}{f_a(x)}\) will result into some positive number (not 0). For the the latter normalization ensures that this arbitrary number will be 1 because all other outcomes already have probability 0 as outlined in the first case.
+
+Similarly using the constraint \(q_b^*(x) \overset{!}{=} q_i^*(y)\) we obtain
+\begin{alignat}{2}
+     & \Rightarrow \textcolor{orange}{\bm{\overrightarrow{\mu}(}x\bm{)}}  \propto \delta_{x,x'}.
+\end{alignat}
+The derivations hint that a delta constraint on an edge leads to messages that are equal to that delta distribution. In turn this means, that neither node \(a\) or \(b\) receive any information from the neighoring node because the delta constraint effectively blocks any information flow on that edge.
+
+Now we can transfer the derived messages on edges with delta distributions to show how observations get integrated into the factor graph of the temporal generative model of the agent.
+For this we consider the scenario where the agent has already perceived an observation \(o'_0\) in the past at timestep 0 and is currently at timestep 1 where it also got an observation \(o'_1\).  The resulting factor graph with corresponding delta constraints is given in \cref{fig:16}.
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (d) {$p(s_0)$};
+        \node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+        \node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+        \node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+        \node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,u_0)$};
+        \node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+        \node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+        \node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+        \node[factor, right=1.8cm of eq1] (B1) {$p(s_2|s^{\scriptscriptstyle I}_1,u_1)$};
+        \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$p(o_2|s_2)$};
+        \node[factor, below=1.5cm of A2] (c2) {$\tilde{p}(o_2)$};
+        \node[factor, above=1.5cm of B0] (u0) {$p(u_0)$};
+        \node[factor, above=1.5cm of B1] (u1) {$p(u_1)$};
+
+        % Kanten zwischen Knoten
+        \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$s_0$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}$};
+
+        \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_0$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$};
+
+        \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$o_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}$};
+
+        \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_0$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$};
+
+        \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$u_0$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}u_0\bm{)}}$};
+
+        \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$s_1$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}$};
+
+        \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$s^{\scriptscriptstyle II}_1$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$};
+
+        \draw[edge] (A1.south) -- (c1.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$o_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{blue}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}$};
+
+        \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$s^{\scriptscriptstyle I}_1$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$};
+
+        \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$s_2$} node[pos=0.89, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}$} node[pos=0.11, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}$};
+
+        \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$o_2$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}$};
+
+        \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$u_1$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}u_1\bm{)}}$};
+
+        % Kanten an Knoten
+
+    \end{tikzpicture}
+
+    \caption{Factor graph of the temporal generative model with messages sent on edges with delta constraints (\textcolor{blue}{blue}).}
+    \label{fig:16}
+\end{figure}
+
+Following the blueprint from the example FFG in \cref{fig:15} the messages on the edges with delta constraints are
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \textcolor{blue}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}   & \propto \delta_{o_0,o'_0} \\
+        \textcolor{blue}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} & \propto \delta_{o_0,o'_0}
+    \end{align}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{align}
+        \textcolor{blue}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}   & \propto \delta_{o_1,o'_1}  \\
+        \textcolor{blue}{\bm{{\downarrow}{\mu}(}o_1\bm{)}} & \propto \delta_{o_1,o'_1}.
+    \end{align}
+\end{minipage}
+
+\vspace{1em}
+In this situation the agent has effectively remembered what it has observed in the past at \(t=0\). This memory together with the observation at the current timestep \(t=1\) influences what the agent will infer for the belief distributions of the remaining variables in the temporal generative model. This is the central mechanism that enables the agent to form beliefs about future actions (e.g., \(u_1\)) that when executed lead to disered future observations (e.g., \(o_2\)) with respect to preferences encoded by \(\tilde{p}(o_2)\). In other words information flows from past and current delta constraints (starting with messages \(\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}\) and \(\textcolor{blue}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}\)) into parts of the temporal generative model that represents the future. This information flow in the factor graph realizes the planning process of the agent.
+Going further, when time proceeds to timestep \(t=2\) then another delta constraint gets applied to the edge of variable \(o_2\) and both \(o'_0\) and \(o'_1\) are considered past observations, i.e., the memory of the agent. Also note that past preferences on observations (e.g., \(\tilde{p}(o_0)\) and \(\tilde{p}(o_1)\)) get blocked by the delta constraints, i.e, they do not influence other belief distributions in the graph during the inference process anymore.
+
+\subsubsection{Action Selection}
+
+
+
+\subsubsection{Belief Updating}
+
+Building on the results of the foundation section the edges' belief distributions are the product of the two messages of the respective edges. The edges' belief distributions in the factor graph of the temporal generative model (\cref{fig:18}) are then given by
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{alignat}{2}
+         & \textcolor{blue}{q(s_0)}                         &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}s_0\bm{)}} \textcolor{black}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}                                               \\
+         & \textcolor{blue}{q(s^{\scriptscriptstyle I}_0)}  &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}} \textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}} \\
+         & \textcolor{blue}{q(s^{\scriptscriptstyle II}_0)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}      \\
+         & \textcolor{blue}{q(s_1)}                         &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}s_1\bm{)}} \textcolor{black}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}                                               \\
+         & \textcolor{blue}{q(s^{\scriptscriptstyle I}_1)}  &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} \textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} \\
+         & \textcolor{blue}{q(s^{\scriptscriptstyle II}_1)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}
+    \end{alignat}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.5\textwidth}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0pt}
+    \begin{alignat}{2}
+         & \textcolor{blue}{q(s_2)} &  & \propto \textcolor{black}{\bm{\overleftarrow{\mu}(}s_2\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}           \\
+         & \textcolor{blue}{q(u_0)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}u_0\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}               \\
+         & \textcolor{blue}{q(u_1)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}u_1\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}               \\
+         & \textcolor{blue}{q(o_0)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \label{eq:24} \\
+         & \textcolor{blue}{q(o_1)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}o_1\bm{)}} \label{eq:25} \\
+         & \textcolor{blue}{q(o_2)} &  & \propto \textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}} \textcolor{black}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}.
+    \end{alignat}
+\end{minipage}
+
+\vspace{1em}
+Note that we are refering here to the factor graph that already models \(q(o_0)\) and \(q(o_1)\) as delta distributions (fixed observations) which in principle makes the evaluation of \cref{eq:24} and \cref{eq:25} unnecessary.
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+            factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
+            eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+            edge/.style={thick},
+            varlabel/.style={font=\normalsize},
+            greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
+        ]
+
+        % Knoten
+        \node[factor] (d) {$p(s_0)$};
+        \node[eqfactor, right=1.8cm of d] (eq0) {$=$};
+        \node[factor, below=1.5cm of eq0] (A0) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+        \node[factor, below=1.5cm of A0] (c0) {$\tilde{p}(o_0)$};
+        \node[factor, right=1.8cm of eq0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,u_0)$};
+        \node[eqfactor, right=1.8cm of B0] (eq1) {$=$};
+        \node[factor, below=1.5cm of eq1] (A1) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+        \node[factor, below=1.5cm of A1] (c1) {$\tilde{p}(o_1)$};
+        \node[factor, right=1.8cm of eq1] (B1) {$p(s_2|s^{\scriptscriptstyle I}_1,u_1)$};
+        \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$p(o_2|s_2)$};
+        \node[factor, below=1.5cm of A2] (c2) {$\tilde{p}(o_2)$};
+        \node[factor, above=1.5cm of B0] (u0) {$p(u_0)$};
+        \node[factor, above=1.5cm of B1] (u1) {$p(u_1)$};
+
+        % Kanten zwischen Knoten
+        \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$\textcolor{blue}{q(s_0)}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}$};
+
+        \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$\textcolor{blue}{q(s^{\scriptscriptstyle II}_0)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$};
+
+        \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{blue}{q(o_0)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}$};
+
+        \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$\textcolor{blue}{q(s^{\scriptscriptstyle I}_0)}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$};
+
+        \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$\textcolor{blue}{q(u_0)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}u_0\bm{)}}$};
+
+        \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$\textcolor{blue}{q(s_1)}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}$};
+
+        \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$\textcolor{blue}{q(s^{\scriptscriptstyle II}_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$};
+
+        \draw[edge] (A1.south) -- (c1.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{blue}{q(o_1)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}$};
+
+        \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$\textcolor{blue}{q(s^{\scriptscriptstyle I}_1)}$} node[near start, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$} node[near end, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$};
+
+        \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$\textcolor{blue}{q(s_2)}$} node[pos=0.89, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}$} node[pos=0.11, below, varlabel, scale=0.7] {$\textcolor{black}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}$};
+
+        \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$\textcolor{blue}{q(o_2)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}$};
+
+        \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$\textcolor{blue}{q(u_1)}$} node[pos=0.2, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {$\textcolor{black}{\bm{{\uparrow}{\mu}(}u_1\bm{)}}$};
+
+    \end{tikzpicture}
+
+    \caption{Factor graph of the temporal generative model with edges' belief distributions (\textcolor{blue}{blue}).}
+    \label{fig:18}
+\end{figure}
+
+\subsubsection{Schedule}
+
+As mentioned in earlier sections the order of execution of messages plays an important role in the message passing scheme. In this section the agent largely relies on Bethe messages. In this case messages regularly depend on other messages which makes a correct schedule indispensable (later sections present other types of messages that allow for a lesser strict schedule). The schedule for the agent's temporal generative model in \cref{fig:18} is given in \cref{alg:2}.
+\begin{algorithm}[htbp]
+    \caption{Message Passing Algorithm of the BFE Agent}
+    \label{alg:2}
+    \begin{algorithmic}[1] % Die [1] sorgt für automatische Zeilennummern!
+        \State \textbf{evaluate} $\textcolor{black}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}$, $\textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}u_0\bm{)}}$, $\textcolor{black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}u_1\bm{)}}$, $\textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$, $\textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$, $\textcolor{black}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$, $\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}$, $\textcolor{black}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}$, $\textcolor{black}{\bm{{\uparrow}{\mu}(}u_0\bm{)}}$, $\textcolor{black}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{{\uparrow}{\mu}(}u_1\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}$, $\textcolor{black}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}$, $\textcolor{black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$
+        \State \textbf{evaluate} $\textcolor{black}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}$
+        \State \textbf{evaluate} $q(s_0)$, $q(s^{\scriptscriptstyle I}_0)$, $q(s^{\scriptscriptstyle II}_0)$, $q(s_1)$, $q(s^{\scriptscriptstyle I}_1)$, $q(s^{\scriptscriptstyle II}_1)$, $q(s_2)$, $q(u_0)$, $q(u_1)$, $q(o_0)$, $q(o_1)$,
+        \Statex \phantom{\textbf{evaluate} }$q(o_2)$
+    \end{algorithmic}
+\end{algorithm}
