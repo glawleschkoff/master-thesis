@@ -1,4 +1,5 @@
 \chapter{Results}
+\label{chap:3}
 
 In this section I present the results of the three experiments (Initial Curiousity, Exploiting Information, and Long-Term Success) detailed in \cref{sec:simulations}. For each experiment the analyses are available for all four agents (BFE, GFE, Context-BFE, and Context-GFE) with two parameter sweeps (\(\alpha \in [0.0, 0.1, \dots, 1.0]\), and \(c \in [0, 1, \dots, 10]\)) each. This leads to visualizations that contain four heatmaps (for the four agents) where the two axes represent the two parameter sweeps (over \(\alpha\) and \(c\)). The result for a specific constellation of agent type, \(\alpha\) value, and \(c\) value is then given in the specific cell of the heatmap. The heatmaps assign brighter and darker colors to higher and lower values respectively. For the following it is useful to recall what the different agents types, \(\alpha\) values, and \(c\) values refer to.
 
@@ -34,7 +35,7 @@ The drive for reducing uncertainty about hidden states (including context states
 \section{Experiment 2: Exploiting Information}
 
 In this section I analyze the results of \cref{fig:20}. Again, the following behavioral analysis can be divided into two parts that first relate to all agents' drive to receive the reward, and second relate to the curious agents' drive to also seek information in the environment.
-The values in the heatmaps' cells (\cref{fig:20}) give the inferred probabilities of moving to the arm in the T-Maze that is hinted by the cue to contain the reward (via the T-Maze type and parameter \(\alpha\)). Again, the probabilities do not represent empirical measurements but beliefs of the agent that it will execute the action that moves it to the arm that should contain the reward according to the cue.
+The values in the heatmaps' cells (\cref{fig:20}) give the inferred probabilities of moving to the arm in the T-Maze that is hinted by the cue to contain the reward (via the T-Maze type and parameter \(\alpha\). Again, the probabilities do not represent empirical measurements but beliefs of the agent that it will execute the action that moves it to the arm that should contain the reward according to the cue.
 
 \begin{figure}[htb]
     \centering

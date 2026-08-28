@@ -1,4 +1,58 @@
 \chapter{Methods}
+
+\section{Active Inference}
+\label{sec:0}
+
+Active Inference is an emerging cognitive theory based on the free energy principle about behavior and brain function of many living creatures. It assumes that individuals must solve the problem of survival in chaotic environments that potentially desintegrate their physical bodies and thus end their existences. Furthermore, the theory takes the perspective that these dangerous environmental effects on the individual's body are dependent on the current state of the environment itself, e.g., getting burn wounds from touching a hot plate is dependent on the state of that plate itself (is it hot or cold?), which is part of the environment. Unfortunately, the individual does not immediately know about the state of the environment. As a remedy for this problem it has developed sensors (e.g., eyes, ears, nociceptors etc.) to make observations that yield information about the current environmental state. In other words, the theory makes the central assumption, that in general the state of the environment is hidden but has an effect on the individual in two ways: First, it may influences the individual's body in harmful ways (e.g., changing the chemical composition of skin as a result of burn wounds), and second by generating observations that the animal can sense (e.g., nociceptor-based pain as a result of heat) that are somehow related to the true but unobservable state of the environment. Intuitively, the individual should then regularly receive observations that are related to these unobservable environmental states that do not have dangerous effects on its body. As a counter example, consider an individual, that regularly receives observations that are related to environmental states that also usually have the effect of ending the individuals existence. Such a creature would just not exist.
+
+So far, we have bluntly stated that animals have sensors that allow them to receive information about unobservable environmental states. This knowledge is not immediately useful for the animal--except in the case when it has the means to exert influence over these states. Just as we considered the existence of sensors as given, we can also notice that animals can perform actions upon the environment (e.g., turning the hot plate off). Influencing the environment's hidden states via actions means the individual implicitly controls the kind of observations it receives in return. Because it needs observations that hint at environmental states that are not dangerous for its continued existence it must somehow infer these hidden states based on observations to be able to influence them in purposeful ways using actions. In conclusion, first, the individual must possess a model that relates observations to environmental hidden states to be able to infer the latter given the current observation. Second, it then should also have a model of the relation between its actions and how they influence hidden states in the environment over time.
+
+Regarding the first requirement, this is usually formalized as a generative model \(p(s,o)\) that formulates the probabilistic dependencies between hidden states \(s\) and observations \(o\). Because observations are influenced by the environment--i.e., they are initially out of control of the individual--it maintains a stable model by explictly modeling the prior \(p(s)\) and also how it relates to observations via the likelihood \(p(o|s)\), i.e., the generative model is available to the individual explicitly as these two terms. Upon receiving a specific observation \(\hat o\) the individual can then infer the likely hidden states that led to this observation by computing (approximating) \(p(s|\hat o)\). In a second step this result can then be used to infer useful actions (this will be explained later in this section).
+
+First, we must consider how the animal could compute \(p(s|\hat o)\) as a basis for future actions. In principle this can be achieved by leveraging Bayes theorem via \(p(s|\hat o) = \frac{p(s)p(o|s)}{\sum_s p(s)p(o|s)}\) (I use sums instead of integrals because in this work distributions are generally discrete). In reality the integration in the denominator usually is not tractable for the animal because it would need to consider a possibly arbitrary amount of hidden states \(s\). As a remedy, the individual can do something different: Instead of exactly calculating \(p(s|\hat o)\) it can optimize a variational distribution \(q(s)\) that assumes the true \(p(s|\hat o)\) after optimization has finished. Note, that the loss function that drives this optimization already takes into account \(\hat o\) such that it does not need to be made an explicit dependency in \(q(s)\), i.e, \(q(s)\) is implicitly dependent on \(\hat o\). In the following, I will introduce this loss function that enables the animal to optimize \(q(s)\) step by step.
+
+In principle, we can use a distance measure to quantify the (dis)similarity between the true posterior \(p(s|\hat o)\) and the variational distribution \(q(s)\). In Active Inference this is achieved by the Kullback-Leibler (KL) divergence
+\begin{equation}
+    D_{\text{KL}}[q(s) \parallel p(s|\hat o)] = \sum_s q(s) \ln \frac{q(s)}{p(s|\hat o)}
+    \label{eq:32}
+\end{equation}
+that becomes 0 exactly when \(q(s)\) assumes the true \(p(s|\hat o)\). Conversely, the quantity becomes larger the more dissimilar both distributions are. In theory, this quantity (KL divergence between \(q(s)\) and \(p(s|\hat o)\)) suffices as loss function for optimizing \(q(s)\). In reality, the goal of finding the distribution \(p(s|\hat o)\) via \(q(s)\) is the reason why this optimization is done in the first place, i.e., \(p(s|\hat o)\) is not available and thus \cref{eq:32} is not computable.
+
+There is a solution for this problem. Instead of minimizing (by optimizing \(q(s)\)) the KL divergence with respect to the true but unavailable posterior \(p(s|\hat o)\), it can be minimized with respect to the whole generative model \(p(s,\hat o)=p(s)p(\hat o|s)\), which apperently has the same effect. This circumstance will be explained in the following. First, we consider the KL divergence between \(q(s)\) and the generative model:
+\begin{equation}
+    D_{\text{KL}}[q(s) \parallel p(s)p(\hat o|s)] = \sum_s q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)}.
+    \label{eq:33}
+\end{equation}
+\cref{eq:33} clearly shows that the individual is able to compute this loss function because it has access to \(p(s)\) and \(p(\hat o|s)\). Next, \cref{eq:33} will be rearranged to reveal the kind of objective that is measured by it:
+\begin{equation}
+    \begin{split}
+        D_{\text{KL}}[q(s) \parallel p(s)p(\hat o|s)] & = \sum_s q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)}            \\
+                                                      & = \sum_s q(s) \ln \frac{q(s)}{p(s,\hat o)}                 \\
+                                                      & = \sum_s q(s) \ln \frac{q(s)}{p(s|\hat o)p(o)}        \\
+                                                      & = \sum_s q(s) \ln \frac{q(s)}{p(s|\hat o)} - \ln p(\hat o)
+        \label{eq:34}
+    \end{split}
+\end{equation}
+The last line in \cref{eq:34} makes it obvious that the (computable) loss function of \cref{eq:33} consists of the uncomputable loss function of \cref{eq:32} which is appended by the summand \(- \ln p(\hat o)\). In other words, by minimizing \cref{eq:34}, the individual achieves to optimize \(q(s)\) with respect to \(p(s|\hat o)\) but the loss function will not become 0 when both distributions are equal but instead settle at the value given by the constant \(- \ln p(\hat o)\). Summarizing, the animal is able to compute the true posterior \(p(s|\hat o)\) (via optimizing \(q(s)\)) by minimizing a quantity that yields \(- \ln p(\hat o)\) at its minimimum. This residue is known as "suprise" of the observation \(\hat o\) and the quantity itself is called Variational Free Energy (VFE) and is given the letter \(F\)
+\begin{equation}
+    F[q(s), \hat o] = \sum_s q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)} = \sum_s q(s) \ln \frac{q(s)}{p(s|\hat o)} - \ln p(\hat o),
+\end{equation}
+that is a functional of the variational distribution \(q(s)\) and the current observation \(\hat o\). Therefore \(F\) is also referred to as an upper bound on surprise, i.e, the bound is reached from above exactly when \(q(s)\) assumes the true posterior \(p(s|\hat o)\).
+
+In conclusion, the individual should minimize this quantity \(F\) to infer the hidden environmental states, which then allows it to act in a way that support its existence. There is another interpretation to this: The prior \(p(s)\) might be viewed as the individuals functional homomorphism of its ecological niche in the environment and the individual is thus inclined to not leave its niche to secure its existence, which means it must keep \(p(s)\) stable. This requirement is also captured by the premise of minimizing \(F\). Following this, the only self consistent belief an individual can have about its future its that it will also minimize \(F\) in the future, i.e, it must choose actions accordingly. This circumstance can formally be defined as follows:
+The individual is assumed to have the means to form expectations about future hidden states \(s\) and observations \(o\), via a transition model \(p(s_{k+1}|s_k,a_k)\) that prescribes how actions \(a\) influence the succession of states from timestep \(k\) to \(k+1\), the likelihood \(p(o|s)\), and the currently inferred hidden state \(q(s)\). This expectation at a future timestep \(\tau\) can then formally be given via \(q(o_{\tau},s_{\tau}|\pi)\), where \(\pi\) is a seqence of actions that were used in \(p(s_{k+1}|s_k,a_k)\) (possibly multiple times) to calculate this future belief distribution. Following this, we can then define a free energy functional that gives the expected free energy \(G\) at a future timestep \(\tau\) with respect to a certain policy \(\pi\), i.e, the individual can then evaluate different policies at different future timesteps for its capacity of minimizing \(F\) at this future timestep via:
+\begin{alignat}{2}
+    G(\pi,\tau) =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) F[q(s_{\tau}|\pi),o_{\tau})] \label{eq:50} \\
+    =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \left( \ln q(s_{\tau}|\pi) - \ln p(s_{\tau}|o_{\tau}) - \ln p(o_{\tau}) \right) \\
+    =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \left( \ln q(s_{\tau}|\pi) - \ln q(s_{\tau}|o_{\tau},\pi) - \ln p(o_{\tau}) \right) \label{eq:51} \\
+    =& - \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \ln \frac{q(s_{\tau}|o_{\tau},\pi)}{q(s_{\tau}|\pi)} - \sum_{o_{\tau}} q(o_{\tau}|\pi) \ln p(o_{\tau}) \label{eq:52} \\
+    =&  - \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \ln \frac{q(s_{\tau},o_{\tau}|\pi)}{q(s_{\tau}|\pi)q(o_{\tau}|\pi)} - \sum_{o_{\tau}} q(o_{\tau}|\pi) \ln p(o_{\tau}) \label{eq:53}
+\end{alignat}
+In \cref{eq:50} I formed the expectation of the variational free energy \(F\) under the simulated future observations and hidden states \(q(o_{\tau},s_{\tau}|\pi)\) at timestep \(\tau\) given a policy \(\pi\) was executed. Following this, the future hidden state belief \(q(s_{\tau}|\pi)\) is also dependent on this policy. In \cref{eq:51} I replaced the posterior \(p(s_{\tau}|o_{\tau})\) by the expected posterior \(q(s_{\tau}|o_{\tau},\pi)\) given the policy \(\pi\). This means we assume the individual successfully infers this posterior distribution in the future, which is necessary for its survival as outlined earlier. In \cref{eq:52} I rearranged the formular into two terms: The first term resembles epistemic value and leads to information seeking behavior in the individual while the second term relates to pragmatic value, which enables the individual to realize prefered observation with respect to \(p(o_{\tau})\). Note that \(p(o_{\tau})\) also relates to a future observation and is assumed to be available as a goal prior to the individual that encodes observations that it prefers. \cref{eq:53} makes it obvious that the (first) term that enables the individual with information seeking is the mutual information between future hidden states and future observations, which gets maximized when \(G\) is minimized (due to the leading negative sign).
+
+Moreover, I follow the example of \textcite{delaar2023,delaar2025} to use this result (mutual information) to develop an agent that performs information over its context state. Concretely, when deriving the message passing algorithm for the Context-GFE agent I will constrain the agent's Lagrangian with a negative mutual information term between observation- and context variables. As a side note: This procedere also requires the substitution of \(q(o_{\tau},s_{\tau}|\pi)\) for \(p(o_{\tau}|s_{\tau}) q(s_{\tau}|\pi)\) in the expectation of the mutual information term. In \cite{delaar2023,delaar2025} this was refered to as p-substitution and is based on the assumption that \(q(o_{\tau}|s_{\tau},\pi)\) is directly available as the likelihood \(p(o_{\tau}|s_{\tau})\) to the individual.
+
+
 \section{Inference via Message Passing}
 \label{sec:1}
 
@@ -408,6 +462,7 @@ In conclusion, the message passing algorithm achieves Bayesian inference and the
 
 
 \section{Agents}
+\label{sec:2}
 
 In this section I present the four agents that are developed in this work. First, I detail what agents entail.
 
@@ -1565,6 +1620,7 @@ In this section I give the message passing algorithm of the Context-GFE agent, w
 \end{algorithm}
 
 \section{Simulations}
+\label{sec:3}
 
 In this section I present the simulation procederes that reveal the information seeking behavior of the Context-GFE agent. During the simulations the agent interacts with a T-Maze environment that is frequently used for showing these kinds of behaviors. The simulations consist of three experiments: In the first, the agent is evaluated with respect to its tendendency to show information seeking behavior. The second experiment shows the agent's ability to exploit the acquired information to fulfill a goal. In the third experiment the agent's overall success rate of fulfilling a goal (for which information seeking may help) is evaluated.
 The experiments are not only performed for the Context-GFE agent but also for the other three agents. This is necessary because the GFE agent in particular serves as a comparison instance (also shows information seeking behavior) for the Context-GFE agent. Moreover, the remaining two agents (BFE- and Context-BFE) serve as baselines for the kind of behavior that results from the absence of the information seeking.

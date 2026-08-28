@@ -18,6 +18,7 @@
 \usepackage{appendix}
 \usepackage{cleveref}
 \usepackage{mathtools}
+\usepackage[backend=biber, style=apa]{biblatex}
 
 \renewcommand{\familydefault}{\sfdefault}
 \usetikzlibrary{positioning, shapes.geometric, arrows, arrows.meta, positioning, calc, bending, external, backgrounds, fit, tikzmark}
@@ -30,6 +31,7 @@
 \definecolor{arrowcolor}{RGB}{40, 60, 80}
 \definecolor{accorange}{HTML}{D95F02}
 \definecolor{accblue}{HTML}{0072B2}
+\addbibresource{bibliography.bib}
 
 \begin{document}
 
@@ -43,6 +45,7 @@
 \input{results.tex}
 \input{discussion.tex}
 \input{conclusion.tex}
+\printbibliography
 \input{appendix.tex}
 
 \end{document}
