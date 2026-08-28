@@ -1,4 +1,7 @@
 \chapter{Methods}
+\label{methods}
+
+In this chapter I first outline how the information seeking mechanism naturally follows from formulations given by the active inference framework (\cref{sec:0}). This result is used later during the derivation of specialized messages for the agents' factor graphs that enable them with information seeking (\cite{delaar2023,delaar2025}). In \cref{sec:1} I present the general approach how to derive message passing algorithms from probabilistic (generative) models via corresponding free energy functionals. This procedere can be viewed as a blueprint and will be frequently used in subsequent sections. In \cref{sec:2} I reproduce and develop four agents using this blueprint. Concretely, I introduce specific constraints to the agents' free energy functionals which leads to agents with different properties. The resulting behavior is revealed during three experiments in a simulated T-maze environment, where the experimental setups are given in \cref{sec:3}.
 
 \section{Active Inference}
 \label{sec:0}
