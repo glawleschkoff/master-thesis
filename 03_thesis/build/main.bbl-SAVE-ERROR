@@ -1,0 +1,1455 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{apa/apasortcite//global/global/global}
+    \entry{bastos2012}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=110adb78825fb8acec1d6632996094f9}{%
+           family={Bastos},
+           familyi={B\bibinitperiod},
+           given={Andre\bibnamedelima M.},
+           giveni={A\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=be6eb05ab3ce640699eea0bfe61781d3}{%
+           family={Usrey},
+           familyi={U\bibinitperiod},
+           given={W.\bibnamedelimi Martin},
+           giveni={W\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e19a95fed65be6a74febd1b56b41893e}{%
+           family={Adams},
+           familyi={A\bibinitperiod},
+           given={Rick\bibnamedelima A.},
+           giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4edf4df637610ff31b7e55e40b7d7b9a}{%
+           family={Mangun},
+           familyi={M\bibinitperiod},
+           given={George\bibnamedelima R.},
+           giveni={G\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f8061505ccdcf46f6f9e115f95ce7778}{%
+           family={Fries},
+           familyi={F\bibinitperiod},
+           given={Pascal},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=558c08870d21f7acad878d94e125a377}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl\bibnamedelima J.},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{e8fd7201f77611cd02b2dc9a43f0612e}
+      \strng{fullhash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{fullhashraw}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{bibnamehash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{authorbibnamehash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{authornamehash}{e8fd7201f77611cd02b2dc9a43f0612e}
+      \strng{authorfullhash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{authorfullhashraw}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0896-6273}
+      \field{journaltitle}{Neuron}
+      \field{number}{4}
+      \field{title}{Canonical Microcircuits for Predictive Coding}
+      \field{volume}{76}
+      \field{year}{2012}
+      \field{pages}{695\bibrangedash 711}
+      \range{pages}{17}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.neuron.2012.10.038
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0896627312009592
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0896627312009592
+      \endverb
+    \endentry
+    \entry{friston2010}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=1,uniquepart=given,hash=9f452a84796a900973333b32a5f8bc61}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \strng{bibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorbibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authornamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \field{extraname}{1}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature Reviews Neuroscience}
+      \field{month}{01}
+      \field{title}{The free-energy principle: a unified brain theory?}
+      \field{volume}{11}
+      \field{year}{2010}
+      \field{pages}{127\bibrangedash 138}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1038/nrn2787
+      \endverb
+    \endentry
+    \entry{friston2013}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=1,uniquepart=given,hash=9f452a84796a900973333b32a5f8bc61}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \strng{bibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorbibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authornamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \field{extraname}{2}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the Royal Society, Interface / the Royal Society}
+      \field{month}{09}
+      \field{title}{Life as we know it}
+      \field{volume}{10}
+      \field{year}{2013}
+      \field{pages}{20130475}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1098/rsif.2013.0475
+      \endverb
+    \endentry
+    \entry{friston2015}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=1,uniquepart=given,hash=9f452a84796a900973333b32a5f8bc61}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=103c6f1e922e29f43590be466a0cb206}{%
+           family={Rigoli},
+           familyi={R\bibinitperiod},
+           given={Francesco},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fc4575c484ed62fef0505e03b18df463}{%
+           family={Ognibene},
+           familyi={O\bibinitperiod},
+           given={Dimitri},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d531a432bbd0476710542d1c3b647224}{%
+           family={Mathys},
+           familyi={M\bibinitperiod},
+           given={Christoph},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d7fda358d14b999c8dfd9ffcb6bc21de}{%
+           family={FitzGerald},
+           familyi={F\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a407d9f6bc90219c5764e676c5b8caa7}{%
+           family={Pezzulo},
+           familyi={P\bibinitperiod},
+           given={Giovanni},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a5aa6cc9fa51d6be7eef2a1be62bf301}
+      \strng{fullhash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{fullhashraw}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{bibnamehash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{authorbibnamehash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{authornamehash}{a5aa6cc9fa51d6be7eef2a1be62bf301}
+      \strng{authorfullhash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{authorfullhashraw}{911876d8dcdb85faf05c78a1cf297991}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Cognitive Neuroscience}
+      \field{month}{03}
+      \field{title}{Active inference and epistemic value}
+      \field{volume}{6}
+      \field{year}{2015}
+      \field{pages}{187\bibrangedash 214}
+      \range{pages}{28}
+      \verb{doi}
+      \verb 10.1080/17588928.2015.1020053
+      \endverb
+    \endentry
+    \entry{friston2010aif}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=1,uniquepart=given,hash=558c08870d21f7acad878d94e125a377}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl\bibnamedelima J.},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=8d47f509e61c9543876ac29ea6eff7ea}{%
+           family={Daunizeau},
+           familyi={D\bibinitperiod},
+           given={Jean},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5cd82d647750aa16bc5de00a06e1db79}{%
+           family={Kilner},
+           familyi={K\bibinitperiod},
+           given={James\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f90964b242f5332c487e701a6d5f780}{%
+           family={Kiebel},
+           familyi={K\bibinitperiod},
+           given={Stefan\bibnamedelima J.},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{fullhash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{fullhashraw}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{bibnamehash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{authorbibnamehash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{authornamehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{authorfullhash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{authorfullhashraw}{acff45ae49d783987b5da9f8c72f2280}
+      \field{extraname}{1}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Biological Cybernetics}
+      \field{title}{Action and behavior: a free-energy formulation}
+      \field{volume}{102}
+      \field{year}{2010}
+      \field{pages}{227\bibrangedash 260}
+      \range{pages}{34}
+      \verb{urlraw}
+      \verb https://api.semanticscholar.org/CorpusID:1563325
+      \endverb
+      \verb{url}
+      \verb https://api.semanticscholar.org/CorpusID:1563325
+      \endverb
+    \endentry
+    \entry{friston2017}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=1,uniquepart=given,hash=558c08870d21f7acad878d94e125a377}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl\bibnamedelima J},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=11ecca46a14363f21a56a51e1cb6c0ad}{%
+           family={Parr},
+           familyi={P\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{fullhash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{fullhashraw}{cafa296ef01498385f4f6984753efbaa}
+      \strng{bibnamehash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{authorbibnamehash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{authornamehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{authorfullhash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{authorfullhashraw}{cafa296ef01498385f4f6984753efbaa}
+      \field{extraname}{2}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2472-1751}
+      \field{journaltitle}{Network neuroscience (Cambridge, Mass.)}
+      \field{number}{4}
+      \field{title}{The graphical brain: Belief propagation and active inference}
+      \field{volume}{1}
+      \field{year}{2017}
+      \field{pages}{381\bibrangedash 414}
+      \range{pages}{34}
+      \verb{doi}
+      \verb 10.1162/netn_a_00018
+      \endverb
+    \endentry
+    \entry{delaar2023}{misc}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=3f9715382a039e62fed7ea317bf9c852}{%
+           family={Koudahl},
+           familyi={K\bibinitperiod},
+           given={Magnus},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=013ae0ec21570cef47f38a73391b6b1d}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs},
+           giveni={T\bibinitperiod},
+           givenun=0,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{4fa567a1d88e05f14075cf9e3230872b}
+      \strng{fullhash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{fullhashraw}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{bibnamehash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{authorbibnamehash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{authornamehash}{4fa567a1d88e05f14075cf9e3230872b}
+      \strng{authorfullhash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{authorfullhashraw}{d66cf8b3a8cec528ba8413c94ad86484}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.AI}
+      \field{eprinttype}{arXiv}
+      \field{title}{Realising Synthetic Active Inference Agents, Part I: Epistemic Objectives and Graphical Specification Language}
+      \field{year}{2023}
+      \verb{eprint}
+      \verb 2306.08014
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2306.08014
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2306.08014
+      \endverb
+    \endentry
+    \entry{loeliger2004}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=db2f8600c0724792e0d3db19774a9595}{%
+           family={Loeliger},
+           familyi={L\bibinitperiod},
+           given={H.-A.},
+           giveni={H\bibinithyphendelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{fullhash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{fullhashraw}{db2f8600c0724792e0d3db19774a9595}
+      \strng{bibnamehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authorbibnamehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authornamehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authorfullhash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authorfullhashraw}{db2f8600c0724792e0d3db19774a9595}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Signal Processing Magazine}
+      \field{number}{1}
+      \field{title}{An introduction to factor graphs}
+      \field{volume}{21}
+      \field{year}{2004}
+      \field{pages}{28\bibrangedash 41}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1109/MSP.2004.1267047
+      \endverb
+      \keyw{Signal processing algorithms;Graphical models;Iterative decoding;Kalman filters;Filtering;Turbo codes;Parity check codes;Parameter estimation;Least squares approximation;Iterative algorithms}
+    \endentry
+    \entry{millerandcohen2001}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=3f3b6d113863aa4d89a31ff88274b77f}{%
+           family={Miller},
+           familyi={M\bibinitperiod},
+           given={Earl\bibnamedelima K.},
+           giveni={E\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=74f9e2bf1a38596826af4f725fec39ed}{%
+           family={Cohen},
+           familyi={C\bibinitperiod},
+           given={Jonathan\bibnamedelima D.},
+           giveni={J\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Annual Reviews}%
+      }
+      \strng{namehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{fullhash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{fullhashraw}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{bibnamehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authorbibnamehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authornamehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authorfullhash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authorfullhashraw}{882f03e5ffbd726db6827061acfeb9c0}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{▪ Abstract  The prefrontal cortex has long been suspected to play an important role in cognitive control, in the ability to orchestrate thought and action in accordance with internal goals. Its neural basis, however, has remained a mystery. Here, we propose that cognitive control stems from the active maintenance of patterns of activity in the prefrontal cortex that represent goals and the means to achieve them. They provide bias signals to other brain structures whose net effect is to guide the flow of activity along neural pathways that establish the proper mappings between inputs, internal states, and outputs needed to perform a given task. We review neurophysiological, neurobiological, neuroimaging, and computational studies that support this theory and discuss its implications as well as further issues to be addressed}
+      \field{issn}{1545-4126}
+      \field{journaltitle}{Annual Review of Neuroscience}
+      \field{number}{Volume 24, 2001}
+      \field{title}{An Integrative Theory of Prefrontal Cortex Function}
+      \field{type}{Journal Article}
+      \field{volume}{24}
+      \field{year}{2001}
+      \field{pages}{167\bibrangedash 202}
+      \range{pages}{36}
+      \verb{doi}
+      \verb https://doi.org/10.1146/annurev.neuro.24.1.167
+      \endverb
+      \verb{urlraw}
+      \verb https://www.annualreviews.org/content/journals/10.1146/annurev.neuro.24.1.167
+      \endverb
+      \verb{url}
+      \verb https://www.annualreviews.org/content/journals/10.1146/annurev.neuro.24.1.167
+      \endverb
+      \keyw{working memory}
+    \endentry
+    \entry{raoandballard1999}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4b63ac7540c4554101faf7d1f7ab8118}{%
+           family={Rao},
+           familyi={R\bibinitperiod},
+           given={Rajesh},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0f02b00bf5d89f6d51044cf55cde445b}{%
+           family={Ballard},
+           familyi={B\bibinitperiod},
+           given={Dana},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{fullhash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{fullhashraw}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{bibnamehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authorbibnamehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authornamehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authorfullhash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authorfullhashraw}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature neuroscience}
+      \field{month}{02}
+      \field{title}{Predictive Coding in the Visual Cortex: a Functional Interpretation of Some Extra-classical Receptive-field Effects}
+      \field{volume}{2}
+      \field{year}{1999}
+      \field{pages}{79\bibrangedash 87}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1038/4580
+      \endverb
+    \endentry
+    \entry{schwoebel2021}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=868a0d6e2c7004c2335ddf9572950076}{%
+           family={Schwöbel},
+           familyi={S\bibinitperiod},
+           given={Sarah},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fb5bcd02a0c08033a95e19fa22db5659}{%
+           family={Marković},
+           familyi={M\bibinitperiod},
+           given={Dimitrije},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dbd5126a54fa815009aa914ea684578e}{%
+           family={Smolka},
+           familyi={S\bibinitperiod},
+           given={Michael\bibnamedelima N.},
+           giveni={M\bibinitperiod\bibinitdelim N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f90964b242f5332c487e701a6d5f780}{%
+           family={Kiebel},
+           familyi={K\bibinitperiod},
+           given={Stefan\bibnamedelima J.},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8e2ded71b232487949ac7f244915cf2e}
+      \strng{fullhash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{fullhashraw}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{bibnamehash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{authorbibnamehash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{authornamehash}{8e2ded71b232487949ac7f244915cf2e}
+      \strng{authorfullhash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{authorfullhashraw}{bf4c52db955730529e0d6cc7db6442dd}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In everyday life, our behavior varies on a continuum from automatic and habitual to deliberate and goal-directed. Recent evidence suggests that habit formation and relearning of habits operate in a context-dependent manner: Habit formation is promoted when actions are performed in a specific context, while breaking off habits is facilitated after a context change. It is an open question how one can computationally model the brain’s balancing between context-specific habits and goal-directed actions. Here, we propose a hierarchical Bayesian approach for control of a partially observable Markov decision process that enables conjoint learning of habits and reward structure in a context-specific manner. In this model, habit learning corresponds to an updating of priors over policies and interacts with the learning of the outcome contingencies. Importantly, the model is solely built on probabilistic inference, which effectively provides a simple explanation of how the brain may balance contributions of habitual and goal-directed control. We illustrated the resulting behavior using agent-based simulated experiments, where we replicated several findings of devaluation, extinction, and renewal experiments, as well as the so-called two-step task which is typically used with human participants. In addition, we show how a single parameter, the habitual tendency, can explain individual differences in habit learning and the balancing between habitual and goal-directed control. Finally, we discuss the link of the proposed model to other habit learning models and implications for understanding specific phenomena in substance use disorder.}
+      \field{issn}{0022-2496}
+      \field{journaltitle}{Journal of Mathematical Psychology}
+      \field{title}{Balancing control: A Bayesian interpretation of habitual and goal-directed behavior}
+      \field{volume}{100}
+      \field{year}{2021}
+      \field{pages}{102472}
+      \range{pages}{1}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.jmp.2020.102472
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0022249620301000
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0022249620301000
+      \endverb
+      \keyw{Habitual control,Habit,Goal-directed control,Arbitration,Probabilistic inference,Context,Substance use disorder,Striatum}
+    \endentry
+    \entry{senoez2021}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=e5283bae0a45a8c8ab15a81ea917f578}{%
+           family={Şenöz},
+           familyi={Ş\bibinitperiod},
+           given={İsmail},
+           giveni={İ\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=013ae0ec21570cef47f38a73391b6b1d}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs},
+           giveni={T\bibinitperiod},
+           givenun=0,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=63366e44ffa7043ff4bd1398c7a44165}{%
+           family={Bagaev},
+           familyi={B\bibinitperiod},
+           given={Dmitry},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{779ced473070d7ff7e6b3fbc8448d961}
+      \strng{fullhash}{debb53b59e42191c283773a0d4a45346}
+      \strng{fullhashraw}{debb53b59e42191c283773a0d4a45346}
+      \strng{bibnamehash}{debb53b59e42191c283773a0d4a45346}
+      \strng{authorbibnamehash}{debb53b59e42191c283773a0d4a45346}
+      \strng{authornamehash}{779ced473070d7ff7e6b3fbc8448d961}
+      \strng{authorfullhash}{debb53b59e42191c283773a0d4a45346}
+      \strng{authorfullhashraw}{debb53b59e42191c283773a0d4a45346}
+      \field{sortinit}{Ş}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1099-4300}
+      \field{journaltitle}{Entropy}
+      \field{number}{7}
+      \field{title}{Variational Message Passing and Local Constraint Manipulation in Factor Graphs}
+      \field{volume}{23}
+      \field{year}{2021}
+      \verb{urlraw}
+      \verb https://www.mdpi.com/1099-4300/23/7/807
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/1099-4300/23/7/807
+      \endverb
+    \endentry
+    \entry{delaar2025}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=1,uniquepart=given,hash=013ae0ec21570cef47f38a73391b6b1d}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs},
+           giveni={T\bibinitperiod},
+           givenun=1,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=3f9715382a039e62fed7ea317bf9c852}{%
+           family={Koudahl},
+           familyi={K\bibinitperiod},
+           given={Magnus},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{aa9455856dc6138226e0c563d45fc6a3}
+      \strng{fullhash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{fullhashraw}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{bibnamehash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{authorbibnamehash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{authornamehash}{aa9455856dc6138226e0c563d45fc6a3}
+      \strng{authorfullhash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{authorfullhashraw}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \field{sortinit}{v}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Neural Computation}
+      \field{number}{1}
+      \field{title}{Realizing Synthetic Active Inference Agents, Part II: Variational Message Updates}
+      \field{volume}{37}
+      \field{year}{2025}
+      \field{pages}{38\bibrangedash 75}
+      \range{pages}{38}
+      \verb{doi}
+      \verb 10.1162/neco_a_01713
+      \endverb
+    \endentry
+    \entry{delaar2019}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=1,uniquepart=given,hash=5c38457efdb1b50d60a99a887eec33e1}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs\bibnamedelima W.},
+           giveni={T\bibinitperiod\bibinitdelim W\bibinitperiod},
+           givenun=1,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{fullhash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{fullhashraw}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{bibnamehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authorbibnamehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authornamehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authorfullhash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authorfullhashraw}{cbeda3265f27ddc63a736bd502adb582}
+      \field{sortinit}{v}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2296-9144}
+      \field{journaltitle}{Frontiers in Robotics and AI}
+      \field{title}{Simulating Active Inference Processes by Message Passing}
+      \field{volume}{Volume 6 - 2019}
+      \field{year}{2019}
+      \verb{doi}
+      \verb 10.3389/frobt.2019.00020
+      \endverb
+      \verb{urlraw}
+      \verb https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2019.00020
+      \endverb
+      \verb{url}
+      \verb https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2019.00020
+      \endverb
+    \endentry
+  \enddatalist
+  \datalist[entry]{apa/global//global/global/global}
+    \entry{bastos2012}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=110adb78825fb8acec1d6632996094f9}{%
+           family={Bastos},
+           familyi={B\bibinitperiod},
+           given={Andre\bibnamedelima M.},
+           giveni={A\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=be6eb05ab3ce640699eea0bfe61781d3}{%
+           family={Usrey},
+           familyi={U\bibinitperiod},
+           given={W.\bibnamedelimi Martin},
+           giveni={W\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e19a95fed65be6a74febd1b56b41893e}{%
+           family={Adams},
+           familyi={A\bibinitperiod},
+           given={Rick\bibnamedelima A.},
+           giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4edf4df637610ff31b7e55e40b7d7b9a}{%
+           family={Mangun},
+           familyi={M\bibinitperiod},
+           given={George\bibnamedelima R.},
+           giveni={G\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f8061505ccdcf46f6f9e115f95ce7778}{%
+           family={Fries},
+           familyi={F\bibinitperiod},
+           given={Pascal},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=558c08870d21f7acad878d94e125a377}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl\bibnamedelima J.},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{e8fd7201f77611cd02b2dc9a43f0612e}
+      \strng{fullhash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{fullhashraw}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{bibnamehash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{authorbibnamehash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{authornamehash}{e8fd7201f77611cd02b2dc9a43f0612e}
+      \strng{authorfullhash}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \strng{authorfullhashraw}{86d4f56fad9f4e2b8b8b2d1ae091eaec}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0896-6273}
+      \field{journaltitle}{Neuron}
+      \field{number}{4}
+      \field{title}{Canonical Microcircuits for Predictive Coding}
+      \field{volume}{76}
+      \field{year}{2012}
+      \field{pages}{695\bibrangedash 711}
+      \range{pages}{17}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.neuron.2012.10.038
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0896627312009592
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0896627312009592
+      \endverb
+    \endentry
+    \entry{friston2010}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=1,uniquepart=given,hash=9f452a84796a900973333b32a5f8bc61}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \strng{bibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorbibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authornamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \field{extraname}{1}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature Reviews Neuroscience}
+      \field{month}{01}
+      \field{title}{The free-energy principle: a unified brain theory?}
+      \field{volume}{11}
+      \field{year}{2010}
+      \field{pages}{127\bibrangedash 138}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1038/nrn2787
+      \endverb
+    \endentry
+    \entry{friston2013}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=1,uniquepart=given,hash=9f452a84796a900973333b32a5f8bc61}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{fullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \strng{bibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorbibnamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authornamehash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhash}{9f452a84796a900973333b32a5f8bc61}
+      \strng{authorfullhashraw}{9f452a84796a900973333b32a5f8bc61}
+      \field{extraname}{2}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the Royal Society, Interface / the Royal Society}
+      \field{month}{09}
+      \field{title}{Life as we know it}
+      \field{volume}{10}
+      \field{year}{2013}
+      \field{pages}{20130475}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1098/rsif.2013.0475
+      \endverb
+    \endentry
+    \entry{friston2015}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=1,uniquepart=given,hash=9f452a84796a900973333b32a5f8bc61}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=103c6f1e922e29f43590be466a0cb206}{%
+           family={Rigoli},
+           familyi={R\bibinitperiod},
+           given={Francesco},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fc4575c484ed62fef0505e03b18df463}{%
+           family={Ognibene},
+           familyi={O\bibinitperiod},
+           given={Dimitri},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d531a432bbd0476710542d1c3b647224}{%
+           family={Mathys},
+           familyi={M\bibinitperiod},
+           given={Christoph},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d7fda358d14b999c8dfd9ffcb6bc21de}{%
+           family={FitzGerald},
+           familyi={F\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a407d9f6bc90219c5764e676c5b8caa7}{%
+           family={Pezzulo},
+           familyi={P\bibinitperiod},
+           given={Giovanni},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a5aa6cc9fa51d6be7eef2a1be62bf301}
+      \strng{fullhash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{fullhashraw}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{bibnamehash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{authorbibnamehash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{authornamehash}{a5aa6cc9fa51d6be7eef2a1be62bf301}
+      \strng{authorfullhash}{911876d8dcdb85faf05c78a1cf297991}
+      \strng{authorfullhashraw}{911876d8dcdb85faf05c78a1cf297991}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Cognitive Neuroscience}
+      \field{month}{03}
+      \field{title}{Active inference and epistemic value}
+      \field{volume}{6}
+      \field{year}{2015}
+      \field{pages}{187\bibrangedash 214}
+      \range{pages}{28}
+      \verb{doi}
+      \verb 10.1080/17588928.2015.1020053
+      \endverb
+    \endentry
+    \entry{friston2010aif}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=1,uniquepart=given,hash=558c08870d21f7acad878d94e125a377}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl\bibnamedelima J.},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=8d47f509e61c9543876ac29ea6eff7ea}{%
+           family={Daunizeau},
+           familyi={D\bibinitperiod},
+           given={Jean},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5cd82d647750aa16bc5de00a06e1db79}{%
+           family={Kilner},
+           familyi={K\bibinitperiod},
+           given={James\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f90964b242f5332c487e701a6d5f780}{%
+           family={Kiebel},
+           familyi={K\bibinitperiod},
+           given={Stefan\bibnamedelima J.},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{fullhash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{fullhashraw}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{bibnamehash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{authorbibnamehash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{authornamehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{authorfullhash}{acff45ae49d783987b5da9f8c72f2280}
+      \strng{authorfullhashraw}{acff45ae49d783987b5da9f8c72f2280}
+      \field{extraname}{1}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Biological Cybernetics}
+      \field{title}{Action and behavior: a free-energy formulation}
+      \field{volume}{102}
+      \field{year}{2010}
+      \field{pages}{227\bibrangedash 260}
+      \range{pages}{34}
+      \verb{urlraw}
+      \verb https://api.semanticscholar.org/CorpusID:1563325
+      \endverb
+      \verb{url}
+      \verb https://api.semanticscholar.org/CorpusID:1563325
+      \endverb
+    \endentry
+    \entry{friston2017}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=1,uniquepart=given,hash=558c08870d21f7acad878d94e125a377}{%
+           family={Friston},
+           familyi={F\bibinitperiod},
+           given={Karl\bibnamedelima J},
+           giveni={K\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=1}}%
+        {{un=0,uniquepart=base,hash=11ecca46a14363f21a56a51e1cb6c0ad}{%
+           family={Parr},
+           familyi={P\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{fullhash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{fullhashraw}{cafa296ef01498385f4f6984753efbaa}
+      \strng{bibnamehash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{authorbibnamehash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{authornamehash}{4d2eb0daa411155bb357b1254b5ffb8a}
+      \strng{authorfullhash}{cafa296ef01498385f4f6984753efbaa}
+      \strng{authorfullhashraw}{cafa296ef01498385f4f6984753efbaa}
+      \field{extraname}{2}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2472-1751}
+      \field{journaltitle}{Network neuroscience (Cambridge, Mass.)}
+      \field{number}{4}
+      \field{title}{The graphical brain: Belief propagation and active inference}
+      \field{volume}{1}
+      \field{year}{2017}
+      \field{pages}{381\bibrangedash 414}
+      \range{pages}{34}
+      \verb{doi}
+      \verb 10.1162/netn_a_00018
+      \endverb
+    \endentry
+    \entry{delaar2023}{misc}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=3f9715382a039e62fed7ea317bf9c852}{%
+           family={Koudahl},
+           familyi={K\bibinitperiod},
+           given={Magnus},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=013ae0ec21570cef47f38a73391b6b1d}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs},
+           giveni={T\bibinitperiod},
+           givenun=0,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{4fa567a1d88e05f14075cf9e3230872b}
+      \strng{fullhash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{fullhashraw}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{bibnamehash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{authorbibnamehash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{authornamehash}{4fa567a1d88e05f14075cf9e3230872b}
+      \strng{authorfullhash}{d66cf8b3a8cec528ba8413c94ad86484}
+      \strng{authorfullhashraw}{d66cf8b3a8cec528ba8413c94ad86484}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.AI}
+      \field{eprinttype}{arXiv}
+      \field{title}{Realising Synthetic Active Inference Agents, Part I: Epistemic Objectives and Graphical Specification Language}
+      \field{year}{2023}
+      \verb{eprint}
+      \verb 2306.08014
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2306.08014
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2306.08014
+      \endverb
+    \endentry
+    \entry{loeliger2004}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=db2f8600c0724792e0d3db19774a9595}{%
+           family={Loeliger},
+           familyi={L\bibinitperiod},
+           given={H.-A.},
+           giveni={H\bibinithyphendelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{fullhash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{fullhashraw}{db2f8600c0724792e0d3db19774a9595}
+      \strng{bibnamehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authorbibnamehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authornamehash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authorfullhash}{db2f8600c0724792e0d3db19774a9595}
+      \strng{authorfullhashraw}{db2f8600c0724792e0d3db19774a9595}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Signal Processing Magazine}
+      \field{number}{1}
+      \field{title}{An introduction to factor graphs}
+      \field{volume}{21}
+      \field{year}{2004}
+      \field{pages}{28\bibrangedash 41}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1109/MSP.2004.1267047
+      \endverb
+      \keyw{Signal processing algorithms;Graphical models;Iterative decoding;Kalman filters;Filtering;Turbo codes;Parity check codes;Parameter estimation;Least squares approximation;Iterative algorithms}
+    \endentry
+    \entry{millerandcohen2001}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=3f3b6d113863aa4d89a31ff88274b77f}{%
+           family={Miller},
+           familyi={M\bibinitperiod},
+           given={Earl\bibnamedelima K.},
+           giveni={E\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=74f9e2bf1a38596826af4f725fec39ed}{%
+           family={Cohen},
+           familyi={C\bibinitperiod},
+           given={Jonathan\bibnamedelima D.},
+           giveni={J\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Annual Reviews}%
+      }
+      \strng{namehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{fullhash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{fullhashraw}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{bibnamehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authorbibnamehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authornamehash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authorfullhash}{882f03e5ffbd726db6827061acfeb9c0}
+      \strng{authorfullhashraw}{882f03e5ffbd726db6827061acfeb9c0}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{▪ Abstract  The prefrontal cortex has long been suspected to play an important role in cognitive control, in the ability to orchestrate thought and action in accordance with internal goals. Its neural basis, however, has remained a mystery. Here, we propose that cognitive control stems from the active maintenance of patterns of activity in the prefrontal cortex that represent goals and the means to achieve them. They provide bias signals to other brain structures whose net effect is to guide the flow of activity along neural pathways that establish the proper mappings between inputs, internal states, and outputs needed to perform a given task. We review neurophysiological, neurobiological, neuroimaging, and computational studies that support this theory and discuss its implications as well as further issues to be addressed}
+      \field{issn}{1545-4126}
+      \field{journaltitle}{Annual Review of Neuroscience}
+      \field{number}{Volume 24, 2001}
+      \field{title}{An Integrative Theory of Prefrontal Cortex Function}
+      \field{type}{Journal Article}
+      \field{volume}{24}
+      \field{year}{2001}
+      \field{pages}{167\bibrangedash 202}
+      \range{pages}{36}
+      \verb{doi}
+      \verb https://doi.org/10.1146/annurev.neuro.24.1.167
+      \endverb
+      \verb{urlraw}
+      \verb https://www.annualreviews.org/content/journals/10.1146/annurev.neuro.24.1.167
+      \endverb
+      \verb{url}
+      \verb https://www.annualreviews.org/content/journals/10.1146/annurev.neuro.24.1.167
+      \endverb
+      \keyw{working memory}
+    \endentry
+    \entry{raoandballard1999}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4b63ac7540c4554101faf7d1f7ab8118}{%
+           family={Rao},
+           familyi={R\bibinitperiod},
+           given={Rajesh},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0f02b00bf5d89f6d51044cf55cde445b}{%
+           family={Ballard},
+           familyi={B\bibinitperiod},
+           given={Dana},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{fullhash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{fullhashraw}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{bibnamehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authorbibnamehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authornamehash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authorfullhash}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \strng{authorfullhashraw}{69b14c7fada79a2fcb668ae13cbfdef6}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature neuroscience}
+      \field{month}{02}
+      \field{title}{Predictive Coding in the Visual Cortex: a Functional Interpretation of Some Extra-classical Receptive-field Effects}
+      \field{volume}{2}
+      \field{year}{1999}
+      \field{pages}{79\bibrangedash 87}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1038/4580
+      \endverb
+    \endentry
+    \entry{schwoebel2021}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=868a0d6e2c7004c2335ddf9572950076}{%
+           family={Schwöbel},
+           familyi={S\bibinitperiod},
+           given={Sarah},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fb5bcd02a0c08033a95e19fa22db5659}{%
+           family={Marković},
+           familyi={M\bibinitperiod},
+           given={Dimitrije},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dbd5126a54fa815009aa914ea684578e}{%
+           family={Smolka},
+           familyi={S\bibinitperiod},
+           given={Michael\bibnamedelima N.},
+           giveni={M\bibinitperiod\bibinitdelim N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f90964b242f5332c487e701a6d5f780}{%
+           family={Kiebel},
+           familyi={K\bibinitperiod},
+           given={Stefan\bibnamedelima J.},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8e2ded71b232487949ac7f244915cf2e}
+      \strng{fullhash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{fullhashraw}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{bibnamehash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{authorbibnamehash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{authornamehash}{8e2ded71b232487949ac7f244915cf2e}
+      \strng{authorfullhash}{bf4c52db955730529e0d6cc7db6442dd}
+      \strng{authorfullhashraw}{bf4c52db955730529e0d6cc7db6442dd}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In everyday life, our behavior varies on a continuum from automatic and habitual to deliberate and goal-directed. Recent evidence suggests that habit formation and relearning of habits operate in a context-dependent manner: Habit formation is promoted when actions are performed in a specific context, while breaking off habits is facilitated after a context change. It is an open question how one can computationally model the brain’s balancing between context-specific habits and goal-directed actions. Here, we propose a hierarchical Bayesian approach for control of a partially observable Markov decision process that enables conjoint learning of habits and reward structure in a context-specific manner. In this model, habit learning corresponds to an updating of priors over policies and interacts with the learning of the outcome contingencies. Importantly, the model is solely built on probabilistic inference, which effectively provides a simple explanation of how the brain may balance contributions of habitual and goal-directed control. We illustrated the resulting behavior using agent-based simulated experiments, where we replicated several findings of devaluation, extinction, and renewal experiments, as well as the so-called two-step task which is typically used with human participants. In addition, we show how a single parameter, the habitual tendency, can explain individual differences in habit learning and the balancing between habitual and goal-directed control. Finally, we discuss the link of the proposed model to other habit learning models and implications for understanding specific phenomena in substance use disorder.}
+      \field{issn}{0022-2496}
+      \field{journaltitle}{Journal of Mathematical Psychology}
+      \field{title}{Balancing control: A Bayesian interpretation of habitual and goal-directed behavior}
+      \field{volume}{100}
+      \field{year}{2021}
+      \field{pages}{102472}
+      \range{pages}{1}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.jmp.2020.102472
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0022249620301000
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0022249620301000
+      \endverb
+      \keyw{Habitual control,Habit,Goal-directed control,Arbitration,Probabilistic inference,Context,Substance use disorder,Striatum}
+    \endentry
+    \entry{senoez2021}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=e5283bae0a45a8c8ab15a81ea917f578}{%
+           family={Şenöz},
+           familyi={Ş\bibinitperiod},
+           given={İsmail},
+           giveni={İ\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=013ae0ec21570cef47f38a73391b6b1d}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs},
+           giveni={T\bibinitperiod},
+           givenun=0,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=63366e44ffa7043ff4bd1398c7a44165}{%
+           family={Bagaev},
+           familyi={B\bibinitperiod},
+           given={Dmitry},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{779ced473070d7ff7e6b3fbc8448d961}
+      \strng{fullhash}{debb53b59e42191c283773a0d4a45346}
+      \strng{fullhashraw}{debb53b59e42191c283773a0d4a45346}
+      \strng{bibnamehash}{debb53b59e42191c283773a0d4a45346}
+      \strng{authorbibnamehash}{debb53b59e42191c283773a0d4a45346}
+      \strng{authornamehash}{779ced473070d7ff7e6b3fbc8448d961}
+      \strng{authorfullhash}{debb53b59e42191c283773a0d4a45346}
+      \strng{authorfullhashraw}{debb53b59e42191c283773a0d4a45346}
+      \field{sortinit}{Ş}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1099-4300}
+      \field{journaltitle}{Entropy}
+      \field{number}{7}
+      \field{title}{Variational Message Passing and Local Constraint Manipulation in Factor Graphs}
+      \field{volume}{23}
+      \field{year}{2021}
+      \verb{urlraw}
+      \verb https://www.mdpi.com/1099-4300/23/7/807
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/1099-4300/23/7/807
+      \endverb
+    \endentry
+    \entry{delaar2025}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=1,uniquepart=given,hash=013ae0ec21570cef47f38a73391b6b1d}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs},
+           giveni={T\bibinitperiod},
+           givenun=1,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=3f9715382a039e62fed7ea317bf9c852}{%
+           family={Koudahl},
+           familyi={K\bibinitperiod},
+           given={Magnus},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{aa9455856dc6138226e0c563d45fc6a3}
+      \strng{fullhash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{fullhashraw}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{bibnamehash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{authorbibnamehash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{authornamehash}{aa9455856dc6138226e0c563d45fc6a3}
+      \strng{authorfullhash}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \strng{authorfullhashraw}{4b8902b1eaada3e7344a8ddad3505fd7}
+      \field{sortinit}{v}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Neural Computation}
+      \field{number}{1}
+      \field{title}{Realizing Synthetic Active Inference Agents, Part II: Variational Message Updates}
+      \field{volume}{37}
+      \field{year}{2025}
+      \field{pages}{38\bibrangedash 75}
+      \range{pages}{38}
+      \verb{doi}
+      \verb 10.1162/neco_a_01713
+      \endverb
+    \endentry
+    \entry{delaar2019}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=1,uniquepart=given,hash=5c38457efdb1b50d60a99a887eec33e1}{%
+           family={Laar},
+           familyi={L\bibinitperiod},
+           given={Thijs\bibnamedelima W.},
+           giveni={T\bibinitperiod\bibinitdelim W\bibinitperiod},
+           givenun=1,
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=2caeea1b18c3a6d6099b66a5232eb983}{%
+           family={Vries},
+           familyi={V\bibinitperiod},
+           given={Bert},
+           giveni={B\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+      }
+      \strng{namehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{fullhash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{fullhashraw}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{bibnamehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authorbibnamehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authornamehash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authorfullhash}{cbeda3265f27ddc63a736bd502adb582}
+      \strng{authorfullhashraw}{cbeda3265f27ddc63a736bd502adb582}
+      \field{sortinit}{v}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2296-9144}
+      \field{journaltitle}{Frontiers in Robotics and AI}
+      \field{title}{Simulating Active Inference Processes by Message Passing}
+      \field{volume}{Volume 6 - 2019}
+      \field{year}{2019}
+      \verb{doi}
+      \verb 10.3389/frobt.2019.00020
+      \endverb
+      \verb{urlraw}
+      \verb https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2019.00020
+      \endverb
+      \verb{url}
+      \verb https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2019.00020
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

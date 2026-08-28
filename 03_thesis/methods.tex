@@ -1820,180 +1820,193 @@ All simulations have in common that the agent begins in the start field of the T
 
 This experiment is designed to show the agents' initial drive to visit the cue location in the T-Maze. This is not to be understood as an empirical test, i.e., we do not have a cohort of the same agent type and average their behaviors. Instead, for each agent type the simulation is run once and their inclination of initially visiting the cue can directly be read of from their action specific belief distribution in the current timestep. Concretely, the respective agent first gets exposed to the environment (T-Maze) where it is initially located at the start position and the environment generates an observation that the agent perceives. Next, the agent performs inference, i.e., its message passing algorithm is executed until convergence. As a result, the agent has infered all of its belief distributions including the one that prescribes action in the current timestep. This action specific belief distribution contains probabilities over the four possible actions (go to (stay at) start, go to the left arm, go to the right arm, go to the cue). The agent's inclination of going to the cue is then exactly the respective probability of performing this action. This probability is the central result of this simulation. The procedere is exemplary detailed using the BFE agent in \cref{fig:24}.
 
-\begin{figure}[htbp]
+
+\begin{figure}[bp!]
     \centering
+    \resizebox{1.0\textwidth}{!}{%
+        \begin{tikzpicture}[
+                panel/.style={
+                    draw=gray!80, thick, fill=blue!5,
+                    rounded corners=4pt,
+                    minimum width=8.0cm,
+                    minimum height=4.5cm,
+                    inner sep=0pt,
+                    align=center
+                },
+                toptext/.style={
+                    anchor=north east,
+                    font=\sffamily\normalsize,
+                    text=gray!85!black
+                },
+                divider/.style={
+                    draw=gray!70,
+                    dashed,
+                    line width=1.0pt
+                },
+                % --- Styles für das T-Maze ---
+                agent/.pic={
+                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
+                    \fill[black] (-0.08, 0.08) circle (0.03);
+                    \fill[black] (0.08, 0.08) circle (0.03);
+                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
+                },
+                field label/.style={
+                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
+                },
+                field symbol/.style={
+                    font=\large\bfseries,
+                    text=gray!70,
+                    anchor=center,
+                    scale=1.0,
+                    transform shape
+                },
+                % --- Styles für den Faktor-Graphen ---
+                factor/.style={
+                    draw=black, thick, rectangle, fill=white, 
+                    inner sep=4pt, font=\normalsize
+                },
+                eqfactor/.style={
+                    draw=black, thick, rectangle, fill=white,
+                    minimum size=0.5cm, inner sep=2pt, font=\normalsize
+                },
+                edge/.style={
+                    draw=black, thick
+                },
+                ffgedge/.style={
+                    draw=black, thick
+                },
+                varlabel/.style={
+                    font=\normalsize
+                },
+                greycircle/.style={
+                    draw=black, thick, circle, fill=gray!30, 
+                    minimum size=0.55cm, inner sep=0pt, font=\normalsize
+                }
+            ]
 
-    % ================= TIMESTEP 1 =================
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=1.2]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+            % --- 1x2 Grid (Zwei Boxen nebeneinander) ---
+            \node[panel] (boxA) at (0,0) {};
+            \node[panel, right=0.3cm of boxA] (boxB) {};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+            % Gestrichelte Trennlinie (nur im linken Kasten)
+            \draw[divider] ([yshift=-28pt]boxA.north) -- ([yshift=8pt]boxA.south);
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 1.4) {$\textcolor{orange}{\hat {o_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-2.1) -- (0,2.1);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{9cm}{!}{\input{graphs/ffg_exp_1.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{2.0cm}[0pt][0pt]{\sffamily\bfseries\small (a)\hspace*{-0.0cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:24.1}
-    \end{subfigure}
+            % ================= BOX A (Links: ehemals Box a) =================
+            % --- Linke Seite: T-Maze (o_0) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxA.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-    \vspace{0.2cm} % Abstand zwischen den Kästen
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
 
-    % ================= TIMESTEP 1 =================
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=1.2]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                % Sensor-Wellen für Observation o_0
+                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
 
-                        % --- NEU: Gedankenblase für Variational Free Energy Minimierung ---
-                        % Kleine Bläschen, die vom Kopf (ca. 0.3, 1.7) nach rechts oben steigen
-                        \draw[thin, gray!60, fill=white] (0.35, 1.55) circle (0.04);
-                        \draw[thin, gray!60, fill=white] (0.52, 1.65) circle (0.07);
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Observation o_0) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxA.center)}]
+                \node[factor] (A0) at (0, 0.7) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+                \node[factor, below=1.3cm of A0] (c0) {$\tilde{p}(o_0)$};
 
-                        % Die Haupt-Gedankenblase mit dem Minimierungs-Symbol / Free Energy F
-                        \node[
-                            ellipse,
-                            draw=gray!40,
-                            thick,
-                            fill=white,
-                            minimum width=1.0cm,
-                            minimum height=0.55cm,
-                            inner sep=2pt,
-                            font=\scriptsize\sffamily,
-                            text=black!100!black
-                        ] at (1.2, 1.7) {$\min F$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-2.1) -- (0,2.1);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{9cm}{!}{\input{graphs/ffg_exp_2.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{2.0cm}[0pt][0pt]{\sffamily\bfseries\small (b)\hspace*{-0.0cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:24.2}
-    \end{subfigure}
+                \draw[ffgedge, dashed] (A0.north) -- ([yshift=0.55cm]A0.north);
+                \draw[ffgedge] (A0.south) -- (c0.north) 
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{o_0}})$};
+            \end{scope}
 
-    \caption{The figure presents the two crucial steps of the "Initial Curiousity" simulation using the example of the BFE agent: First, the agent receives an observation \(\hat {o_0}\) from the environment (\cref{fig:24.1}). The observation has an effect on the agent's temporal generative model, i.e., in its factor graph representation, the belief distribution \(q(o_0)\) that describes its belief about observations of timestep \(t=0\), becomes a delta distribution with all probability mass at \(\hat {o_0}\). Second, the agent performs inference, i.e., it runs its message passing algorithm (messages sent along the edges in \cref{fig:24.2}). In the case of the BFE agent this refers to \cref{alg:2}. After message passing has finished, the beliefs of executing a certain action in the current timestep are then directly given by the belief \(q(u_0)\).}
+            % ================= BOX B (Rechts: ehemals Box d) =================
+            % --- Kompletter Forney Factor Graph ---
+            \begin{scope}[shift={([xshift=-3.55cm, yshift=0.15cm]boxB.center)},
+                scale=0.46,
+                transform shape,
+                factor/.append style={fill=gray!6},
+                eqfactor/.append style={fill=gray!6}
+            ]
+                \node[factor] (d) {$\phantom{p(s_0)}$};
+                \node[eqfactor, right=1.8cm of d] (eq0) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq0] (A0) {$\phantom{p(o_0|s^{\scriptscriptstyle II}_0)}$};
+                \node[factor, below=1.5cm of A0] (c0) {$\phantom{\tilde{p}(o_0)}$};
+                \node[factor, right=1.8cm of eq0] (B0) {$\phantom{p(s_1|s^{\scriptscriptstyle I}_0,u_0)}$};
+                \node[eqfactor, right=1.8cm of B0] (eq1) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq1] (A1) {$\phantom{p(o_1|s^{\scriptscriptstyle II}_1)}$};
+                \node[factor, below=1.5cm of A1] (c1) {$\phantom{\tilde{p}(o_1)}$};
+                \node[factor, right=1.8cm of eq1] (B1) {$\phantom{p(s_2|s^{\scriptscriptstyle I}_1,u_1)}$};
+                \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$\phantom{p(o_2|s_2)}$};
+                \node[factor, below=1.5cm of A2] (c2) {$\phantom{\tilde{p}(o_2)}$};
+                \node[factor, above=1.5cm of B0] (u0) {$\phantom{p(u_0)}$};
+                \node[factor, above=1.5cm of B1] (u1) {$\phantom{p(u_1)}$};
+
+                \draw[edge] (d.east) -- (eq0.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.2, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq0.south) -- (A0.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A0.south) -- (c0.north) 
+                    node[midway, left=0.3cm, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq0.east) -- (B0.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B0.north) -- (u0.south) 
+                    node[midway, left, varlabel, scale=1.5] {$q(a_0)$}
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+                \draw[edge] (B0.east) -- (eq1.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq1.south) -- (A1.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A1.south) -- (c1.north)
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq1.east) -- (B1.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B1.east) -| (A2.north) 
+                    node[pos=0.865, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.13, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (A2.south) -- (c2.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (B1.north) -- (u1.south)
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+            \end{scope}
+
+            % --- Text & Panel-Labels oben links/rechts in beiden Boxen ---
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Message Passing};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
+
+        \end{tikzpicture}
+    }
+    \caption{The figure presents the two crucial steps of Experiment 1 using the example of the BFE agent: First, the agent receives an observation \(\hat {o_0}\) from the environment (a). The observation has an effect on the agent's temporal generative model, i.e., in its factor graph representation, the belief distribution \(q(o_0)\) that describes its belief about observations of timestep \(t=0\), becomes a delta distribution with all probability mass at \(\hat {o_0}\). Second, the agent performs inference, i.e., it runs its message passing algorithm (messages sent along the edges in (b)). In the case of the BFE agent this refers to \cref{alg:2}. After message passing has finished, the beliefs of executing a certain action in the current timestep are then directly given by the belief \(q(a_0)\).}
     \label{fig:24}
 \end{figure}
 
@@ -2014,1323 +2027,1000 @@ In this experiment, the agent receives the cue which reveals the location of the
                     inner sep=0pt,
                     align=center
                 },
-                sublabel/.style={
+                toptext/.style={
                     anchor=north east,
-                    font=\sffamily\bfseries\Large,
-                    text=black
+                    font=\sffamily\normalsize,
+                    text=gray!85!black
                 },
                 divider/.style={
                     draw=gray!70,
                     dashed,
                     line width=1.0pt
+                },
+                % --- Styles für das T-Maze ---
+                agent/.pic={
+                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
+                    \fill[black] (-0.08, 0.08) circle (0.03);
+                    \fill[black] (0.08, 0.08) circle (0.03);
+                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
+                },
+                field label/.style={
+                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
+                },
+                field symbol/.style={
+                    font=\large\bfseries,
+                    text=gray!70,
+                    anchor=center,
+                    scale=1.0,
+                    transform shape
+                },
+                % --- Styles für den Faktor-Graphen ---
+                factor/.style={
+                    draw=black, thick, rectangle, fill=white, 
+                    inner sep=4pt, font=\normalsize
+                },
+                eqfactor/.style={
+                    draw=black, thick, rectangle, fill=white,
+                    minimum size=0.5cm, inner sep=2pt, font=\normalsize
+                },
+                edge/.style={
+                    draw=black, thick
+                },
+                ffgedge/.style={
+                    draw=black, thick
+                },
+                varlabel/.style={
+                    font=\normalsize
+                },
+                greycircle/.style={
+                    draw=black, thick, circle, fill=gray!30, 
+                    minimum size=0.55cm, inner sep=0pt, font=\normalsize
                 }
             ]
 
             % --- 2x2 Grid (Feste Positionierung) ---
             % Obere Reihe: (a) und (b)
-            \node[panel] (boxA) at (0,0) {
-                % \usebox{\boxA}
-            };
-
-            \node[panel, right=0.3cm of boxA] (boxB) {
-                % \usebox{\boxB}
-            };
+            \node[panel] (boxA) at (0,0) {};
+            \node[panel, right=0.3cm of boxA] (boxB) {};
 
             % Untere Reihe: (c) und (d)
-            \node[panel, below=0.3cm of boxA] (boxC) {
-                % \usebox{\boxC}
-            };
+            \node[panel, below=0.3cm of boxA] (boxC) {};
+            \node[panel, right=0.3cm of boxC] (boxD) {};
 
-            \node[panel, right=0.3cm of boxC] (boxD) {
-                % \usebox{\boxD}
-            };
-
-            \foreach \b in {boxA, boxB, boxC, boxD} {
-                % yshift sorgt für einen kleinen Abstand zum oberen/unteren Rand
-                \draw[divider] ([yshift=-8pt]\b.north) -- ([yshift=8pt]\b.south);
+            % Gestrichelte Trennlinien (Startet jetzt bei yshift=-28pt für Platz oben)
+            \foreach \b in {boxA, boxB, boxC} {
+                \draw[divider] ([yshift=-28pt]\b.north) -- ([yshift=8pt]\b.south);
             }
 
-            % --- Labels (a), (b), (c), (d) fix oben rechts verankert ---
-            %\node[sublabel] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
-            %\node[sublabel] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
-            %\node[sublabel] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
-            %\node[sublabel] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
+            % ================= BOX A (Oben Links) =================
+            % --- Linke Seite: T-Maze (o_0) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxA.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
+
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
+
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
+
+                % Anstelle des Observation-Arrows:
+                % 2-3 feine Sensor-Wellen nach rechts/unten
+                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}_0}$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Observation o_0) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxA.center)}]
+                \node[factor] (A0) at (0, 0.7) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+                \node[factor, below=1.3cm of A0] (c0) {$\tilde{p}(o_0)$};
+
+                \draw[ffgedge, dashed] (A0.north) -- ([yshift=0.55cm]A0.north);
+                \draw[ffgedge] (A0.south) -- (c0.north) 
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{o_0}})$};
+            \end{scope}
+
+            % ================= BOX B (Oben Rechts) =================
+            % --- Linke Seite: T-Maze (a_0) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxB.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
+
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
+
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
+
+                % Action Arrow (zeigt nach unten auf das Cue-Feld)
+                \draw[
+                    -{Stealth[scale=1.0]},
+                    line width=1.6pt,
+                    color=gray!80!black
+                ]
+                (0.28, 1.35) .. controls (0.75, 1.2) and (0.75, 0.8) .. (0.28, 0.65);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.0) {$\bm{\hat{a}_0}$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Action a_0) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxB.center)}]
+                \node[factor] (u0) at (0, 0.95) {$p(a_0)$};
+                \node[factor, below=1.3cm of u0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,a_0)$};
+
+                \draw[ffgedge] (B0.north) -- (u0.south)
+                    node[midway, greycircle] {$\delta$}
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{a_0}})$};
+
+                \draw[ffgedge, dashed] ([xshift=-0.6cm]B0.west) -- (B0.west);
+                \draw[ffgedge, dashed] (B0.east) -- ([xshift=0.6cm]B0.east);
+            \end{scope}
+
+            % ================= BOX C (Unten Links) =================
+            % --- Linke Seite: T-Maze (o_1) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxC.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
+
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
+
+                \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
+
+                % Box (c): Sensor-Wellen für Observation o_1
+                \draw[gray!80!black, thick] (0.3, 0.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (0.4, 0.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (0.55, 0.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 0.5) {$\bm{\hat{o}_1}$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Observation o_1) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxC.center)}]
+                \node[factor] (A1) at (0, 0.7) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+                \node[factor, below=1.3cm of A1] (c1) {$\tilde{p}(o_1)$};
+
+                \draw[ffgedge, dashed] (A1.north) -- ([yshift=0.55cm]A1.north);
+                \draw[ffgedge] (A1.south) -- (c1.north) 
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{o_1}})$};
+            \end{scope}
+
+            % ================= BOX D (Unten Rechts) =================
+            % --- Kompletter Forney Factor Graph ---
+            \begin{scope}[shift={([xshift=-3.55cm, yshift=0.15cm]boxD.center)},
+                scale=0.46,
+                transform shape,
+                factor/.append style={fill=gray!6},
+                eqfactor/.append style={fill=gray!6}
+            ]
+                \node[factor] (d) {$\phantom{p(s_0)}$};
+                \node[eqfactor, right=1.8cm of d] (eq0) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq0] (A0) {$\phantom{p(o_0|s^{\scriptscriptstyle II}_0)}$};
+                \node[factor, below=1.5cm of A0] (c0) {$\phantom{\tilde{p}(o_0)}$};
+                \node[factor, right=1.8cm of eq0] (B0) {$\phantom{p(s_1|s^{\scriptscriptstyle I}_0,u_0)}$};
+                \node[eqfactor, right=1.8cm of B0] (eq1) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq1] (A1) {$\phantom{p(o_1|s^{\scriptscriptstyle II}_1)}$};
+                \node[factor, below=1.5cm of A1] (c1) {$\phantom{\tilde{p}(o_1)}$};
+                \node[factor, right=1.8cm of eq1] (B1) {$\phantom{p(s_2|s^{\scriptscriptstyle I}_1,u_1)}$};
+                \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$\phantom{p(o_2|s_2)}$};
+                \node[factor, below=1.5cm of A2] (c2) {$\phantom{\tilde{p}(o_2)}$};
+                \node[factor, above=1.5cm of B0] (u0) {$\phantom{p(u_0)}$};
+                \node[factor, above=1.5cm of B1] (u1) {$\phantom{p(u_1)}$};
+
+                \draw[edge] (d.east) -- (eq0.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.2, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq0.south) -- (A0.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A0.south) -- (c0.north) 
+                    node[midway, left=0.3, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq0.east) -- (B0.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B0.north) -- (u0.south) 
+                    node[midway, left=0.3, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{a_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+                \draw[edge] (B0.east) -- (eq1.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq1.south) -- (A1.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A1.south) -- (c1.north) 
+                    node[midway, left=0.3, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_1}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq1.east) -- (B1.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B1.east) -| (A2.north) 
+                    node[pos=0.865, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.13, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (A2.south) -- (c2.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (B1.north) -- (u1.south)
+                    node[midway, left, varlabel, scale=1.5] {$q(\textcolor{black}{a_1})$}
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+            \end{scope}
+
+            % --- Text oben rechts in jeder Box ---
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Action $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Observation $t=1$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Message Passing};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
 
         \end{tikzpicture}
     }
-    \caption{Overview of the four experimental setups: (a) initial curiosity, (b) belief state, (c) free energy minimization during planning, and (d) action execution.}
-    \label{fig:four_panels}
-\end{figure}
-
-\begin{figure}[b!]
-    \centering
-
-    % ================= TIMESTEP 1 =================
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=1.2]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
-
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
-
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 1.4) {$\textcolor{orange}{\hat {o_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-2.1) -- (0,2.1);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{9cm}{!}{\input{graphs/ffg_exp_1.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{2.0cm}[0pt][0pt]{\sffamily\bfseries\small (a)\hspace*{-0.0cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:25.1}
-    \end{subfigure}
-
-    \vspace{0.2cm} % Abstand zwischen den Kästen
-
-    % ================= TIMESTEP 1 =================
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=1.2]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
-
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
-
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            {Stealth[scale=1.0]}-,
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 1.4) {$\textcolor{orange}{\hat {a_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-2.1) -- (0,2.1);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{9cm}{!}{\input{graphs/ffg_exp_3.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{2.0cm}[0pt][0pt]{\sffamily\bfseries\small (b)\hspace*{-0.0cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:25.2}
-    \end{subfigure}
-
-    \vspace{0.2cm} % Abstand zwischen den Kästen
-
-    % ================= TIMESTEP 1 =================
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=1.2]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
-
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
-
-                        \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 0.3) .. controls (1.0, 0.1) and (1.3, 1.0) .. (0.3, 0.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 0.4) {$\textcolor{orange}{\hat {o_1}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        %\node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-2.1) -- (0,2.1);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{9cm}{!}{\input{graphs/ffg_exp_4.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{2.0cm}[0pt][0pt]{\sffamily\bfseries\small (c)\hspace*{-0.0cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:25.3}
-    \end{subfigure}
-    %\vspace{0.2cm} % Abstand zwischen den Kästen
-\end{figure}
-
-\begin{figure}[htbp]
-    \ContinuedFloat
-
-    % ================= TIMESTEP 1 =================
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=1.2]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
-
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
-
-                        \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        %\node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-
-                        % --- NEU: Gedankenblase für Variational Free Energy Minimierung ---
-                        % Kleine Bläschen, die vom Kopf (ca. 0.3, 1.7) nach rechts oben steigen
-                        \draw[thin, gray!60, fill=white] (0.35, 0.55) circle (0.04);
-                        \draw[thin, gray!60, fill=white] (0.52, 0.65) circle (0.07);
-
-                        % Die Haupt-Gedankenblase mit dem Minimierungs-Symbol / Free Energy F
-                        \node[
-                            ellipse,
-                            draw=gray!40,
-                            thick,
-                            fill=white,
-                            minimum width=1.0cm,
-                            minimum height=0.55cm,
-                            inner sep=2pt,
-                            font=\scriptsize\sffamily,
-                            text=black!100!black
-                        ] at (1.2, 0.7) {$\min F$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-2.1) -- (0,2.1);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{9cm}{!}{\input{graphs/ffg_exp_5.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{2.0cm}[0pt][0pt]{\sffamily\bfseries\small (d)\hspace*{-0.0cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:25.4}
-    \end{subfigure}
-
-    \caption{The figure presents the four steps of the simulation "Exploiting Information" via the example of the BFE agent. First, the agents receives an observation \(\hat {o_0}\) which makes \(q(o_0\) a delta distribution with all its probability mass at \(\hat {o_0}\) (\cref{fig:25.1}). Second, the action "go to cue" is externally triggered and the respective belief distribution \(q(u_0)\) also becomes a delta distribution with its mass at this action (\cref{fig:25.2}). Third, being at the cue triggeres an observation from the environment that is informative regarding the reward location. Similar to the first observation, it leads to a delta distribution at \(q(o_1)\) (\cref{fig:25.3}). Lastly, the agent executes its message passing algorithm to infer all its belief distributions (\cref{fig:25.4}). The inclination of moving to the cued arm that promises the reward is then given as a probability in the action-specific belief distribution \(q(u_1)\).}
+    \caption{The figure presents the four steps of Experiment 2 via the example of the BFE agent. First, the agents receives an observation \(\hat {o_0}\) which makes \(q(o_0\) a delta distribution with all its probability mass at \(\hat {o_0}\) (a). Second, the action "go to cue" is externally triggered and the respective belief distribution \(q(a_0)\) also becomes a delta distribution with its mass at this action (b). Third, being at the cue triggers an observation from the environment that is informative regarding the reward location. Similar to the first observation, it leads to a delta distribution at \(q(o_1)\) (c). Lastly, the agent executes its message passing algorithm to infer all its belief distributions (d). The inclination of moving to the cued arm that promises the reward is then given as a probability in the action-specific belief distribution \(q(a_1)\).}
     \label{fig:25}
 \end{figure}
 
+
 \subsubsection{Experiment 3: Long-Term Success}
 
-This experiment is about empirically measuring the agents' succes in receiving the reward during a trial. Specifically, there are two ways how an agent can achieve this: First, it initially "decides" against going to the cue and instead moves to one of the two arms. It is then either lucky and observes the reward or not. Second, the agent initially moves to the cue and only then moves to one of the two arms. Again, it then either observes the reward or not. Generally, a trial consists of three timesteps \(t \in {0,1,2}\) and the agent can either observe the reward in timestep \(t=1\) (when directly moving to an arm) or in timestep \(t=2\) (when first moving to the cue in \(t=1\)). A trial is succesfull when the agent observes the reward in timesteps \(t=1\) or \(t=2\) (a trial is prematurely terminated when it receives in reward in timestep \(t=1\)). There are \(1000\) trials for each agent (and \(\alpha\)- and \(c\) value). The result is the percentage of succesfull trials. The procedere is detailed in \cref{fig:26}.
+This experiment is about empirically measuring the agents' succes in receiving the reward during a trial. Specifically, there are two ways how an agent can achieve this: First, it initially "decides" against going to the cue and instead moves to one of the two arms. It is then either lucky and observes the reward or not (detailed in \cref{fig:26}). Second, the agent initially moves to the cue and only then moves to one of the two arms. Again, it then either observes the reward or not (shown in \cref{fig:40}). Generally, a trial consists of three timesteps \(t \in {0,1,2}\) and the agent can either observe the reward in timestep \(t=1\) (when directly moving to an arm) or in timestep \(t=2\) (when first moving to the cue in \(t=1\)). A trial is succesfull when the agent observes the reward in timesteps \(t=1\) or \(t=2\) (a trial is prematurely terminated when it receives in reward in timestep \(t=1\)). There are \(1000\) trials for each agent (and \(\alpha\)- and \(c\) value). The result is the percentage of succesfull trials. Note that in principle there are more behavioral paths than the two shown in \cref{fig:26,fig:40} but these other paths do never lead to the reward, e.g., always taking actions that keeps the agent at the start field. The two paths presented here are the only paths that have non-zero probabilities of leading to the reward, i.e., also with the two paths the agent might not receive the reward when moving to the wrong arm.
 
-\begin{figure}[b!]
+\begin{figure}[bp!]
     \centering
+    \resizebox{1.0\textwidth}{!}{%
+        \begin{tikzpicture}[
+                panel/.style={
+                    draw=gray!80, thick, fill=blue!5,
+                    rounded corners=4pt,
+                    minimum width=8.0cm,
+                    minimum height=4.5cm,
+                    inner sep=0pt,
+                    align=center
+                },
+                toptext/.style={
+                    anchor=north east,
+                    font=\sffamily\normalsize,
+                    text=gray!85!black
+                },
+                divider/.style={
+                    draw=gray!70,
+                    dashed,
+                    line width=1.0pt
+                },
+                % --- Styles für das T-Maze ---
+                agent/.pic={
+                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
+                    \fill[black] (-0.08, 0.08) circle (0.03);
+                    \fill[black] (0.08, 0.08) circle (0.03);
+                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
+                },
+                field label/.style={
+                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
+                },
+                field symbol/.style={
+                    font=\large\bfseries,
+                    text=gray!70,
+                    anchor=center,
+                    scale=1.0,
+                    transform shape
+                },
+                % --- Styles für den Faktor-Graphen ---
+                factor/.style={
+                    draw=black, thick, rectangle, fill=white, 
+                    inner sep=4pt, font=\normalsize
+                },
+                eqfactor/.style={
+                    draw=black, thick, rectangle, fill=white,
+                    minimum size=0.5cm, inner sep=2pt, font=\normalsize
+                },
+                edge/.style={
+                    draw=black, thick
+                },
+                ffgedge/.style={
+                    draw=black, thick
+                },
+                varlabel/.style={
+                    font=\normalsize
+                },
+                greycircle/.style={
+                    draw=black, thick, circle, fill=gray!30, 
+                    minimum size=0.55cm, inner sep=0pt, font=\normalsize
+                }
+            ]
 
-    % ================= TIMESTEP 1.1 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+            % --- 2x2 Grid (Feste Positionierung) ---
+            % Obere Reihe: (a) und (b)
+            \node[panel] (boxA) at (0,0) {};
+            \node[panel, right=0.3cm of boxA] (boxB) {};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+            % Untere Reihe: (c) und (d)
+            \node[panel, below=0.3cm of boxA] (boxC) {};
+            \node[panel, right=0.3cm of boxC] (boxD) {};
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 1.2) {$\textcolor{orange}{\hat {o_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_1.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (a)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.1a}
-    \end{subfigure}
-    \hfill
-    % ================= TIMESTEP 1.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+            % Gestrichelte Trennlinie (nur noch für boxA)
+            \draw[divider] ([yshift=-28pt]boxA.north) -- ([yshift=8pt]boxA.south);
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+            % ================= BOX A (Oben Links: Observation t=0) =================
+            % --- Linke Seite: T-Maze (o_0) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxA.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 1.2) {$\textcolor{orange}{\hat {o_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_1.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (b)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.1b}
-    \end{subfigure}
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
 
-    \vspace{0.2cm} % Abstand zwischen den Kästen
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-    % ================= TIMESTEP 2.1 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+                % Sensor-Wellen für Observation o_0
+                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Observation o_0) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxA.center)}]
+                \node[factor] (A0) at (0, 0.7) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+                \node[factor, below=1.3cm of A0] (c0) {$\tilde{p}(o_0)$};
 
-                        % --- NEU: Gedankenblase für Variational Free Energy Minimierung ---
-                        % Kleine Bläschen, die vom Kopf (ca. 0.3, 1.7) nach rechts oben steigen
-                        \draw[thin, gray!60, fill=white] (0.35, 1.55) circle (0.04);
-                        \draw[thin, gray!60, fill=white] (0.52, 1.65) circle (0.07);
+                \draw[ffgedge, dashed] (A0.north) -- ([yshift=0.55cm]A0.north);
+                \draw[ffgedge] (A0.south) -- (c0.north) 
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{o_0}})$};
+            \end{scope}
 
-                        % Die Haupt-Gedankenblase mit dem Minimierungs-Symbol / Free Energy F
-                        \node[
-                            ellipse,
-                            draw=gray!40,
-                            thick,
-                            fill=white,
-                            minimum width=1.0cm,
-                            minimum height=0.55cm,
-                            inner sep=2pt,
-                            font=\scriptsize\sffamily,
-                            text=black!100!black,
-                            transform shape
-                        ] at (1.2, 1.7) {$\min F$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.4cm}{!}{\input{graphs/ffg_exp_2.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (c)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.2a}
-    \end{subfigure}
-    \hfill
-    % ================= TIMESTEP 2.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+            % ================= BOX B (Oben Rechts: Message Passing) =================
+            % --- Kompletter Forney Factor Graph ---
+            \begin{scope}[shift={([xshift=-3.55cm, yshift=0.15cm]boxB.center)},
+                scale=0.46,
+                transform shape,
+                factor/.append style={fill=gray!6},
+                eqfactor/.append style={fill=gray!6}
+            ]
+                \node[factor] (d) {$\phantom{p(s_0)}$};
+                \node[eqfactor, right=1.8cm of d] (eq0) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq0] (A0) {$\phantom{p(o_0|s^{\scriptscriptstyle II}_0)}$};
+                \node[factor, below=1.5cm of A0] (c0) {$\phantom{\tilde{p}(o_0)}$};
+                \node[factor, right=1.8cm of eq0] (B0) {$\phantom{p(s_1|s^{\scriptscriptstyle I}_0,u_0)}$};
+                \node[eqfactor, right=1.8cm of B0] (eq1) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq1] (A1) {$\phantom{p(o_1|s^{\scriptscriptstyle II}_1)}$};
+                \node[factor, below=1.5cm of A1] (c1) {$\phantom{\tilde{p}(o_1)}$};
+                \node[factor, right=1.8cm of eq1] (B1) {$\phantom{p(s_2|s^{\scriptscriptstyle I}_1,u_1)}$};
+                \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$\phantom{p(o_2|s_2)}$};
+                \node[factor, below=1.5cm of A2] (c2) {$\phantom{\tilde{p}(o_2)}$};
+                \node[factor, above=1.5cm of B0] (u0) {$\phantom{p(u_0)}$};
+                \node[factor, above=1.5cm of B1] (u1) {$\phantom{p(u_1)}$};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                \draw[edge] (d.east) -- (eq0.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.2, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq0.south) -- (A0.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A0.south) -- (c0.north) 
+                    node[midway, left=0.3cm, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq0.east) -- (B0.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B0.north) -- (u0.south) 
+                    node[midway, left, varlabel, scale=1.5] {$q(a_0)$}
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+                \draw[edge] (B0.east) -- (eq1.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq1.south) -- (A1.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A1.south) -- (c1.north)
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq1.east) -- (B1.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B1.east) -| (A2.north) 
+                    node[pos=0.865, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.13, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (A2.south) -- (c2.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (B1.north) -- (u1.south)
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+            \end{scope}
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
+            % ================= BOX C (Unten Links: Action t=0 - Zentriert) =================
+            \begin{scope}[shift={([xshift=0cm, yshift=-1.95cm]boxC.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-                        % --- NEU: Gedankenblase für Variational Free Energy Minimierung ---
-                        % Kleine Bläschen, die vom Kopf (ca. 0.3, 1.7) nach rechts oben steigen
-                        \draw[thin, gray!60, fill=white] (0.35, 1.55) circle (0.04);
-                        \draw[thin, gray!60, fill=white] (0.52, 1.65) circle (0.07);
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
 
-                        % Die Haupt-Gedankenblase mit dem Minimierungs-Symbol / Free Energy F
-                        \node[
-                            ellipse,
-                            draw=gray!40,
-                            thick,
-                            fill=white,
-                            minimum width=1.0cm,
-                            minimum height=0.55cm,
-                            inner sep=2pt,
-                            font=\scriptsize\sffamily,
-                            text=black!100!black,
-                            transform shape
-                        ] at (1.2, 1.7) {$\min F$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.4cm}{!}{\input{graphs/ffg_exp_2.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (d)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.2b}
-    \end{subfigure}
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-    \vspace{0.2cm} % Abstand zwischen den Kästen
+                % Action Arrow (zeigt senkrecht von unten auf das ?)
+                \draw[
+                    -{Stealth[scale=1.0]},
+                    line width=1.6pt,
+                    color=gray!80!black
+                ]
+                (-0.28, 1.45) .. controls (-0.8, 1.45) and (-1.0, 1.75) .. (-1.0, 2.28);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (-1.0, 1.45) {$\bm{\hat{a}}_0$};
+                \node[font=\footnotesize, text=black, scale=0.95]  at (-1.15, 1.1) {$\left(\sim q(a_0)\right)$};
 
-    % ================= TIMESTEP 3.1 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+            % ================= BOX D (Unten Rechts: Observation t=1 - Zentriert) =================
+            \begin{scope}[shift={([xshift=0cm, yshift=-1.95cm]boxD.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            {Stealth[scale=1.0]}-,
-                            line width=1.6pt,
-                            color=gray!80!black,
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 0.9) {$\textcolor{orange}{\hat {a_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_3.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (e)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.3a}
-    \end{subfigure}
-    \hfill
-    % ================= TIMESTEP 3.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                \pic[scale=0.8, transform shape] at (-1.0, 2.5) {agent};
 
-                        \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            {Stealth[scale=1.0]}-,
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 1.3) .. controls (1.0, 1.1) and (1.3, 2.0) .. (0.3, 1.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 0.9) {$\textcolor{orange}{\hat {a_0}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_3.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (f)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.3b}
-    \end{subfigure}
+                % Sensor-Wellen für Observation o_1
+                \draw[gray!80!black, thick] (-0.7, 2.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (-0.6, 2.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (-0.45, 2.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (0.0, 2.5) {$\bm{\hat{o}}_1$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % --- Text & Panel-Labels oben links/rechts in jeder Box ---
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Message Passing};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Action $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Observation $t=1$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
+
+        \end{tikzpicture}
+    }
+    \caption{The figure shows the first behavioral path the agent can take during a trial that may lead to the reward in Experiment~3. In this path, the agent decides against moving to the cue and instead directly moves to one of the two arms. Specifically, the agent begins at the start field in the T-Maze and receives an observation (a). Next, the agent infers its belief distributions (b). Based on the inferred action-specific belief distribution $q(a_0)$, the agent executes an action (c) that moves it directly to one of the arms. In the arm, the agent either observes the reward or not (d).}
+    \label{fig:26}
 \end{figure}
 
-\begin{figure}[htbp]
-    \ContinuedFloat
 
-    \vspace{0.2cm}
-    % ================= TIMESTEP 4.1 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.075cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (angepasst für 0.48\textwidth)
-                % ==========================================
-                \hfill
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+\begin{figure}[bp!]
+    \centering
+    \resizebox{1.0\textwidth}{!}{%
+        \begin{tikzpicture}[
+                panel/.style={
+                    draw=gray!80, thick, fill=blue!5,
+                    rounded corners=4pt,
+                    minimum width=8.0cm,
+                    minimum height=4.5cm,
+                    inner sep=0pt,
+                    align=center
+                },
+                smallpanel/.style={
+                    draw=gray!80, thick, fill=blue!5,
+                    rounded corners=4pt,
+                    minimum width=3.85cm,
+                    minimum height=4.5cm,
+                    inner sep=0pt,
+                    align=center
+                },
+                toptext/.style={
+                    anchor=north east,
+                    font=\sffamily\normalsize,
+                    text=gray!85!black
+                },
+                divider/.style={
+                    draw=gray!70,
+                    dashed,
+                    line width=1.0pt
+                },
+                % --- Styles für das T-Maze ---
+                agent/.pic={
+                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
+                    \fill[black] (-0.08, 0.08) circle (0.03);
+                    \fill[black] (0.08, 0.08) circle (0.03);
+                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
+                },
+                field label/.style={
+                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
+                },
+                field symbol/.style={
+                    font=\large\bfseries,
+                    text=gray!70,
+                    anchor=center,
+                    scale=1.0,
+                    transform shape
+                },
+                % --- Styles für den Faktor-Graphen ---
+                factor/.style={
+                    draw=black, thick, rectangle, fill=white, 
+                    inner sep=4pt, font=\normalsize
+                },
+                eqfactor/.style={
+                    draw=black, thick, rectangle, fill=white,
+                    minimum size=0.5cm, inner sep=2pt, font=\normalsize
+                },
+                edge/.style={
+                    draw=black, thick
+                },
+                ffgedge/.style={
+                    draw=black, thick
+                },
+                varlabel/.style={
+                    font=\normalsize
+                },
+                greycircle/.style={
+                    draw=black, thick, circle, fill=gray!30, 
+                    minimum size=0.55cm, inner sep=0pt, font=\normalsize
+                }
+            ]
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+            % --- Grid-Positionierung (3 Reihen) ---
+            % Reihe 1: (a) und (b)
+            \node[panel] (boxA) at (0,0) {};
+            \node[panel, right=0.3cm of boxA] (boxB) {};
 
-                        \pic[scale=0.8, transform shape] at (-1, 2.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        %\node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                        \node[field symbol] at (0.0, 0.5) {!};
+            % Reihe 2: (c) und (d)
+            \node[panel, below=0.3cm of boxA] (boxC) {};
+            \node[panel, right=0.3cm of boxC] (boxD) {};
 
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.4pt,
-                            color=gray!80!black
-                        ]
-                        (-0.49, 2.3) .. controls (0.0, 2.1) and (0.3, 3.0) .. (-0.7, 2.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (0.2, 2.3) {$\textcolor{orange}{\hat {o_1}}$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.15cm}
-                % ==========================================
-                % BEREICH 3: Der FFG
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_4.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (g)\hspace*{-0.05cm}}}}%
-                \hspace{0.05cm}%
-                \vspace{0.01cm}
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.4a}
-    \end{subfigure}
-    \hfill % Schiebt die beiden Subfigures an die äußeren Ränder
-    % ================= TIMESTEP 4.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.075cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (angepasst für 0.48\textwidth)
-                % ==========================================
-                \hfill
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+            % Reihe 3: (e) links sowie (f) und (g) schmal nebeneinander rechts
+            \node[panel, below=0.3cm of boxC] (boxE) {};
+            \node[smallpanel, anchor=north west] (boxF) at ([yshift=-0.3cm]boxD.south west) {};
+            \node[smallpanel, anchor=north east] (boxG) at ([yshift=-0.3cm]boxD.south east) {};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+            % Gestrichelte Trennlinien (nur für geteilte Boxen a, c, d)
+            \foreach \b in {boxA, boxC, boxD} {
+                \draw[divider] ([yshift=-28pt]\b.north) -- ([yshift=8pt]\b.south);
+            }
 
-                        \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
+            % ================= BOX A (Reihe 1 Links: Observation t=0) =================
+            % --- Linke Seite: T-Maze (o_0) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxA.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.4pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 0.3) .. controls (1.0, 0.1) and (1.3, 1.0) .. (0.3, 0.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 0.3) {$\textcolor{orange}{\hat {o_1}}$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.15cm}%
-                % ==========================================
-                % BEREICH 3: Der FFG
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_4.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (h)\hspace*{-0.05cm}}}}%
-                \hspace{0.05cm}%
-                \vspace{0.01cm}
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.4b}
-    \end{subfigure}
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
 
-    \vspace{0.2cm} % Abstand zwischen den Kästen
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-    \hfill % Schiebt die beiden Subfigures an die äußeren Ränder
-    % ================= TIMESTEP 5.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+                % Sensor-Wellen für Observation o_0
+                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
 
-                        \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        %\node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Observation o_0) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxA.center)}]
+                \node[factor] (A0) at (0, 0.7) {$p(o_0|s^{\scriptscriptstyle II}_0)$};
+                \node[factor, below=1.3cm of A0] (c0) {$\tilde{p}(o_0)$};
 
-                        % --- NEU: Gedankenblase für Variational Free Energy Minimierung ---
-                        % Kleine Bläschen, die vom Kopf (ca. 0.3, 1.7) nach rechts oben steigen
-                        \draw[thin, gray!60, fill=white] (0.35, 0.55) circle (0.04);
-                        \draw[thin, gray!60, fill=white] (0.52, 0.65) circle (0.07);
+                \draw[ffgedge, dashed] (A0.north) -- ([yshift=0.55cm]A0.north);
+                \draw[ffgedge] (A0.south) -- (c0.north) 
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{o_0}})$};
+            \end{scope}
 
-                        % Die Haupt-Gedankenblase mit dem Minimierungs-Symbol / Free Energy F
-                        \node[
-                            ellipse,
-                            draw=gray!40,
-                            thick,
-                            fill=white,
-                            minimum width=1.0cm,
-                            minimum height=0.55cm,
-                            inner sep=2pt,
-                            font=\scriptsize\sffamily,
-                            text=black!100!black,
-                            transform shape
-                        ] at (1.2, 0.7) {$\min F$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.4cm}{!}{\input{graphs/ffg_exp_5.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (i)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.5b}
-    \end{subfigure}
+            % ================= BOX B (Reihe 1 Rechts: Message Passing t=0) =================
+            % --- Kompletter Forney Factor Graph ---
+            \begin{scope}[shift={([xshift=-3.55cm, yshift=0.15cm]boxB.center)},
+                scale=0.46,
+                transform shape,
+                factor/.append style={fill=gray!6},
+                eqfactor/.append style={fill=gray!6}
+            ]
+                \node[factor] (d) {$\phantom{p(s_0)}$};
+                \node[eqfactor, right=1.8cm of d] (eq0) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq0] (A0) {$\phantom{p(o_0|s^{\scriptscriptstyle II}_0)}$};
+                \node[factor, below=1.5cm of A0] (c0) {$\phantom{\tilde{p}(o_0)}$};
+                \node[factor, right=1.8cm of eq0] (B0) {$\phantom{p(s_1|s^{\scriptscriptstyle I}_0,u_0)}$};
+                \node[eqfactor, right=1.8cm of B0] (eq1) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq1] (A1) {$\phantom{p(o_1|s^{\scriptscriptstyle II}_1)}$};
+                \node[factor, below=1.5cm of A1] (c1) {$\phantom{\tilde{p}(o_1)}$};
+                \node[factor, right=1.8cm of eq1] (B1) {$\phantom{p(s_2|s^{\scriptscriptstyle I}_1,u_1)}$};
+                \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$\phantom{p(o_2|s_2)}$};
+                \node[factor, below=1.5cm of A2] (c2) {$\phantom{\tilde{p}(o_2)}$};
+                \node[factor, above=1.5cm of B0] (u0) {$\phantom{p(u_0)}$};
+                \node[factor, above=1.5cm of B1] (u1) {$\phantom{p(u_1)}$};
 
-    \vspace{0.2cm}
+                \draw[edge] (d.east) -- (eq0.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.2, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq0.south) -- (A0.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A0.south) -- (c0.north) 
+                    node[midway, left=0.3cm, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq0.east) -- (B0.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B0.north) -- (u0.south) 
+                    node[midway, left, varlabel, scale=1.5] {$q(a_0)$}
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+                \draw[edge] (B0.east) -- (eq1.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq1.south) -- (A1.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A1.south) -- (c1.north)
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq1.east) -- (B1.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B1.east) -| (A2.north) 
+                    node[pos=0.865, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.13, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (A2.south) -- (c2.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (B1.north) -- (u1.south)
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+            \end{scope}
 
-    \hfill
-    % ================= TIMESTEP 6.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.15cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (Flexibel zentriert)
-                % ==========================================
-                \hfill % Drückt das Maze von links weg
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+            % ================= BOX C (Reihe 2 Links: Action t=0) =================
+            % --- Linke Seite: T-Maze (Action a_0 -> Cue) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxC.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
 
-                        \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
-                        % Observation Arrow
-                        \draw[
-                            {Stealth[scale=1.0]}-,
-                            line width=1.6pt,
-                            color=gray!80!black
-                        ]
-                        (0.51, 0.3) .. controls (1.0, 0.1) and (1.3, 1.0) .. (0.3, 0.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (1.2, 0.9) {$\textcolor{orange}{\hat {a_1}}$};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        %\node[field symbol] at (0, 0.5) {!};
-                        \node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill % Drückt das Maze von der gestrichelten Linie weg (zentriert es somit perfekt im linken Rest-Raum)
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.3cm}% 2. Fester Abstand: LINKS VOM FFG
-                % ==========================================
-                % BEREICH 3: Der FFG (gibt die Breite vor)
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    % Der FFG wird jetzt in seiner absolut natürlichen Größe gerendert.
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_6.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (j)\hspace*{-0.05cm}}}}%
-                \hspace{0.1cm}% 3. Fester Abstand: RECHTS VOM FFG (Zum Box-Rand)
-                \vspace{0.02cm} % 4. Fester Abstand: UNTEN
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.6b}
-    \end{subfigure}
+                \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-    \vspace{0.2cm} % Abstand zwischen den Kästen
+                % Action Arrow (zeigt nach unten auf das Cue-Feld)
+                \draw[
+                    -{Stealth[scale=1.0]},
+                    line width=1.6pt,
+                    color=gray!80!black
+                ]
+                (0.28, 1.35) .. controls (0.75, 1.2) and (0.75, 0.8) .. (0.28, 0.65);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.0) {$\bm{\hat{a}}_0$};
+                \node[font=\footnotesize, text=black, scale=0.95]  at (1.25, 0.65) {$\left(\sim q(a_0)\right)$};
 
-    \hfill
-    % ================= TIMESTEP 7.2 =================
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \fbox{%
-            \begin{minipage}{0.97\linewidth}
-                \vspace{0.075cm} % 1. Fester Abstand: OBEN
-                % ==========================================
-                % BEREICH 1: Das T-Maze (angepasst für 0.48\textwidth)
-                % ==========================================
-                \hfill
-                \begin{tabular}{@{}c@{}}
-                    \begin{tikzpicture}[scale=0.6]
-                        \tikzset{
-                            agent/.pic={
-                                    \node[circle, draw=black, thick, fill=white, minimum size=0.5cm] at (0,0) {};
-                                    \fill[black] (-0.08, 0.08) circle (0.03);
-                                    \fill[black] (0.08, 0.08) circle (0.03);
-                                    \draw[thick] (-0.1, -0.05) arc (180:360:0.1);
-                                },
-                            field label/.style={
-                                    font=\tiny\sffamily, text=gray!70!black, anchor=south, scale=0.9, transform shape
-                                },
-                            field symbol/.style={
-                                    font=\large\bfseries,
-                                    text=gray!70,
-                                    anchor=center,
-                                    scale=1.0,
-                                    transform shape
-                                }
-                        }
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (0, 0.5) {!};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
 
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Action a_0) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxC.center)}]
+                \node[factor] (u0) at (0, 0.95) {$p(a_0)$};
+                \node[factor, below=1.3cm of u0] (B0) {$p(s_1|s^{\scriptscriptstyle I}_0,a_0)$};
 
-                        \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
-                        \draw (-0.5, 1.0) -- (0.5, 1.0);
-                        \draw (-0.5, 2.0) -- (0.5, 2.0);
-                        \draw (-0.5, 2.0) -- (-0.5, 3.0);
-                        \draw (0.5, 2.0) -- (0.5, 3.0);
+                \draw[ffgedge] (B0.north) -- (u0.south)
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{a_0}})$};
 
-                        \pic[scale=0.8, transform shape] at (-1, 2.5) {agent};
-                        \node[field label] at (0, 0.97) {Start};
-                        \node[field label] at (0, -0.03) {Cue};
-                        \node[field label] at (-1.0, 1.97) {Left Arm};
-                        \node[field label] at (1.0, 1.93) {Right Arm};
-                        %\node[field symbol] at (-1.0, 2.5) {?};
-                        \node[field symbol] at (1.0, 2.5) {?};
-                        \node[field symbol] at (0.0, 0.5) {!};
+                \draw[ffgedge, dashed] ([xshift=-0.6cm]B0.west) -- (B0.west);
+                \draw[ffgedge, dashed] (B0.east) -- ([xshift=0.6cm]B0.east);
+            \end{scope}
 
-                        % Observation Arrow
-                        \draw[
-                            -{Stealth[scale=1.0]},
-                            line width=1.4pt,
-                            color=gray!80!black
-                        ]
-                        (-0.49, 2.3) .. controls (0.0, 2.1) and (0.3, 3.0) .. (-0.7, 2.6);
-                        \node[font=\footnotesize, text=gray!80!black] at (0.2, 2.3) {$\textcolor{orange}{\hat {o_2}}$};
-                    \end{tikzpicture}
-                \end{tabular}%
-                \hfill
-                % ==========================================
-                % BEREICH 2: Die Trennlinie
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \tikz \draw[dashed, thin, gray] (0,-1.05) -- (0,1.05);
-                \end{tabular}%
-                \hspace{0.15cm}
-                % ==========================================
-                % BEREICH 3: Der FFG
-                % ==========================================
-                \begin{tabular}{@{}c@{}}
-                    \resizebox{4.5cm}{!}{\input{graphs/ffg_exp_7.tex}}
-                \end{tabular}%
-                \llap{\smash{\raisebox{1.0cm}[0pt][0pt]{\sffamily\bfseries\small (k)\hspace*{-0.05cm}}}}%
-                \hspace{0.05cm}%
-                \vspace{0.01cm}
-            \end{minipage}%
-        }
-        \phantomcaption
-        \label{fig:26.7b}
-    \end{subfigure}
+            % ================= BOX D (Reihe 2 Rechts: Observation t=1) =================
+            % --- Linke Seite: T-Maze (Observation o_1 -> Cue) ---
+            \begin{scope}[shift={([xshift=-2.0cm, yshift=-1.95cm]boxD.center)}, scale=1.05]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
 
-    \caption{The figure shows the two behavioral paths the agent can take during a trial (left column and right column). In the left column the agent decides against moving to the cue and instead directly moves to one of the two arms. In the right column the agent first moves to the cue and then decides for one of the two arms. Both paths start similarly. Specifically, the agent always begins at the start field in the T-Maze and receives an observation (\cref{fig:26.1a,fig:26.1b}). Next, the agent infers its belief distributions (\cref{fig:26.2a,fig:26.2b}). Based on the inferred action-specifc belief distribution the agent executes an action (\cref{fig:26.3a,fig:26.3b}) where this action either moves it to the cue (\cref{fig:26.4b}) or directly to one of the arms (\cref{fig:26.4a}). Directly moving to one of the arms ends the the trial (left column). Next, the agent in the right column again infers its belief distributions also taking into account the information received by the cue (\cref{fig:26.5b}). Following this second inference, the agent can again act again ((\cref{fig:26.6b})) to finally move to one of the two arm ((\cref{fig:26.7b})). Note that in principle there are more behavioral paths than the two shown here but these other paths do never lead to the reward, e.g., always taking actions that keeps the agent at the start field. The two paths shown here are the only paths that have non-zero probabilities of leading to the reward, i.e., also with the two paths the agent might not receive the reward when moving to the wrong arm.}
-    \label{fig:26}
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
+
+                \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
+
+                % Sensor-Wellen für Observation o_1
+                \draw[gray!80!black, thick] (0.3, 0.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (0.4, 0.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (0.55, 0.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 0.5) {$\bm{\hat{o}}_1$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % --- Rechte Seite: Delta-Constraint Ausschnitt (Observation o_1) ---
+            \begin{scope}[shift={([xshift=2.0cm, yshift=-0.35cm]boxD.center)}]
+                \node[factor] (A1) at (0, 0.7) {$p(o_1|s^{\scriptscriptstyle II}_1)$};
+                \node[factor, below=1.3cm of A1] (c1) {$\tilde{p}(o_1)$};
+
+                \draw[ffgedge, dashed] (A1.north) -- ([yshift=0.55cm]A1.north);
+                \draw[ffgedge] (A1.south) -- (c1.north) 
+                    node[midway, greycircle] {$\delta$} 
+                    node[midway, left=0.2cm, varlabel] {$q(\textcolor{accorange}{\bm{o_1}})$};
+            \end{scope}
+
+            % ================= BOX E (Reihe 3 Links: Message Passing t=1) =================
+            % --- Kompletter Forney Factor Graph ---
+            \begin{scope}[shift={([xshift=-3.55cm, yshift=0.15cm]boxE.center)},
+                scale=0.46,
+                transform shape,
+                factor/.append style={fill=gray!6},
+                eqfactor/.append style={fill=gray!6}
+            ]
+                \node[factor] (d) {$\phantom{p(s_0)}$};
+                \node[eqfactor, right=1.8cm of d] (eq0) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq0] (A0) {$\phantom{p(o_0|s^{\scriptscriptstyle II}_0)}$};
+                \node[factor, below=1.5cm of A0] (c0) {$\phantom{\tilde{p}(o_0)}$};
+                \node[factor, right=1.8cm of eq0] (B0) {$\phantom{p(s_1|s^{\scriptscriptstyle I}_0,u_0)}$};
+                \node[eqfactor, right=1.8cm of B0] (eq1) {$\phantom{=}$};
+                \node[factor, below=1.5cm of eq1] (A1) {$\phantom{p(o_1|s^{\scriptscriptstyle II}_1)}$};
+                \node[factor, below=1.5cm of A1] (c1) {$\phantom{\tilde{p}(o_1)}$};
+                \node[factor, right=1.8cm of eq1] (B1) {$\phantom{p(s_2|s^{\scriptscriptstyle I}_1,u_1)}$};
+                \node[factor] (A2) at ([xshift=2cm] B1.east |- A1) {$\phantom{p(o_2|s_2)}$};
+                \node[factor, below=1.5cm of A2] (c2) {$\phantom{\tilde{p}(o_2)}$};
+                \node[factor, above=1.5cm of B0] (u0) {$\phantom{p(u_0)}$};
+                \node[factor, above=1.5cm of B1] (u1) {$\phantom{p(u_1)}$};
+
+                \draw[edge] (d.east) -- (eq0.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.2, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq0.south) -- (A0.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A0.south) -- (c0.north) 
+                    node[midway, left=0.3cm, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.2, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq0.east) -- (B0.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B0.north) -- (u0.south) 
+                    node[midway, left=0.3cm, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{a_0}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+                \draw[edge] (B0.east) -- (eq1.west) 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (eq1.south) -- (A1.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (A1.south) -- (c1.north) 
+                    node[midway, left=0.3cm, varlabel, scale=1.5] {$q(\textcolor{accorange}{\bm{o_1}})$}
+                    node[midway, greycircle, scale=1.4] {$\delta$} 
+                    node[pos=0.32, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=0.25, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (eq1.east) -- (B1.west) 
+                    node[pos=0.32, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} 
+                    node[pos=0.68, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$};
+                \draw[edge] (B1.east) -| (A2.north) 
+                    node[pos=0.865, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.13, below=-0.05, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+                \draw[edge] (A2.south) -- (c2.north) 
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+                \draw[edge] (B1.north) -- (u1.south) 
+                    node[midway, left, varlabel, scale=1.5] {$q(a_1)$}
+                    node[pos=0.32, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$} 
+                    node[pos=0.68, right=-0.11, varlabel, scale=1.3] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$};
+            \end{scope}
+
+            % ================= BOX F (Reihe 3 Mitte-Rechts: Action t=1 - Schmal) =================
+            \begin{scope}[shift={([xshift=0cm, yshift=-1.95cm]boxF.center)}, scale=0.92]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
+
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
+
+                \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
+
+                % Schlankerer Action-Arrow (steigt direkt nach oben-links auf)
+                \draw[
+                    -{Stealth[scale=1.0]},
+                    line width=1.6pt,
+                    color=gray!80!black
+                ]
+                (-0.25, 0.65) .. controls (-0.75, 1.0) and (-1.0, 1.5) .. (-1.0, 2.28);
+                \node[font=\footnotesize, text=accorange, scale=1.2] at (-1.15, 1.15) {$\bm{\hat{a}}_1$};
+                \node[font=\tiny, text=black, scale=1.0]  at (-1.15, 0.8) {$\left(\sim q(a_1)\right)$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (-1.0, 2.5) {?};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % ================= BOX G (Reihe 3 Ganz Rechts: Observation t=2 - Schmal) =================
+            \begin{scope}[shift={([xshift=0cm, yshift=-1.95cm]boxG.center)}, scale=0.92]
+                \fill[white] (-0.5, 0) -- (-0.5, 1.0) -- (0.5, 1.0) -- (0.5, 0) -- cycle;
+                \fill[white] (-0.5, 1.0) -- (-0.5, 2.0) -- (0.5, 2.0) -- (0.5, 1.0) -- cycle;
+                \fill[white] (-1.5, 2.0) -- (-1.5, 3.0) -- (-0.5, 3.0) -- (-0.5, 2.0) -- cycle;
+                \fill[white] (0.5, 2.0) -- (0.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- cycle;
+                \fill[white] (-0.5, 2.0) -- (-0.5, 3.0) -- (0.5, 3.0) -- (0.5, 2.0) -- cycle;
+
+                \draw (-0.5, 0) -- (-0.5, 2.0) -- (-1.5, 2.0) -- (-1.5, 3.0) -- (1.5, 3.0) -- (1.5, 2.0) -- (0.5, 2.0) -- (0.5, 0) -- cycle;
+                \draw (-0.5, 1.0) -- (0.5, 1.0);
+                \draw (-0.5, 2.0) -- (0.5, 2.0);
+                \draw (-0.5, 2.0) -- (-0.5, 3.0);
+                \draw (0.5, 2.0) -- (0.5, 3.0);
+
+                \pic[scale=0.8, transform shape] at (-1.0, 2.5) {agent};
+
+                % Sensor-Wellen für Observation o_2
+                \draw[gray!80!black, thick] (-0.7, 2.6) arc (30:-30:0.25);
+                \draw[gray!80!black, thick] (-0.6, 2.7) arc (30:-30:0.4);
+                \draw[gray!80!black, thick] (-0.45, 2.8) arc (30:-30:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.2] at (0.0, 2.5) {$\bm{\hat{o}}_2$};
+
+                \node[field label] at (0, 0.97) {Start};
+                \node[field label] at (0, -0.03) {Cue};
+                \node[field label] at (-1.0, 1.97) {Left Arm};
+                \node[field label] at (1.0, 1.93) {Right Arm};
+                \node[field symbol] at (1.0, 2.5) {?};
+            \end{scope}
+
+            % --- Header Labels für alle 7 Boxen ---
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Message Passing};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Action $t=0$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
+            
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Observation $t=1$};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
+
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxE.north west) {Message Passing};
+            \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxE.north east) {(e)};
+
+            \node[toptext, anchor=north west] at ([xshift=6pt, yshift=-8pt]boxF.north west) {\small Action $t=1$};
+            \node[toptext] at ([xshift=-6pt, yshift=-8pt]boxF.north east) {(f)};
+
+            \node[toptext, anchor=north west] at ([xshift=6pt, yshift=-8pt]boxG.north west) {\small Obs. $t=2$};
+            \node[toptext] at ([xshift=-6pt, yshift=-8pt]boxG.north east) {(g)};
+
+        \end{tikzpicture}
+    }
+    \caption{The figure shows the second behavioral path the agent can take during a trial that may lead to the reward in Experiment~3. In this path, the agent first moves to the cue and then decides for one of the two arms. Specifically, the agent begins at the start field in the T-Maze and receives an observation (a). Next, the agent infers its belief distributions (b). Based on the inferred action-specific belief distribution $q(a_0)$, the agent executes an action (c) that moves it to the cue, where it receives an insightful observation about the reward location in the arms (d). Next, the agent again infers its belief distributions taking into account the information received at the cue (e). Following this second inference, the agent acts to move to one of the two arms (f). In the arm, the agent either observes the reward or not (g).}
+    \label{fig:40}
 \end{figure}
