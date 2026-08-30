@@ -1,6 +1,6 @@
 \begin{tikzpicture}[
-    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
-    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize, fill=white},
+    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize, fill=white},
     edge/.style={thick},
     varlabel/.style={font=\normalsize},
     greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
@@ -21,7 +21,7 @@
 \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$q(s_0)$};
 \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$q(s^{\scriptscriptstyle II}_0)$};
 \draw[edge] (A0.south) -- (c0.north) 
-    node[midway, left=0.3cm, varlabel] {{\Large \textcolor{orange!90!black}{$\hat{o}_0$}} $\rightarrow q(o_0)$} 
+    node[midway, left=0.3cm, varlabel] {{\Large \textcolor{accorange}{$\hat{o}_0$}} $\rightarrow q(o_0)$} 
     node[midway, greycircle] {$\delta$};\draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$q(s^{\scriptscriptstyle I}_0)$};
 \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$q(a_0)$};
 

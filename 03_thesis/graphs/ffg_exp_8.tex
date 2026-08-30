@@ -1,6 +1,6 @@
 \begin{tikzpicture}[
-    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize},
-    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize},
+    factor/.style={draw=black, thick, rectangle, minimum size=0.8cm, font=\normalsize, fill=white},
+    eqfactor/.style={draw=black, thick, rectangle, minimum size=0.5cm, font=\normalsize, fill=white},
     edge/.style={thick},
     varlabel/.style={font=\normalsize},
     greycircle/.style={draw=black, thick, circle, fill=gray!30, minimum size=0.5cm, font=\normalsize}
@@ -22,17 +22,17 @@
 \node[factor, above=1.5cm of B1] (u1) {$p(a_1)$};
 
 % Kanten zwischen Knoten
-\draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$q(s_0)$} node[near end, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overleftarrow{\mu}}}$};
-\draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$q(s^{\scriptscriptstyle II}_0)$} node[near start, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (A0.south) -- (c0.north) node[midway, left=0.3, varlabel] {$q(o_0)$} node[midway, greycircle] {$\delta$} node[near start, right=0.2, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near end, right=0.2, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$q(s^{\scriptscriptstyle I}_0)$} node[near end, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overleftarrow{\mu}}}$};
-\draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$q(a_0)$} node[near end, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near start, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$q(s_1)$} node[near end, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overleftarrow{\mu}}}$};
-\draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$q(s^{\scriptscriptstyle II}_1)$} node[near start, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$q(o_1)$} node[near start, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$q(s^{\scriptscriptstyle I}_1)$} node[near end, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overleftarrow{\mu}}}$};
-\draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$q(s_2)$} node[pos=0.11, below, varlabel] {$\textcolor{orange!90!black}{\bm{\overleftarrow{\mu}}}$} node[pos=0.89, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$q(o_2)$} node[near start, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
-\draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$q(a_1)$} node[near end, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\uparrow}{\mu}}}$} node[near start, right, varlabel] {$\textcolor{orange!90!black}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$q(s_0)$} node[near end, below, varlabel] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+\draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$q(s^{\scriptscriptstyle II}_0)$} node[near start, right, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (A0.south) -- (c0.north) node[midway, left=0.3, varlabel] {$q(o_0)$} node[midway, greycircle] {$\delta$} node[near start, right=0.2, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near end, right=0.2, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$q(s^{\scriptscriptstyle I}_0)$} node[near end, below, varlabel] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+\draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$q(a_0)$} node[near end, right, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near start, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$q(s_1)$} node[near end, below, varlabel] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+\draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$q(s^{\scriptscriptstyle II}_1)$} node[near start, right, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$q(o_1)$} node[near start, right, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$q(s^{\scriptscriptstyle I}_1)$} node[near end, below, varlabel] {$\textcolor{accorange}{\bm{\overrightarrow{\mu}}}$} node[near start, below, varlabel] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$};
+\draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$q(s_2)$} node[pos=0.11, below, varlabel] {$\textcolor{accorange}{\bm{\overleftarrow{\mu}}}$} node[pos=0.89, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$q(o_2)$} node[near start, right, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near end, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
+\draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$q(a_1)$} node[near end, right, varlabel] {$\textcolor{accorange}{\bm{{\uparrow}{\mu}}}$} node[near start, right, varlabel] {$\textcolor{accorange}{\bm{{\downarrow}{\mu}}}$};
 
 \end{tikzpicture}

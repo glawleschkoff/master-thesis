@@ -5,13 +5,13 @@ import itertools
 import os
 
 from agent_BFE import Agent as AgentBFE
-from agent_context_BFE import Agent as AgentContextBFE
-from agent_context_GFE import Agent as AgentContextGFE
+from agent_Context_BFE import Agent as AgentContextBFE
+from agent_Context_GFE import Agent as AgentContextGFE
 from agent_GFE import Agent as AgentGFE
 
 from agent_parameters_BFE import generate_agent_params as generate_agent_params_BFE
-from agent_parameters_context_BFE import generate_agent_params as generate_agent_params_context_BFE
-from agent_parameters_context_GFE import generate_agent_params as generate_agent_params_context_GFE
+from agent_parameters_Context_BFE import generate_agent_params as generate_agent_params_Context_BFE
+from agent_parameters_Context_GFE import generate_agent_params as generate_agent_params_Context_GFE
 from agent_parameters_GFE import generate_agent_params as generate_agent_params_GFE
 
 from environment import Environment
@@ -115,7 +115,7 @@ def run_simulation_3_BFE():
     xdata.to_netcdf('results/simulation_3_BFE.nc')
 
 
-def run_simulation_1_context_BFE():
+def run_simulation_1_Context_BFE():
     c_values = np.arange(11)
     alpha_values = np.arange(0, 1.1, 0.1)
     control_values = np.arange(4)
@@ -132,15 +132,15 @@ def run_simulation_1_context_BFE():
 
     for c in c_values:
         for alpha in alpha_values:
-            A, B, B_c, C, D, D_c, U = generate_agent_params_context_BFE(c=c, alpha=alpha)
+            A, B, B_c, C, D, D_c, U = generate_agent_params_Context_BFE(c=c, alpha=alpha)
             agent = AgentContextBFE(A, B, B_c, C, D, D_c, U)
             agent.infer(500)
             xdata.loc[c, alpha, :] = agent.q_u0
 
     os.makedirs('results', exist_ok=True)
-    xdata.to_netcdf('results/simulation_1_context_BFE.nc')
+    xdata.to_netcdf('results/simulation_1_Context_BFE.nc')
 
-def run_simulation_2_context_BFE():
+def run_simulation_2_Context_BFE():
     c_values = np.arange(11)
     alpha_values = np.arange(0, 1.1, 0.1)
     control_values = np.arange(4)
@@ -157,7 +157,7 @@ def run_simulation_2_context_BFE():
 
     for c in c_values:
         for alpha in alpha_values:
-            A, B, B_c, C, D, D_c, U = generate_agent_params_context_BFE(c=c, alpha=alpha)
+            A, B, B_c, C, D, D_c, U = generate_agent_params_Context_BFE(c=c, alpha=alpha)
             agent = AgentContextBFE(A, B, B_c, C, D, D_c, U)
             agent.observe(0)
             agent.act(1)
@@ -166,9 +166,9 @@ def run_simulation_2_context_BFE():
             xdata.loc[c, alpha, :] = agent.q_u1
 
     os.makedirs('results', exist_ok=True)
-    xdata.to_netcdf('results/simulation_2_context_BFE.nc')
+    xdata.to_netcdf('results/simulation_2_Context_BFE.nc')
 
-def simulate_single_combination_context_BFE(params):
+def simulate_single_combination_Context_BFE(params):
     c, alpha = params
     number_trials = 100
     
@@ -176,7 +176,7 @@ def simulate_single_combination_context_BFE(params):
     observations = np.zeros((number_trials, 2))
     
     for trial in range(number_trials):
-        A, B, B_c, C, D, D_c, U = generate_agent_params_context_BFE(c=c, alpha=alpha)
+        A, B, B_c, C, D, D_c, U = generate_agent_params_Context_BFE(c=c, alpha=alpha)
         agent = AgentContextBFE(A, B, B_c, C, D, D_c, U)
         
         a, b, d = generate_environment_params(alpha=alpha)
@@ -208,7 +208,7 @@ def simulate_single_combination_context_BFE(params):
     
     return c, alpha, result_value
 
-def run_simulation_3_context_BFE():
+def run_simulation_3_Context_BFE():
     c_values = np.arange(11)
     alpha_values = np.arange(0, 1.1, 0.1)
     
@@ -226,16 +226,16 @@ def run_simulation_3_context_BFE():
 
     results = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = list(executor.map(simulate_single_combination_context_BFE, task_parameters))
+        results = list(executor.map(simulate_single_combination_Context_BFE, task_parameters))
 
     for c, alpha, value in results:
         xdata.loc[c, alpha] = value
 
     os.makedirs('results', exist_ok=True)
-    xdata.to_netcdf('results/simulation_3_context_BFE.nc')
+    xdata.to_netcdf('results/simulation_3_Context_BFE.nc')
 
 
-def run_simulation_1_context_GFE():
+def run_simulation_1_Context_GFE():
     c_values = np.arange(11)
     alpha_values = np.arange(0, 1.1, 0.1)
     control_values = np.arange(4)
@@ -252,14 +252,14 @@ def run_simulation_1_context_GFE():
 
     for c in c_values:
         for alpha in alpha_values:
-            A, B, B_c, C, D, D_c, U = generate_agent_params_context_GFE(c=c, alpha=alpha)
+            A, B, B_c, C, D, D_c, U = generate_agent_params_Context_GFE(c=c, alpha=alpha)
             agent = AgentContextGFE(A, B, B_c, C, D, D_c, U)
             agent.infer(100)
             xdata.loc[c, alpha, :] = agent.q_u0
     os.makedirs('results', exist_ok=True)
-    xdata.to_netcdf('results/simulation_1_context_GFE.nc')
+    xdata.to_netcdf('results/simulation_1_Context_GFE.nc')
 
-def run_simulation_2_context_GFE():
+def run_simulation_2_Context_GFE():
     c_values = np.arange(11)
     alpha_values = np.arange(0, 1.1, 0.1)
     control_values = np.arange(4)
@@ -276,7 +276,7 @@ def run_simulation_2_context_GFE():
 
     for c in c_values:
         for alpha in alpha_values:
-            A, B, B_c, C, D, D_c, U = generate_agent_params_context_GFE(c=c, alpha=alpha)
+            A, B, B_c, C, D, D_c, U = generate_agent_params_Context_GFE(c=c, alpha=alpha)
             agent = AgentContextGFE(A, B, B_c, C, D, D_c, U)
             agent.observe(0)
             agent.act(1)
@@ -285,9 +285,9 @@ def run_simulation_2_context_GFE():
             xdata.loc[c, alpha, :] = agent.q_u1
 
     os.makedirs('results', exist_ok=True)
-    xdata.to_netcdf('results/simulation_2_context_GFE.nc')
+    xdata.to_netcdf('results/simulation_2_Context_GFE.nc')
 
-def simulate_single_combination_context_GFE(params):
+def simulate_single_combination_Context_GFE(params):
     c, alpha = params
     number_trials = 100
     
@@ -295,7 +295,7 @@ def simulate_single_combination_context_GFE(params):
     observations = np.zeros((number_trials, 2))
     
     for trial in range(number_trials):
-        A, B, B_c, C, D, D_c, U = generate_agent_params_context_GFE(c=c, alpha=alpha)
+        A, B, B_c, C, D, D_c, U = generate_agent_params_Context_GFE(c=c, alpha=alpha)
         agent = AgentContextGFE(A, B, B_c, C, D, D_c, U)
         
         a, b, d = generate_environment_params(alpha=alpha)
@@ -327,7 +327,7 @@ def simulate_single_combination_context_GFE(params):
     
     return c, alpha, result_value
 
-def run_simulation_3_context_GFE():
+def run_simulation_3_Context_GFE():
     c_values = np.arange(11)
     alpha_values = np.arange(0, 1.1, 0.1)
     
@@ -345,13 +345,13 @@ def run_simulation_3_context_GFE():
 
     results = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = list(executor.map(simulate_single_combination_context_GFE, task_parameters))
+        results = list(executor.map(simulate_single_combination_Context_GFE, task_parameters))
 
     for c, alpha, value in results:
         xdata.loc[c, alpha] = value
 
     os.makedirs('results', exist_ok=True)
-    xdata.to_netcdf('results/simulation_3_context_GFE.nc')
+    xdata.to_netcdf('results/simulation_3_Context_GFE.nc')
 
 
 def run_simulation_1_GFE():
