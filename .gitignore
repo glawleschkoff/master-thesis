@@ -4,3 +4,16 @@ __pycache__/
 .vscode/
 .DS_Store
 README_test.md
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+tikz_cache/
+build/
