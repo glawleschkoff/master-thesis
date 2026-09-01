@@ -67,23 +67,23 @@ To focus on the core aspects of this mechanism I give the derivations including 
 Concretely, the simple agent is concerned with its cat (yes, the agent has a pet). He is \(90\,\%\) certain that its cat is a sweet, loving angel. Unfortunately, the agent cannot look inside the cat's brain to really find out but can only observe her behavior. Sometimes, the cat walks straight up to a full glas of water, makes eye contact with the agent and pushes the glas from the table (breaks glas). The agent believes: If the cat were a little chaos demon this is exactly the kind of behavior I expect (with \(99\,\%\) certainty). On the other hand, if she really was a sweet loving angel then she would rarely do such cruel things (maybe \(10\,\%\) chance).
 
 The agent's model of this situation can formally be described via a (generative) model \(p(s,o)=p(o|s)p(s)\) consisting of a prior probability \(p(s)\) about hidden causal states \(s\) (is the cat an angel or a daemon?) and a likelihood distribution \(p(o|s)\) that relates the hidden states to observations \(o\) (does the cat break glas or not?) as
-\begin{alignat*}{3}
-     & p(s=\text{"angel"})             &  &                    &  & = 0.9  \\
+\begin{alignat}{3}
+     & p(s=\text{"angel"})             &  &                    &  & = 0.9 \nonumber  \\
      & p(s=\text{"demon"})             &  &                    &  & = 0.1  \\
-     & p(o=\text{"breaks glas"}        &  & |s=\text{"demon"}) &  & = 0.99 \\
-     & p(o=\text{"doesn't break glas"} &  & |s=\text{"demon"}) &  & = 0.01 \\
-     & p(o=\text{"breaks glas"}        &  & |s=\text{"angel"}) &  & = 0.1  \\
+     & p(o=\text{"breaks glas"}        &  & |s=\text{"demon"}) &  & = 0.99 \nonumber \\
+     & p(o=\text{"doesn't break glas"} &  & |s=\text{"demon"}) &  & = 0.01 \nonumber \\
+     & p(o=\text{"breaks glas"}        &  & |s=\text{"angel"}) &  & = 0.1 \nonumber \\
      & p(o=\text{"doesn't break glas"} &  & |s=\text{"angel"}) &  & = 0.9.
-\end{alignat*}
+\end{alignat}
 With this probabilistic model the agent can then infer the true character of its cat upon making an observation. This inference can be computed via Bayes theorem. For example when the agent observes \(o=\text{"breaks glas"}\) it can calculate the posterior probability
-\begin{equation*}
+\begin{equation}
     p(s|o=\text{"breaks glas"}) = \frac{p(o=\text{"breaks glas"}|s)p(s)}{\sum_s p(o=\text{"breaks glas"}|s)p(s)},
-\end{equation*}
+\end{equation}
 which concretely results in
-\begin{alignat*}{3}
-     & p(s=\text{"angel"}|o=\text{"breaks glas"})  &  & \approx 0.48  \\
+\begin{alignat}{3}
+     & p(s=\text{"angel"}|o=\text{"breaks glas"})  &  & \approx 0.48 \nonumber \\
      & p(s=\text{"daemon"}|o=\text{"breaks glas"}) &  & \approx 0.52,
-\end{alignat*}
+\end{alignat}
 i.e, the agent infers that the cat's character is quite ambiguous and he is actually slightly more certain that she is a demon (\(52\,\%\)).
 
 This inference can be formalized as a message passing algorihm on a factor graph. Towards this, I will first give the simple agent's generative model as its (Forney) factor graph representation.
