@@ -12,4 +12,4 @@ Humans navigate complex environments by abstracting situational details into con
 
 **Reproducibility**  
 * The figures 3.1, 3.2, and 3.3 in the thesis can be reproduced in the notebook [`02_final_simulations/experiments.ipynb`](02_final_simulations/experiments.ipynb).
-* The PDF of the thesis is located in [`03_thesis/build/main.pdf`](03_thesis/build/main.pdf).
+* The PDF of the thesis is located in [`03_thesis/build/main.pdf`](03_thesis/build/master_thesis.pdf).
