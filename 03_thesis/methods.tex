@@ -1,27 +1,31 @@
 \chapter{Methods}
 \label{methods}
 
-In this chapter I first outline how the information seeking mechanism naturally follows from formulations given by the active inference framework (\cref{sec:0}). This result is used later during the derivation of specialized GFE-based messages for the agents' factor graphs that enable them with information seeking (\cite{delaar2023,delaar2025}). In \cref{sec:1} I present the general approach how to derive message passing algorithms from probabilistic (generative) models via corresponding free energy functionals. This procedere can be viewed as a blueprint and will be frequently used in subsequent sections. In \cref{sec:2} I reproduce and develop four agents using this blueprint. Concretely, I introduce specific constraints to the agents' free energy functionals which leads to agents with different properties. The resulting behavior is revealed during three experiments in a simulated T-maze environment, where the experimental setups are given in \cref{sec:3}.
+In this chapter I first outline how the information seeking mechanism naturally follows from formulations given by the active inference framework (\cref{sec:0}). This result is used later during the derivation of specialized GFE-based messages for the agents' factor graphs that enable them with information seeking (\cite{delaar2023,delaar2025}). In \cref{sec:1} I present the general approach how to derive message passing algorithms from probabilistic (generative) models via corresponding free energy functionals. This procedure can be viewed as a blueprint and will be frequently used in subsequent sections. In \cref{sec:2} I reproduce and develop four agents using this blueprint. Concretely, I introduce specific constraints to the agents' free energy functionals which leads to agents with different properties. The resulting behavior is revealed during three experiments in a simulated T-maze environment, where the experimental setups are given in \cref{sec:3}.
+
+A note on the initial \cref{sec:0}: This excerpt is rather detached from the rest of the thesis but serves two crucial functions. First, it gives an extended summary on active inference agents, and second, I show how the mutual information term that implements information seeking follows from preceding arguments in this section. Furthermore, in some cases I anticipate concepts that get properly introduced in later sections (e.g., the perception-action loop or the variational free energy). In other words, \cref{sec:0} has a strict focus on the mechanism that leads to information seeking while following sections (\cref{sec:1,sec:2}) are based on similar concepts but focus on the development of agents based on Forney factor graphs.
 
 \section{Active Inference}
 \label{sec:0}
 
-Active Inference is an emerging cognitive theory based on the free energy principle about behavior and brain function of many living creatures. It assumes that individuals must solve the problem of survival in chaotic environments that potentially desintegrate their physical bodies and thus end their existences. Furthermore, the theory takes the perspective that these dangerous environmental effects on the individual's body are dependent on the current state of the environment itself, e.g., getting burn wounds from touching a hot plate is dependent on the state of that plate itself (is it hot or cold?), which is part of the environment. Unfortunately, the individual does not immediately know about the state of the environment. As a remedy for this problem it has developed sensors (e.g., eyes, ears, nociceptors etc.) to make observations that yield information about the current environmental state. In other words, the theory makes the central assumption, that in general the state of the environment is hidden but has an effect on the individual in two ways: First, it may influences the individual's body in harmful ways (e.g., changing the chemical composition of skin as a result of burn wounds), and second by generating observations that the animal can sense (e.g., nociceptor-based pain as a result of heat) that are somehow related to the true but unobservable state of the environment. Intuitively, the individual should then regularly receive observations that are related to these unobservable environmental states that do not have dangerous effects on its body. As a counter example, consider an individual, that regularly receives observations that are related to environmental states that also usually have the effect of ending the individuals existence. Such a creature would just not exist.
+Active Inference is an emerging cognitive theory based on the free energy principle about behavior and brain function of many living creatures (\cite{friston2010aif}). It assumes that individuals must solve the problem of survival in chaotic environments that potentially disintegrate their physical bodies and thus end their existences. Furthermore, the theory takes the perspective that these dangerous environmental effects on the individual's body are dependent on the current state of the environment itself, e.g., getting burn wounds from touching a hot plate is dependent on the state of that plate itself (is it hot or cold?), which is part of the environment. Unfortunately, the individual does not immediately know about the state of the environment. As a remedy for this problem it has developed sensors (e.g., eyes, ears, nociceptors etc.) to make observations that yield information about the current environmental state. In other words, the theory makes the central assumption, that in general the state of the environment is hidden but has an effect on the individual in two ways: First, it may influence the individual's body in harmful ways (e.g., changing the chemical composition of skin as a result of burn wounds), and second by generating observations that the animal can sense (e.g., nociceptor-based pain as a result of heat) that are somehow related to the true but unobservable state of the environment. A side note on this: Observations can also be good, e.g., when receiving a reward. Intuitively, the individual should then regularly receive observations that are related to these unobservable environmental states that do not have dangerous effects on its body. As a counter example, consider an individual, that regularly receives observations that are related to environmental states that also usually have the effect of ending the individual's existence. Such a creature would just not exist.
 
-So far, we have bluntly stated that animals have sensors that allow them to receive information about unobservable environmental states. This knowledge is not immediately useful for the animal--except in the case when it has the means to exert influence over these states. Just as we considered the existence of sensors as given, we can also notice that animals can perform actions upon the environment (e.g., turning the hot plate off). Influencing the environment's hidden states via actions means the individual implicitly controls the kind of observations it receives in return. Because it needs observations that hint at environmental states that are not dangerous for its continued existence it must somehow infer these hidden states based on observations to be able to influence them in purposeful ways using actions. In conclusion, first, the individual must possess a model that relates observations to environmental hidden states to be able to infer the latter given the current observation. Second, it then should also have a model of the relation between its actions and how they influence hidden states in the environment over time.
+So far, we have bluntly stated that animals have sensors that allow them to receive information about unobservable environmental states. This knowledge is not immediately useful for the animal (except in the case when it has the means to exert influence over these states). Just as we considered the existence of sensors as given, we can also notice that animals can perform actions upon the environment (e.g., turning the hot plate off). Influencing the environment's hidden states via actions means the individual implicitly controls the kind of observations it receives in return. Because it needs observations that hint at environmental states that are not dangerous for its continued existence it must somehow infer these hidden states based on observations to be able to influence them in purposeful ways using actions. In conclusion, first, the individual must possess a model that relates observations to environmental hidden states to be able to infer the latter given the current observation. Second, it then should also have a model of the relation between its actions and how they influence hidden states in the environment over time.
 
-Regarding the first requirement, this is usually formalized as a generative model \(p(s,o)\) that formulates the probabilistic dependencies between hidden states \(s\) and observations \(o\). Because observations are influenced by the environment--i.e., they are initially out of control of the individual--it maintains a stable model by explictly modeling the prior \(p(s)\) and also how it relates to observations via the likelihood \(p(o|s)\), i.e., the generative model is available to the individual explicitly as these two terms. Upon receiving a specific observation \(\hat o\) the individual can then infer the likely hidden states that led to this observation by computing (approximating) \(p(s|\hat o)\). In a second step this result can then be used to infer useful actions (this will be explained later in this section).
+Regarding the first requirement, this is usually formalized as a generative model \(p(s,o)\) that formulates the probabilistic dependencies between hidden states \(s\) and observations \(o\) (\cite{friston2010}). Because observations are influenced by the environment - i.e., they are initially out of control of the individual - it maintains a stable model by explicitly modeling the prior \(p(s)\) and also how it relates to observations via the likelihood \(p(o|s)\), i.e., the generative model is available to the individual explicitly as these two terms. Upon receiving a specific observation \(\hat o\) the individual can then infer the likely hidden states that led to this observation by computing (approximating) \(p(s|\hat o)\). In a second step this result can then be used to infer useful actions (this will be explained later in this section).
 
-First, we must consider how the animal could compute \(p(s|\hat o)\) as a basis for future actions. In principle this can be achieved by leveraging Bayes theorem via \(p(s|\hat o) = \frac{p(s)p(o|s)}{\sum_s p(s)p(o|s)}\) (I use sums instead of integrals because in this work distributions are generally discrete). In reality the integration (summation) in the denominator usually is not tractable for the animal because it would need to consider a possibly arbitrary amount of hidden states \(s\). As a remedy, the individual can do something different: Instead of exactly calculating \(p(s|\hat o)\) it can optimize a variational distribution \(q(s)\) that assumes the true posterior \(p(s|\hat o)\) after optimization has finished. Note, that the loss function that drives this optimization already takes into account \(\hat o\) such that it does not need to be made an explicit dependency in \(q(s)\), i.e, \(q(s)\) is implicitly dependent on \(\hat o\). In the following, I will introduce this loss function that enables the animal to optimize \(q(s)\) step by step.
+First, we must consider how the animal could compute \(p(s|\hat o)\) as a basis for future actions. In principle this can be achieved by leveraging Bayes theorem via \(p(s|\hat o) = \frac{p(s)p(o|s)}{\sum_s p(s)p(o|s)}\) (I use sums instead of integrals because in this work distributions are generally discrete). In reality the integration (summation) in the denominator is usually not tractable for the animal because it would need to consider a possibly arbitrary amount of hidden states \(s\). As a remedy, the individual can do something different: Instead of exactly calculating \(p(s|\hat o)\) it can optimize a variational distribution \(q(s)\) that approximates the true posterior \(p(s|\hat o)\) after optimization has finished (\cite{bishop2006}). Note, that the loss function that drives this optimization already takes into account \(\hat o\) such that it does not need to be made an explicit dependency in \(q(s)\), i.e, \(q(s)\) is implicitly dependent on \(\hat o\). In the following, I will introduce this loss function that enables the animal to optimize \(q(s)\) step by step.
 
-In principle, we can use a distance measure to quantify the (dis)similarity between the true posterior \(p(s|\hat o)\) and the variational distribution \(q(s)\). In Active Inference this is achieved by the Kullback-Leibler (KL) divergence
+\subsubsection{The Variational Free Energy of the Present}
+
+In principle, we can use a measure to quantify the (dis)similarity between the true posterior \(p(s|\hat o)\) and the variational distribution \(q(s)\). In Active Inference this is achieved by the Kullback-Leibler (KL) divergence (\cite{friston2010})
 \begin{equation}
     D_{\text{KL}}[q(s) \parallel p(s|\hat o)] = \sum_s q(s) \ln \frac{q(s)}{p(s|\hat o)}
     \label{eq:32}
 \end{equation}
-that becomes 0 exactly when \(q(s)\) assumes the true \(p(s|\hat o)\). Conversely, the quantity becomes larger the more dissimilar both distributions are. In theory, this quantity (KL divergence between \(q(s)\) and \(p(s|\hat o)\)) suffices as loss function for optimizing \(q(s)\). In reality, the goal of finding the distribution \(p(s|\hat o)\) via \(q(s)\) is the reason why this optimization is done in the first place, i.e., \(p(s|\hat o)\) is not available and thus \cref{eq:32} is not computable.
+that becomes 0 exactly when \(q(s)\) equals the true \(p(s|\hat o)\). Conversely, the quantity becomes larger the more dissimilar both distributions are. In theory, this quantity (KL divergence between \(q(s)\) and \(p(s|\hat o)\)) suffices as loss function for optimizing \(q(s)\). In reality, the goal of finding the distribution \(p(s|\hat o)\) via \(q(s)\) is the reason why this optimization is done in the first place, i.e., \(p(s|\hat o)\) is not available and thus \cref{eq:32} is not computable.
 
-There is a solution for this problem. Instead of minimizing (by optimizing \(q(s)\)) the KL divergence with respect to the true but unavailable posterior \(p(s|\hat o)\), it can be minimized with respect to the whole generative model \(p(s,\hat o)=p(s)p(\hat o|s)\), which apperently has the same effect. This circumstance will be explained in the following. First, we consider the KL divergence between \(q(s)\) and the generative model:
+There is a solution for this problem. Instead of minimizing (by optimizing \(q(s)\)) the KL divergence with respect to the true but unavailable posterior \(p(s|\hat o)\), it can be minimized with respect to the whole generative model \(p(s,\hat o)=p(s)p(\hat o|s)\), which has the same effect. This circumstance will be explained in the following. First, we consider the KL divergence between \(q(s)\) and the generative model:
 \begin{equation}
     D_{\text{KL}}[q(s) \parallel p(s)p(\hat o|s)] = \sum_s q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)}.
     \label{eq:33}
@@ -35,26 +39,30 @@ There is a solution for this problem. Instead of minimizing (by optimizing \(q(s
         \label{eq:34}
     \end{split}
 \end{equation}
-The last line in \cref{eq:34} makes it obvious that the (computable) loss function of \cref{eq:33} consists of the uncomputable loss function of \cref{eq:32} which is appended by the summand \(- \ln p(\hat o)\). In other words, by minimizing \cref{eq:33}, the individual achieves to optimize \(q(s)\) with respect to \(p(s|\hat o)\) but the loss function will not become 0 when both distributions are equal but instead settle at the value given by the constant \(- \ln p(\hat o)\). Summarizing, the animal is able to compute the true posterior \(p(s|\hat o)\) (via optimizing \(q(s)\)) by minimizing a quantity that yields \(- \ln p(\hat o)\) at its minimimum. This residue is known as "suprise" of the observation \(\hat o\) and the quantity itself is called Variational Free Energy (VFE) and is given the letter \(F\)
+The last line in \cref{eq:34} makes it obvious that the (computable) loss function of \cref{eq:33} consists of the uncomputable loss function of \cref{eq:32} which is appended by the summand \(- \ln p(\hat o)\). In other words, by minimizing \cref{eq:33}, the individual achieves to optimize \(q(s)\) with respect to \(p(s|\hat o)\), but the loss function will not become 0 when both distributions are equal but instead settle at the value given by the constant \(- \ln p(\hat o)\). Summarizing, the animal is able to compute the true posterior \(p(s|\hat o)\) (via optimizing \(q(s)\)) by minimizing a quantity that yields \(- \ln p(\hat o)\) at its minimum. This residue is known as "surprise" of the observation \(\hat o\) and the quantity itself is called Variational Free Energy (VFE) and is given the letter \(F\)
 \begin{equation}
     F[q(s), \hat o] = \sum_s q(s) \ln \frac{q(s)}{p(s)p(\hat o|s)} = \sum_s q(s) \ln \frac{q(s)}{p(s|\hat o)} - \ln p(\hat o)
 \end{equation}
-that is a functional of the variational distribution \(q(s)\) and the current observation \(\hat o\). Therefore \(F\) is also referred to as an upper bound on surprise, i.e, the bound is reached from above exactly when \(q(s)\) assumes the true posterior \(p(s|\hat o)\).
+that is a functional of the variational distribution \(q(s)\) and the current observation \(\hat o\). Therefore, \(F\) is also referred to as an upper bound on surprise, i.e, the bound is reached from above exactly when \(q(s)\) assumes the true posterior \(p(s|\hat o)\) or the negative evidence lower bound (ELBO) (\cite{bishop2006}).
 
-In conclusion, the individual should minimize this quantity \(F\) to infer the hidden environmental states, which then allows it to act in a way that support its existence. There is another interpretation to this: The prior \(p(s)\) might be viewed as the individuals functional homomorphism of its ecological niche in the environment and the individual is thus inclined to not leave its niche to secure its existence, which means it must keep \(p(s)\) stable. This requirement is also captured by the premise of minimizing \(F\). Following this, the only self consistent belief an individual can have about its future its that it will also minimize \(F\) in the future, i.e, it must choose actions accordingly. This circumstance can formally be defined as follows:
-The individual is assumed to have the means to form expectations about future hidden states \(s\) and observations \(o\), first via a transition model \(p(s_{k+1}|s_k,a_k)\) that prescribes how actions \(a\) influence the succession of states from timestep \(k\) to \(k+1\), second via the likelihood \(p(o|s)\), and third via the currently inferred hidden state \(q(s_t)\) at present time \(t\). A note on the action variable \(a\): Usually, active inference agents entail control states \(u\) instead of actions \(a\) as part of their generative models because they are assumed to only form beliefs about actions from which real actions then get sampled, i.e., they cannot explicitly control their interventions in the environment. In other words, these beliefs over control states then get translated to real actions in the environment but this translation is out of control for the agent. However, in my thesis I resort to actions \(a\) instead of control states \(u\) in the agents' generative models as a convenient simplification.
+\subsubsection{The Expected Free Energy of the Future}
 
-Moreover, the expectation at a future timestep \(\tau\) can formally be given via \(q(o_{\tau},s_{\tau}|\pi)\), where \(\pi\) is a seqence of actions that were used in \(p(s_{k+1}|s_k,a_k)\) (possibly multiple times) to calculate this future belief distribution. For example, computing this belief distribution for the next timestep \(t+1\) requires the individual to calculate \(q(s_{t+1},o_{t+1}|\pi) = p(o_{t+1}|s_{t+1}) \sum_{s_t} p(s_{t+1}|s_t,a_t) q(s_t), \quad \text{with} \; \pi = (a_t)\). Following this, we can then define a free energy functional that gives the expected free energy \(G\) at a future timestep \(\tau\) with respect to a certain policy \(\pi\), i.e, the individual can then evaluate different policies at different future timesteps for its capacity of minimizing \(F\) at this future timestep via:
+In conclusion, the individual should minimize this quantity \(F\) to infer the hidden environmental states, which then allows it to act in a way that support its existence. There is another interpretation to this: The prior \(p(s)\) might be viewed as the individuals functional homomorphism of its ecological niche in the environment and the individual is thus inclined to not leave its niche to secure its existence, which means it must keep \(p(s)\) stable. This requirement is also captured by the premise of minimizing \(F\). Following this, the only self-consistent belief an individual can have about its future is that it will also minimize \(F\) in the future, i.e, it must choose actions accordingly. This circumstance can formally be defined as follows:
+The individual is assumed to have the means to form expectations about future hidden states \(s\) and observations \(o\), first via a transition model \(p(s_{k+1}|s_k,a_k)\) that prescribes how actions \(a\) influence the succession of states from timestep \(k\) to \(k+1\), second via the likelihood \(p(o_k|s_k)\), and third via the currently inferred hidden state \(q(s_t)\) at present time \(t\). A note on the action variable \(a\): Usually, active inference agents entail control states \(u\) instead of actions \(a\) as part of their generative models because they are assumed to only form beliefs about actions from which real actions then get sampled, i.e., they cannot explicitly control their interventions in the environment. In other words, these beliefs over control states then get translated to real actions in the environment, but this translation is out of control for the agent. However, in my thesis I resort to actions \(a\) instead of control states \(u\) in the agents' generative models as a convenient simplification. A note on the indices of variables: \(t\) relates to the present timestep, \(k\) relates to an arbitrary timestep, and \(\tau\) relates to a specific future timestep.
+
+Moreover, the expectation at a future timestep \(\tau\) can formally be given via \(q(o_{\tau},s_{\tau}|\pi)\), where \(\pi\) is a sequence of actions that were used in \(p(s_{k+1}|s_k,a_k)\) (possibly multiple times) to calculate this future belief distribution. For example, computing this belief distribution for the next timestep \(t+1\) requires the individual to calculate \(q(s_{t+1},o_{t+1}|\pi) = p(o_{t+1}|s_{t+1}) \sum_{s_t} p(s_{t+1}|s_t,a_t) q(s_t), \quad \text{with} \; \pi = (a_t)\). Following this, we can then define a free energy functional that gives the expected free energy \(G\) at a future timestep \(\tau\) with respect to a certain policy \(\pi\) (as presented by \textcite{friston2015}), i.e, the individual can then evaluate different policies at different future timesteps for its capacity of minimizing \(F\) at this future timestep via:
 \begin{alignat}{2}
-    G(\pi,\tau) =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) F[q(s_{\tau}|\pi),o_{\tau})] \label{eq:50} \\
+    G(\pi,\tau) =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \ln \frac{q(s_{\tau}|\pi)}{p(s_{\tau})p(o_{\tau}|s_{\tau})} \label{eq:50} \\
     =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \left( \ln q(s_{\tau}|\pi) - \ln p(s_{\tau}|o_{\tau}) - \ln p(o_{\tau}) \right) \\
     =& \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \left( \ln q(s_{\tau}|\pi) - \ln q(s_{\tau}|o_{\tau},\pi) - \ln p(o_{\tau}) \right) \label{eq:51} \\
     =& - \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \ln \frac{q(s_{\tau}|o_{\tau},\pi)}{q(s_{\tau}|\pi)} - \sum_{o_{\tau}} q(o_{\tau}|\pi) \ln p(o_{\tau}) \label{eq:52} \\
     =&  - \sum_{o_{\tau},s_{\tau}} q(o_{\tau},s_{\tau}|\pi) \ln \frac{q(s_{\tau},o_{\tau}|\pi)}{q(s_{\tau}|\pi)q(o_{\tau}|\pi)} - \sum_{o_{\tau}} q(o_{\tau}|\pi) \ln p(o_{\tau}) \label{eq:53}
 \end{alignat}
-In \cref{eq:50} I formed the expectation of the variational free energy \(F\) under the simulated future observations and hidden states \(q(o_{\tau},s_{\tau}|\pi)\) at timestep \(\tau\) given a policy \(\pi\) was executed. Following this, the future hidden state belief \(q(s_{\tau}|\pi)\) is also dependent on this policy. In \cref{eq:51} I replaced the posterior \(p(s_{\tau}|o_{\tau})\) by the expected posterior \(q(s_{\tau}|o_{\tau},\pi)\) given the policy \(\pi\). This means we assume the individual successfully infers this posterior distribution in the future, which is necessary for its survival as outlined earlier. In \cref{eq:52} I rearranged the formular into two terms: The first term resembles epistemic value and leads to information seeking behavior in the individual while the second term relates to pragmatic value, which enables the individual to realize prefered observation with respect to \(p(o_{\tau})\). Note that \(p(o_{\tau})\) also relates to a future observation and is assumed to be available as a goal prior to the individual that encodes observations that it prefers. \cref{eq:53} makes it obvious that the (first) term that enables the individual with information seeking is the mutual information between future hidden states and future observations, which gets maximized when \(G\) is minimized (due to the leading negative sign).
+In \cref{eq:50} I formed the expectation of the variational free energy \(F\) under the simulated future observations and hidden states \(q(o_{\tau},s_{\tau}|\pi)\) at timestep \(\tau\) given a policy \(\pi\) was executed. Following this, the future hidden state belief \(q(s_{\tau}|\pi)\) is also dependent on this policy. In \cref{eq:51} I replaced the posterior \(p(s_{\tau}|o_{\tau})\) by the expected posterior \(q(s_{\tau}|o_{\tau},\pi)\) given the policy \(\pi\) (following \cite{friston2015}). This means we assume the individual successfully infers this posterior distribution in the future, which is necessary for its survival as outlined earlier. In \cref{eq:52} I rearranged the formula into two terms: The first term resembles epistemic value and leads to information seeking behavior in the individual while the second term relates to pragmatic value, which enables the individual to realize preferred observation with respect to \(p(o_{\tau})\). Note that \(p(o_{\tau})\) also relates to a future observation and is assumed to be available as a goal prior to the individual that encodes observations that it prefers. \cref{eq:53} makes it obvious that the (first) term that enables the individual with information seeking is the mutual information between future hidden states and future observations, which gets maximized when \(G\) is minimized (due to the leading negative sign).
 
-Moreover, I follow the example of \textcite{delaar2023,delaar2025} to use this result (mutual information) to develop an agent that performs information over its context state. Concretely, when deriving the message passing algorithm for the Context-GFE agent I will constrain the agent's Lagrangian with a negative mutual information term between observation- and context variables. As a side note: This procedere also requires the substitution of \(q(o_{\tau},s_{\tau}|\pi)\) for \(p(o_{\tau}|s_{\tau}) q(s_{\tau}|\pi)\) in the expectation of the mutual information term. In \cite{delaar2023,delaar2025} this was refered to as p-substitution and is based on the assumption that \(q(o_{\tau}|s_{\tau},\pi)\) is directly available as the likelihood \(p(o_{\tau}|s_{\tau})\) to the individual.
+\subsubsection{Outlook}
+
+Moreover, I follow the example of \textcite{delaar2023,delaar2025} to use this result (mutual information) to develop an agent that performs information over its context state. Concretely, when deriving the message passing algorithm for the Context-GFE agent I will constrain the agent's Lagrangian with a negative mutual information term between observation- and context variables. As a side note: This procedure also requires the substitution of \(q(o_{\tau},s_{\tau}|\pi)\) for \(p(o_{\tau}|s_{\tau}) q(s_{\tau}|\pi)\) in the expectation of the mutual information term. In \cite{delaar2023,delaar2025} this was referred to as p-substitution and is based on the assumption that \(q(o_{\tau}|s_{\tau},\pi)\) is directly available as the likelihood \(p(o_{\tau}|s_{\tau})\) to the individual (also used by \textcite{friston2015}).
 
 
 \section{Inference via Message Passing}
@@ -62,34 +70,34 @@ Moreover, I follow the example of \textcite{delaar2023,delaar2025} to use this r
 
 In this section I present a method for deriving message passing algorithms that enable inference that was presented by \textcite{senoez2021,delaar2023,delaar2025}. Inference is the mechanism that allows behavioral agents (presented in later sections) to process observations, infer unobservable environmental states, perform planning, and infer useful actions. The underlying message passing algorithm rests upon a factor graph representation of the agents' generative models where messages are sent along the edges.
 
-To focus on the core aspects of this mechanism I give the derivations including a numerical example for a simple agent that can receive observations and infer hidden environmental causes but it cannot plan nor act.
+To focus on the core aspects of this mechanism I give the derivations including a numerical example for a simple agent that can receive observations and infer hidden environmental causes, but it cannot plan nor act.
 
-Concretely, the simple agent is concerned with its cat (yes, the agent has a pet). He is \(90\,\%\) certain that its cat is a sweet, loving angel. Unfortunately, the agent cannot look inside the cat's brain to really find out but can only observe her behavior. Sometimes, the cat walks straight up to a full glas of water, makes eye contact with the agent and pushes the glas from the table (breaks glas). The agent believes: If the cat were a little chaos demon this is exactly the kind of behavior I expect (with \(99\,\%\) certainty). On the other hand, if she really was a sweet loving angel then she would rarely do such cruel things (maybe \(10\,\%\) chance).
+Concretely, the simple agent is concerned with its cat (yes, the agent has a pet). He is \(90\,\%\) certain that its cat is a sweet, loving angel. Unfortunately, the agent cannot look inside the cat's brain to really find out but can only observe her behavior. Sometimes, the cat walks straight up to a full glass of water, makes eye contact with the agent and pushes the glass from the table (breaks glass). The agent believes: If the cat were a little chaos demon this is exactly the kind of behavior I expect (with \(99\,\%\) certainty). On the other hand, if she really was a sweet loving angel then she would rarely do such cruel things (maybe \(10\,\%\) chance).
 
-The agent's model of this situation can formally be described via a (generative) model \(p(s,o)=p(o|s)p(s)\) consisting of a prior probability \(p(s)\) about hidden causal states \(s\) (is the cat an angel or a daemon?) and a likelihood distribution \(p(o|s)\) that relates the hidden states to observations \(o\) (does the cat break glas or not?) as
+The agent's model of this situation can formally be described via a (generative) model \(p(s,o)=p(o|s)p(s)\) consisting of a prior probability \(p(s)\) about hidden causal states \(s\) (is the cat an angel or a daemon?) and a likelihood distribution \(p(o|s)\) that relates the hidden states to observations \(o\) (does the cat break glass or not?) as
 \begin{alignat}{3}
      & p(s=\text{"angel"})             &  &                    &  & = 0.9 \nonumber  \\
      & p(s=\text{"demon"})             &  &                    &  & = 0.1  \\
-     & p(o=\text{"breaks glas"}        &  & |s=\text{"demon"}) &  & = 0.99 \nonumber \\
-     & p(o=\text{"doesn't break glas"} &  & |s=\text{"demon"}) &  & = 0.01 \nonumber \\
-     & p(o=\text{"breaks glas"}        &  & |s=\text{"angel"}) &  & = 0.1 \nonumber \\
-     & p(o=\text{"doesn't break glas"} &  & |s=\text{"angel"}) &  & = 0.9.
+     & p(o=\text{"breaks glass"}        &  & |s=\text{"demon"}) &  & = 0.99 \nonumber \\
+     & p(o=\text{"doesn't break glass"} &  & |s=\text{"demon"}) &  & = 0.01 \nonumber \\
+     & p(o=\text{"breaks glass"}        &  & |s=\text{"angel"}) &  & = 0.1 \nonumber \\
+     & p(o=\text{"doesn't break glass"} &  & |s=\text{"angel"}) &  & = 0.9.
 \end{alignat}
-With this probabilistic model the agent can then infer the true character of its cat upon making an observation. This inference can be computed via Bayes theorem. For example when the agent observes \(o=\text{"breaks glas"}\) it can calculate the posterior probability
+With this probabilistic model the agent can then infer the true character of its cat upon making an observation. This inference can be computed via Bayes theorem. For example when the agent observes \(o=\text{"breaks glass"}\) it can calculate the posterior probability
 \begin{equation}
-    p(s|o=\text{"breaks glas"}) = \frac{p(o=\text{"breaks glas"}|s)p(s)}{\sum_s p(o=\text{"breaks glas"}|s)p(s)},
+    p(s|o=\text{"breaks glass"}) = \frac{p(o=\text{"breaks glass"}|s)p(s)}{\sum_s p(o=\text{"breaks glass"}|s)p(s)},
 \end{equation}
 which concretely results in
 \begin{alignat}{3}
-     & p(s=\text{"angel"}|o=\text{"breaks glas"})  &  & \approx 0.48 \nonumber \\
-     & p(s=\text{"daemon"}|o=\text{"breaks glas"}) &  & \approx 0.52,
+     & p(s=\text{"angel"}|o=\text{"breaks glass"})  &  & \approx 0.48 \nonumber \\
+     & p(s=\text{"daemon"}|o=\text{"breaks glass"}) &  & \approx 0.52,
 \end{alignat}
-i.e, the agent infers that the cat's character is quite ambiguous and he is actually slightly more certain that she is a demon (\(52\,\%\)).
+i.e., the agent infers that the cat's character is quite ambiguous, and he is actually slightly more certain that she is a demon (\qty{52}{\%}).
 
-This inference can be formalized as a message passing algorihm on a factor graph. Towards this, I will first give the simple agent's generative model as its (Forney) factor graph representation.
+This inference can be formalized as a message passing algorithm on a factor graph. Towards this, I will first give the simple agent's generative model as its (Forney) factor graph representation.
 
 \subsection{The Forney Factor Graph Representation}
-A Forney factor graph (FFG) is a neat tool to represent a factorized probabilistic model where probabilistic factors (e.g., \(p(s)\)) become nodes and variables (e.g., \(s\)) become edges. The generative model of the simple agent has two variables \(s\), and \(o\) and consists of two factors \(p(s)\) and \(p(o|s)\). This leads to an FFG that equally has two edges and two nodes as shown in Fig.~\ref{fig:1}.
+A Forney factor graph (FFG) is a neat tool to represent a factorized probabilistic model where probabilistic factors (e.g., \(p(s)\)) become nodes and variables (e.g., \(s\)) become edges (\cite{loeliger2004}). The generative model of the simple agent has two variables \(s\), and \(o\) and consists of two factors \(p(s)\) and \(p(o|s)\). This leads to an FFG that equally has two edges and two nodes as shown in Fig.~\ref{fig:1}.
 \begin{figure}[htbp]
     \centering
 
@@ -165,7 +173,7 @@ To facilitate future derivations we rename node factors with functions \(f\) tha
 
 \subsection{Belief Distributions}
 
-In the numerical example I conditioned the generative model on a specific observation ("breaks glas") and computed the posterior distribution(s) of the remaining variables (only \(s\)). This conditioning on specific events is the "driving force" during inference that effectively "pushes" the probability mass of the remaining variables to its respective posterior forms. These form-flexible (variational) distributions exist for all variables (and factors) and effectively represent the agent's beliefs about these variables (and factors). Relating to the cat example these belief distributions are the agent's subjective beliefs about his cat. Concretely, the belief distributions are named \(q\) and exist for all edges and nodes (for all variables and factors) in the graph (\cref{fig:4}).
+In the numerical example I conditioned the generative model on a specific observation ("breaks glass") and computed the posterior distribution(s) of the remaining variables (only \(s\)). This conditioning on specific events is the "driving force" during inference that effectively "pushes" the probability mass of the remaining variables to its respective posterior forms. These form-flexible (variational) distributions exist for all variables (and factors) and effectively represent the agent's beliefs about these variables (and factors). Relating to the cat example these belief distributions are the agent's subjective beliefs about his cat. Concretely, the belief distributions are named \(q\) and exist for all edges and nodes (for all variables and factors) in the graph (\cref{fig:4}).
 \begin{figure}[htbp]
     \centering
 
@@ -190,15 +198,15 @@ In the numerical example I conditioned the generative model on a specific observ
     \label{fig:4}
 \end{figure}
 
-The conditioning of the agent's generative model on the observation ("breaks glas") is realized by "clamping" the respective belief distribution (\(q_j(o)\)) to this event, i.e., it is set to delta distribution that has probability \(1\) for the event "breaks glas". This clamping exerts a kind of "force" on all other belief distributions and "pushes" them to their posterior forms. For example, after inference the belief \(q_i(s)\) will assume the posterior \(p(s|o=\text{"breaks glas"})\). In summary, we can now represent the agent's generative model as a factor graph and understand that it maintains belief distributions \(q\) that are form-flexible and "react" to new evidence (e.g., an observation) anywhere in the graph to form posteriors
+The conditioning of the agent's generative model on the observation ("breaks glass") is realized by "clamping" the respective belief distribution (\(q_j(o)\)) to this event, i.e., it is set to delta distribution that has probability \(1\) for the event "breaks glass". This clamping exerts a kind of "force" on all other belief distributions and "pushes" them to their posterior forms. For example, after inference the belief \(q_i(s)\) will assume the posterior \(p(s|o=\text{"breaks glass"})\). In summary, we can now represent the agent's generative model as a factor graph and understand that it maintains belief distributions \(q\) that are form-flexible and "react" to new evidence (e.g., an observation) anywhere in the graph to form posteriors
 
 \subsection{The (Bethe) Free Energy Functional}
 
-As a next step towards the message passing procedere that drives inference (which forms the \(q\) distributions), it is important to realize that the metaphorical force that exists between the belief distributions (and the factors of the generative model) can exactly be defined as a variational free energy \(F[q]\). It is a functional of the belief distributions (indicated by \(q\)) and is defined as the Kullback-Leibler divergence between the joint belief distribution \(q(s,o)\) and the generative model \(p(s,o)\) with
+As a next step towards the message passing procedure that drives inference (which forms the \(q\) distributions), it is important to realize that the metaphorical force that exists between the belief distributions (and the factors of the generative model) can exactly be defined as a variational free energy \(F[q]\). It is a functional of the belief distributions (indicated by \(q\)) and is defined as the Kullback-Leibler divergence between the joint belief distribution \(q(s,o)\) and the generative model \(p(s,o)\) with
 \begin{equation}
     F[q] = D_{\mathrm{KL}}(q(s,o) \parallel p(s,o)) = \sum_{s,o} q(s,o) \log \frac{q(s,o)}{p(s,o)},
 \end{equation}
-where the joint belief distribution is the product of all node beliefs divided by the product of all edge beliefs, i.e., \(q(s,o)=\frac{q_a(s)q_b(s,o)q_c(o)}{q_i(s)q_j(o)}\). In this case \(F\) is equal to the Bethe free energy. Note that we assumed discrete distributions (i.e., categorical), leading to a sum instead of an integral.
+where the joint belief distribution is the product of all node beliefs divided by the product of all edge beliefs, i.e., \(q(s,o)=\frac{q_a(s)q_b(s,o)q_c(o)}{q_i(s)q_j(o)}\). In this case \(F\) is equal to the Bethe free energy. Note that I assumed discrete distributions (i.e., categorical), leading to a sum instead of an integral.
 
 For the message passing algorithm we must identify local messages that are sent on the edges of the factor graph. These local messages are driven by local free energies, which are part of the global free energy \(F\). To facilitate the derivations of these local messages, it is convenient to partition \(F\) into a sum of these local free energies. Following this, \(F\) can be rearranged to
 \begin{equation}
@@ -207,7 +215,7 @@ For the message passing algorithm we must identify local messages that are sent 
                & + \underbrace{\sum_s q_i(s) \log \frac{1}{q_i(s)} + \sum_o q_j(o) \log \frac{1}{q_j(o)}}_{\text{Correcting Entropy Terms}}.
     \end{split}
 \end{equation}
-This yields three node-local free energy terms that measure the Kullback-Leibler divergence between the local belief distribution \(q\) and the local factor \(f\). Importantly, these local free energies contain entropy terms that correspond to the edges' entropies they are connected to. As an example consider the first local free energy term \(\sum_s q_a(s) \log \frac{q_a(s)}{f_a(s)}\) which can be decomposed into \(- (-\sum_s q_a(s) \log q_a(s)) - \sum_s q_a(s) \log f_a(s)\). The term \(- (-\sum_s q_a(s) \log q_a(s))\) is the entropy of edge \(i\), i.e., it is equivalent to \(- (-\sum_s q_i(s) \log q_i(s))\). Similarly node \(b\) also contains this entropy of edge \(i\) as part of \(- (-\sum_{s,o} q_b(s,o) \log q_b(s,o))\). Consequently, having two nodes for every edge results into overcounting of edge entropies, i.e., it is subtracted twice. To correct for this, one entropy term is added for each edge in \(F\), e.g., \(\sum_s q_i(s) \log \frac{1}{q_i(s)}\). This corrective measure is not a deliberative choice but a natural consequence of defining belief distributions over edges and nodes in the graph. This circumstance makes the variational free energy \(F\) equal to the Bethe free energy.
+This yields three node-local free energy terms that measure the Kullback-Leibler divergence between the local belief distribution \(q\) and the local factor \(f\). Importantly, these local free energies contain entropy terms that correspond to the edges' entropies they are connected to. As an example consider the first local free energy term \(\sum_s q_a(s) \log \frac{q_a(s)}{f_a(s)}\) which can be decomposed into \(- (-\sum_s q_a(s) \log q_a(s)) - \sum_s q_a(s) \log f_a(s)\). The term \(- (-\sum_s q_a(s) \log q_a(s))\) is the entropy of edge \(i\), i.e., it is equivalent to \(- (-\sum_s q_i(s) \log q_i(s))\). Similarly, node \(b\) also contains this entropy of edge \(i\) as part of \(- (-\sum_{s,o} q_b(s,o) \log q_b(s,o))\). Consequently, having two nodes for every edge results into overcounting of edge entropies, i.e., it is subtracted twice. To correct for this, one entropy term is added for each edge in \(F\), e.g., \(\sum_s q_i(s) \log \frac{1}{q_i(s)}\). This corrective measure is not a deliberative choice but a natural consequence of defining belief distributions over edges and nodes in the graph. This circumstance makes the variational free energy \(F\) equal to the Bethe free energy.
 
 \subsection{The Lagrangian of the Free Energy}
 
@@ -261,7 +269,7 @@ These constraints are then added to \(F\) and lead to the Lagrangian
     \end{split}
     \label{eq:36}
 \end{equation}
-where \(\lambda\) und \(\psi\) are Lagrange multipliers that enforce marginalization and normalization respectively.
+where \(\lambda\) and \(\psi\) are Lagrange multipliers that enforce marginalization and normalization respectively.
 
 \subsection{Messages and Belief Updates}
 
@@ -286,7 +294,7 @@ Second, we partially solve the system of equations (\cref{eq:6,eq:7,eq:8,eq:9,eq
      & \Rightarrow q_a^*(s)                                  &  & = f_a(s) \exp(\lambda_{ia}(s)) \frac{1}{\sum_s f_a(s) \exp(\lambda_{ia}(s))} \label{eq:54}\\
      & \Rightarrow q_a^*(s)                                  &  & \propto f_a(s) \exp(\lambda_{ia}(s)). \label{eq:1}
 \end{alignat}
-The term \(\exp(-\psi_a - 1)\) effectively becomes the normalization constant for \(q_a^*(s)\). Instead of doing this derivation repeatedly in subsequent sections, I will directly use the proportional sign \(\propto\) when defining belief distributions. More generally, in some cases I will also use \(\propto\) even if the relation allows for the stricter \(=\) sign. In \cref{eq:54} I substitued this normalization constant in \cref{eq:6}.
+The term \(\exp(-\psi_a - 1)\) effectively becomes the normalization constant for \(q_a^*(s)\). Instead of doing this derivation repeatedly in subsequent sections, I will directly use the proportional sign \(\propto\) when defining belief distributions. More generally, in some cases I will also use \(\propto\) even if the relation allows for the stricter \(=\) sign. In \cref{eq:54} I substituted this normalization constant in \cref{eq:6}.
 Analogously we obtain
 \begin{alignat}{2}
      & \Rightarrow q_b^*(s,o) &  & \propto f_b(s,o) \exp(\lambda_{ib}(s)) \exp(\lambda_{jb}(o)) \label{eq:2} \\
@@ -337,7 +345,7 @@ Their names give a clear interpretation of their position and direction of infor
 \end{figure}
 
 Using the full message names renders the FFG visually overloaded.
-Instead we use abbreviations (\(\textcolor{black}{\bm{\overleftarrow{\mu}}},\textcolor{black}{\bm{\overrightarrow{\mu}}}\)) with arrows clearly indicating the direction of information flow with \(\textcolor{black}{\bm{\overleftarrow{\mu}(}s\bm{)}} = \exp(\lambda_{ia}(s))\), \(\textcolor{black}{\bm{\overrightarrow{\mu}(}s\bm{)}} = \exp(\lambda_{ib}(s))\), \(\textcolor{black}{\bm{\overleftarrow{\mu}(}o\bm{)}} = \exp(\lambda_{jb}(o))\), and \(\textcolor{black}{\bm{\overrightarrow{\mu}(}o\bm{)}} = \exp(\lambda_{jc}(o))\).
+Instead, I use abbreviations (\(\textcolor{black}{\bm{\overleftarrow{\mu}}},\textcolor{black}{\bm{\overrightarrow{\mu}}}\)) with arrows clearly indicating the direction of information flow with \(\textcolor{black}{\bm{\overleftarrow{\mu}(}s\bm{)}} = \exp(\lambda_{ia}(s))\), \(\textcolor{black}{\bm{\overrightarrow{\mu}(}s\bm{)}} = \exp(\lambda_{ib}(s))\), \(\textcolor{black}{\bm{\overleftarrow{\mu}(}o\bm{)}} = \exp(\lambda_{jb}(o))\), and \(\textcolor{black}{\bm{\overrightarrow{\mu}(}o\bm{)}} = \exp(\lambda_{jc}(o))\).
 The resulting FFG is given in Fig.~\ref{fig:7}.
 \begin{figure}[htbp]
     \centering
@@ -368,7 +376,7 @@ In principle, the message passing algorithm is now complete and messages can be 
 
 \subsection{Observation (Delta) Constraints}
 
-Having a concrete observation \(\hat o\) for a variable \(o\) renders its corresponding (edge) belief distribution \(q_j(o)\) a delta distribution. This effectively assigns all probability mass to this single observation while other events have probability \(0\). In this work, distributions are discrete such that delta distributions are given as Kronecker deltas that evaluate to \(1\) for the respective observation event. Relating to the cat example, the delta distribution is given as \(\delta_{o,\hat o}\) with \(\hat o = \text{"breaks glas"}\), i.e., only the event "breaks glas" evaluates to \(1\), and thus defines the edge's belief distribution as \(q_j(o) = \delta_{o,\hat o}\). This delta constraint is visualized in the factor graph (\cref{fig:29}) by a gray bead at the respective edge.
+Having a concrete observation \(\hat o\) for a variable \(o\) renders its corresponding (edge) belief distribution \(q_j(o)\) a delta distribution. This effectively assigns all probability mass to this single observation while other events have probability \(0\). In this work, distributions are discrete such that delta distributions are given as Kronecker deltas that evaluate to \(1\) for the respective observation event. Relating to the cat example, the delta distribution is given as \(\delta_{o,\hat o}\) with \(\hat o = \text{"breaks glass"}\), i.e., only the event "breaks glass" evaluates to \(1\), and thus defines the edge's belief distribution as \(q_j(o) = \delta_{o,\hat o}\). This delta constraint is visualized in the factor graph (\cref{fig:29}) by a gray bead at the respective edge.
 \begin{figure}[htbp]
     \centering
 
@@ -404,7 +412,7 @@ Starting point for this derivation are the local stationary solutions from \cref
      & \Rightarrow \exp(\lambda_{jb}(o))              \propto \delta_{o,\hat o}                                                                                                               \\
      & \Rightarrow \textcolor{black}{\bm{\overleftarrow{\mu}(}o\bm{)}}  \propto \delta_{o,\hat o}.
 \end{alignat}
-Note that \(\frac{\delta_{o,\hat o}}{\sum_s f_b(s,o) \exp(\lambda_{ib}(s))}\) in \cref{eq:23} evaluates to \(\delta_{o,\hat o}\). To understand this, consider the following two cases. First, if \(o \neq \hat o\) then both \(\frac{\delta_{o,\hat o}}{\sum_s f_b(s,o) \exp(\lambda_{ib}(s))}\) and \(\delta_{o,\hat o}\) yield 0 as the result. Second, if \(o = \hat o\) then \(\delta_{o,\hat o}\) will result into 1 and \(\frac{\delta_{o,\hat o}}{\sum_s f_b(s,o) \exp(\lambda_{ib}(s))}\) will result into some positive number (not 0). For the the latter, normalization ensures that this arbitrary number will be 1 because all other outcomes already have probability 0 as outlined in the first case.
+Note that \(\frac{\delta_{o,\hat o}}{\sum_s f_b(s,o) \exp(\lambda_{ib}(s))}\) in \cref{eq:23} evaluates to \(\delta_{o,\hat o}\). To understand this, consider the following two cases. First, if \(o \neq \hat o\) then both \(\frac{\delta_{o,\hat o}}{\sum_s f_b(s,o) \exp(\lambda_{ib}(s))}\) and \(\delta_{o,\hat o}\) yield 0 as the result. Second, if \(o = \hat o\) then \(\delta_{o,\hat o}\) will result into 1 and \(\frac{\delta_{o,\hat o}}{\sum_s f_b(s,o) \exp(\lambda_{ib}(s))}\) will result into some positive number (not 0). For the latter, normalization ensures that this arbitrary number will be 1 because all other outcomes already have probability 0 as outlined in the first case.
 
 Similarly, using the constraint \(q_c^*(o) \overset{!}{=} q_j^*(o)\) we obtain
 \begin{alignat}{2}
@@ -434,7 +442,7 @@ First, the messages \(\textcolor{black}{\bm{\overleftarrow{\mu}(}o\bm{)}}\), \(\
      & \Rightarrow \textcolor{black}{\bm{\overrightarrow{\mu}(}o\bm{)}} &  & \propto \delta_{o,\hat o}                     \\
      & \Rightarrow \textcolor{black}{\bm{\overrightarrow{\mu}(}s\bm{)}} &  & = \exp(\lambda_{ib}(s)) \propto f_a(s) = p(s)
 \end{alignat}
-with \(\hat o = \text{"breaks glas"}\).
+with \(\hat o = \text{"breaks glass"}\).
 
 Second, \(\textcolor{black}{\bm{\overleftarrow{\mu}(}s\bm{)}}\) is evaluated:
 \begin{alignat}{2}
@@ -449,8 +457,8 @@ Third, the edges' belief distributions are computed:
 In principle, the evaluation of \(q_j(o)\) is unnecessary because it will trivially yield the start condition (delta constraint).
 Finally, we can insert the probabilities from the cat example:
 \begin{alignat}{2}
-    q_i(s=\text{"angel"}) & \propto p(o=\text{"breaks glas"}|s=\text{"angel"}) p(s=\text{"angel"}) = 0.1 \cdot 0.9 = 0.09   \\
-    q_i(s=\text{"demon"}) & \propto p(o=\text{"breaks glas"}|s=\text{"demon"}) p(s=\text{"demon"}) = 0.99 \cdot 0.1 = 0.099
+    q_i(s=\text{"angel"}) & \propto p(o=\text{"breaks glass"}|s=\text{"angel"}) p(s=\text{"angel"}) = 0.1 \cdot 0.9 = 0.09   \\
+    q_i(s=\text{"demon"}) & \propto p(o=\text{"breaks glass"}|s=\text{"demon"}) p(s=\text{"demon"}) = 0.99 \cdot 0.1 = 0.099
 \end{alignat}
 After normalization, the agent's belief \(q_i(s)\) yields:
 \begin{alignat}{2}
@@ -459,12 +467,12 @@ After normalization, the agent's belief \(q_i(s)\) yields:
 \end{alignat}
 Furthermore, the observation belief \(q_j(o)\) trivially results into
 \begin{alignat}{2}
-    q_j(o=\text{"breaks glas"})        & = 1  \\
-    q_j(o=\text{"doesn't break glas"}) & = 0.
+    q_j(o=\text{"breaks glass"})        & = 1  \\
+    q_j(o=\text{"doesn't break glass"}) & = 0
 \end{alignat}
 because it is constrained by a real observation.
 
-In conclusion, the message passing algorithm achieves Bayesian inference and the resulting belief distribution \(q_i(s)\) is equal to the posterior \(p(s|o=\text{"breaks glas"})\) that has been analytically shown before. Furthermore, the algorithm that results from the Bethe free energy as defined in this section is also known as the sum-product algorithm or belief propagation.
+In conclusion, the message passing algorithm achieves Bayesian inference and the resulting belief distribution \(q_i(s)\) is equal to the posterior \(p(s|o=\text{"breaks glass"})\) that has been analytically shown before. Furthermore, the algorithm that results from the Bethe free energy as defined in this section is also known as the sum-product algorithm or belief propagation.
 
 
 \section{Agents}
@@ -514,15 +522,15 @@ In general, agents are entities that are in constant exchange with an external e
     \caption{Perception-Action Loop between the agent and the environment. The environment sends observations \(o_t\) to the agent. Vice versa, the agent sends actions \(a_t\) to the environment. The current timestep is \(t\).}
     \label{fig:23}
 \end{figure}
-The environment generates observations in possibly arbitrary ways but the agent is assumed to have certain mechanisms that process these observations and trigger actions. Specifically, agents are assumed to have a preference for certain observations that underwrite their ecological niche in the environment. Moreover, they are equipped with the means to understand (simulate) the chain of causality from hidden environmental causes to its sensors, i.e., they have of model how the state of the environment leads to certain observations. Even more, they also have a model of the causal chain of these unobservable (hidden) environmental states through time and how they can be influenced via actions. In total, this allows them to plan a sequence of actions that leads to preferred observations. Additionally, it allows them to keep past observations as a memory and enables them to retrospectively draw conclusions about past events in the light of new observations from the present.
+The environment generates observations in possibly arbitrary ways, but the agent is assumed to have certain mechanisms that process these observations and trigger actions. Specifically, agents are assumed to have a preference for certain observations that underwrite their ecological niche in the environment. Moreover, they are equipped with the means to understand (simulate) the chain of causality from hidden environmental causes to its sensors, i.e., they have of model how the state of the environment leads to certain observations. Even more, they also have a model of the causal chain of these unobservable (hidden) environmental states through time and how they can be influenced via actions. In total, this allows them to plan a sequence of actions that leads to preferred observations. Additionally, it allows them to keep past observations as a memory and enables them to retrospectively draw conclusions about past events in the light of new observations from the present.
 
 \subsubsection{The Generative Model}
 
-This mechanism rests upon a generative model that probabilistically relates observations, actions, and the (discrete) succession of hidden states. Formally, it is given by a likelihood \(p(o|s)\) that states how observations \(o\) are generated by hidden states \(s\) and by a transition model \(p(s_{t+1}|s_t,a_t)\) that defines how hidden states \(s\) change from timestep \(t\) to \(t+1\) given an action \(a_t\). Actions possess an action prior \(p(a)\) and preferences for observations are encoded by the goal prior \(\tilde{p}(o)\) that assigns higher probabilities to preferred observations.
+This mechanism rests upon a generative model that probabilistically relates observations, actions, and the (discrete) succession of hidden states. Formally, it is given by a likelihood \(p(o_k|s_k)\) that states how observations \(o\) are generated by hidden states \(s\) and by a transition model \(p(s_{k+1}|s_k,a_k)\) that defines how hidden states \(s\) change from timestep \(k\) to \(k+1\) given an action \(a_k\). Actions possess an action prior \(p(a_k)\) and preferences for observations are encoded by the goal prior \(\tilde{p}(o_k)\) that assigns higher probabilities to preferred observations.
 
 \subsubsection{The Temporal Generative Model (POMDP)}
 
-The four distributions (likelihood, transition model, action prior, and goal prior) are building blocks for a temporal rollout (from timestep \(0\) to \(T\)), which formally leads to a Partially Observable Markov Decision Process (POMDP). In later simulations there will be three timesteps, i.e., \(T=2\), and hidden states at \(t=0\) are initially distributed with \(p(s_0)\). The resulting POMDP is given by
+The four distributions (likelihood, transition model, action prior, and goal prior) are building blocks for a temporal rollout (from timestep \(0\) to \(T\)), which formally leads to a Partially Observable Markov Decision Process (POMDP). In later simulations there will be three timesteps, i.e., \(T=2\), and hidden states at \(k=0\) are initially distributed with \(p(s_0)\). The resulting POMDP is given by
 \begin{equation}
     \begin{split}
         p(o_0, o_1, o_2, s_0, s_1, s_2, a_0, a_1) = \; & \tilde{p}(o_0) p(o_0|s_0) p(s_0)                \\
@@ -597,9 +605,9 @@ and has a factor graph representation (\cref{fig:8}) (including the variables' b
 
 \subsubsection{Lifecycle of an Agent}
 
-The lifecycle of agents consists of three recurring stages (\cref{fig:30}): First, it receives an observation, which leads to a delta constraint at the respective belief distribution. For example, when the current timestep is \(t=0\) and it receives an observation \(\hat {o_0}\) then \(q(o_0)=\delta_{o_0,\hat {o_0}}\).
+The lifecycle of agents consists of three recurring stages (\cref{fig:30}): First, it receives an observation, which leads to a delta constraint at the respective belief distribution. For example, when the current timestep is \(t=0\), and it receives an observation \(\hat {o}_0\) then \(q(o_0)=\delta_{o_0,\hat {o}_0}\).
 
-Second, the agent performs inference over the whole factor graph, i.e., the corresponding message passing algorithm is executed. In this way it computes the posterior distributions of all variables in the graph based on the observation \(\hat {o_0}\). These posteriors are then given by the respective belief distributions \(q\). In other words, during inference the agent forms beliefs about all variables in its graph. For example, it infers the hidden cause \(s_0\) of the observation \(\hat {o_0}\). Also, it infers a likely future trajectory of hidden states (via \(q(s_1)\) and \(q(s_2)\)). Moreover, it also forms beliefs about future observations. Crucially, these future observation beliefs are not solely driven by future hidden states but also by the preferences (i.e., \(\tilde{p}(o_1)\) and \(\tilde{p}(o_2)\)) on observations. The additional influence from the preferences couples back to other parts of graph such that the agent infers a future trajectory of hidden states that also leads to preferred observation. Moreover, it will also form appropriate action beliefs that fulfill these preferences.
+Second, the agent performs inference over the whole factor graph, i.e., the corresponding message passing algorithm is executed. In this way it computes the posterior distributions of all variables in the graph based on the observation \(\hat {o}_0\). These posteriors are then given by the respective belief distributions \(q\). In other words, during inference the agent forms beliefs about all variables in its graph. For example, it infers the hidden cause \(s_0\) of the observation \(\hat {o}_0\). Also, it infers a likely future trajectory of hidden states (via \(q(s_1)\) and \(q(s_2)\)). Moreover, it also forms beliefs about future observations. Crucially, these future observation beliefs are not solely driven by future hidden states but also by the preferences (i.e., \(\tilde{p}(o_1)\) and \(\tilde{p}(o_2)\)) on observations. The additional influence from the preferences couples back to other parts of graph such that the agent infers a future trajectory of hidden states that also leads to preferred observation. Moreover, it will also form appropriate action beliefs that fulfill these preferences.
 
 % --- 1. GRAFIKEN ISOLIERT LADEN UND SKALIEREN ---
 % Falls du die external-library in der Masterarbeit nutzt, hier kurz pausieren
@@ -668,7 +676,7 @@ Second, the agent performs inference over the whole factor graph, i.e., the corr
 
     \tikzexternalenable
 
-    \caption{Agents' lifecycle with the recurring stages perception, inference, and action. During perception the observation belief that corresponds to the current timestep (e.g., \(q(o_0\)) becomes a delta distribution with all probability mass at the actual observation \(\hat{o_0}\). When performing inference the messages are sent on the edges (message passing) and all belief distributions are updated (indicated by \(q^*\)) (except the delta constrained distributions). During action, an action \(\hat{a_0}\) is sampled from the corresponding belief distribution \(q(a_0)\) that has been inferred during inference. Additionally, this belief also becomes a delta distribution with all probability mass on the sampled action \(\hat{a_0}\). After an action, the cycle starts over again and the next observation (e.g., \(\hat{o_1}\)) is perceived.}
+    \caption{Agents' lifecycle with the recurring stages perception, inference, and action. During perception the observation belief that corresponds to the current timestep (e.g., \(q(o_0\)) becomes a delta distribution with all probability mass at the actual observation \(\hat{o}_0\). When performing inference the messages are sent on the edges (message passing) and all belief distributions are updated (indicated by \(q^*\)) (except the delta constrained distributions). During action, an action \(\hat{a}_0\) is sampled from the corresponding belief distribution \(q(a_0)\) that has been inferred during inference. Additionally, this belief also becomes a delta distribution with all probability mass on the sampled action \(\hat{a}_0\). After an action, the cycle starts over again and the next observation (e.g., \(\hat{o}_1\)) is perceived.}
     \label{fig:30}
 \end{figure}
 
@@ -681,7 +689,7 @@ The POMDP in \cref{eq:15} and the corresponding factor graph in \cref{fig:8} wil
 
 \subsection{Bethe Free Energy (BFE) Agent}
 
-In this section I present the message passing algorithm of the BFE agent. This agent serves as a baseline without having an additional context layer nor does it do information seeking. All messages can be derived from the Bethe free energy of its factor graph (compare \cref{sec:1}). Messages from equality nodes also result from the Bethe free energy (see \cref{app:1}). The agent's generative model is given by \cref{eq:15}.
+In this section I present the message passing algorithm of the BFE agent that was formally introduced by \textcite{schwoebel2018}. This agent serves as a baseline without having an additional context layer nor does it do information seeking. All messages can be derived from the Bethe free energy of its factor graph (compare \cref{sec:1}). Messages from equality nodes also result from the Bethe free energy (see \cref{app:1}). The agent's generative model is given by \cref{eq:15}.
 
 \subsubsection{Message Passing Algorithm}
 
@@ -715,18 +723,18 @@ The factor graph that results from the POMDP is given in \cref{fig:31} (includin
             \node[factor, above=1.5cm of B1] (u1) {$p(a_1)$};
 
             % Kanten zwischen Knoten
-            \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_0)}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}}$};
-            \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_0)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$};
-            \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{accblue}{q(o_0)}$} node[pos=0.25, right=0.25, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}}$} node[pos=0.8, right=0.25, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}}$};
-            \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_0)}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$};
-            \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_0)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_0\bm{)}}}$};
-            \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_1)}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}}$};
-            \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\large \textcolor{orange!75!black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {${\large \textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$};
-            \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(o_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\large \textcolor{orange!75!black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}}$};
-            \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_1)}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$};
-            \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$\textcolor{accblue}{q(s_2)}$} node[pos=0.89, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}}$} node[pos=0.11, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}}$};
-            \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(o_2)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}}$};
-            \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_1\bm{)}}}$};
+            \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_0)}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}}$};
+            \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_0)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$};
+            \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{accblue}{q(o_0)}$} node[pos=0.25, right=0.25, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}}$} node[pos=0.8, right=0.25, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}}$};
+            \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_0)}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$};
+            \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_0)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_0\bm{)}}}$};
+            \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_1)}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}}$};
+            \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\textcolor{orange!75!black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$} node[pos=0.75, right=0.05, varlabel, scale=0.7] {${\textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$};
+            \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(o_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\textcolor{orange!75!black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_1\bm{)}}}$};
+            \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_1)}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$};
+            \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$\textcolor{accblue}{q(s_2)}$} node[pos=0.89, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}}$} node[pos=0.11, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}}$};
+            \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(o_2)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_2\bm{)}}}$};
+            \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_1)}$} node[pos=0.25, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}}}$} node[pos=0.8, right=0.05, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_1\bm{)}}}$};
 
         \end{tikzpicture}
     }
@@ -743,8 +751,8 @@ Note that in the graph the agent has already received an observation \(\hat {o_0
     \small
     \begin{algorithmic}[1] % Die [1] sorgt für automatische Zeilennummern!
         \linespread{1.4}\selectfont
-        \State $\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_1\bm{)}} \propto \tilde{p}(o_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,
-        \Statex $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_2\bm{)}} \propto \tilde{p}(o_2)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$
+        \State $\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_1\bm{)}} \propto \tilde{p}(o_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,
+        \Statex $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_2\bm{)}} \propto \tilde{p}(o_2)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$
         \State $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}} \propto \sum_{o_0} p(o_0|s^{\scriptscriptstyle II}_0) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}} \propto \sum_{o_1} p(o_1|s^{\scriptscriptstyle II}_1) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_1\bm{)}}$,
         \Statex $\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_2\bm{)}} \propto \sum_{o_2} p(o_2|s_2) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_2\bm{)}}$
         \State $\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}} \propto \sum_{s_0,s^{\scriptscriptstyle II}_0} \delta_{s_0,s^{\scriptscriptstyle I}_0}\delta_{s_0,s^{\scriptscriptstyle II}_0} \textcolor{black}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}$,\quad$\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}} \propto \sum_{a_1,s_2} p(s_2|s^{\scriptscriptstyle I}_1,a_1) \textcolor{black}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \textcolor{black}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}$
@@ -767,7 +775,7 @@ Note that in the graph the agent has already received an observation \(\hat {o_0
 \subsection{Generalized Free Energy (GFE) Agent}
 \label{sec:gfe}
 
-In this section I introduce the GFE agent. It can be considered a real Active Inference agent because it does not solely minimize the Bethe free energy but also respects additional motives that lead to information seeking. This makes up for the generalized free energy that Active Inference agents are mandated to minimize (\cite{parr2019}). The GFE agent is indeed similar to the BFE agent and is also based on the same generative model (\cref{eq:15}) but instead of only realizing preferred observations it also seeks information in the environment, i.e., it is curious. In other words, during inference it infers actions that do not only lead to preferred observation \(o\) but which are also informative regarding the hidden states \(s\) of its generative model. The amount of information that a certain observation yields with respect to its hidden state (that the agent assumes to generate this observation via its generative model) can be quantified via the mutual information between these two variables. Formally, the GFE agent is driven to maximize the mutual information between future hidden state beliefs \(q(s)\) and observation beliefs \(q(o)\). This mechanism enables it to sample actions at present time that maximize this quantity. The mechanism is encoded in the free energy functional (Lagrangian) of the agent and leads to alternative messages at the edges in the corresponding factor graph that resemble future hidden states. Moreover, we will see that messages at edges of future observation beliefs disappear under this motive. Importantly, the mutual information mechanism is only applied to future parts of the factor graph, i.e., it does not apply to parts of the graph that resemble the present or past. Intuitively, the agent is only interested in informative observations that are yet to be observed, i.e., that are in the future. This circumstance comes into play during the lifecycle of the agent, which leads to alternative messages at edges that resemble hidden states and observations depending on the timestep (future timestep or present/past timestep). Moreover, messages resulting from likelihood nodes that resemble the present or past, i.e., where an observation is available, will also take on an alternative form because they will be based on a local mean-field approximation of belief distributions at these nodes. In the case of the GFE agent this will not make a difference in comparison to using messages derived from the Bethe free energy (without mean-field assumption) from \cref{sec:1}. For the later presented Context-GFE agent this will be important to break cyclic dependencies introduced by the context state (see \cref{sec:context-bfe} for more explanation). To allow for comparison between the GFE- and Context-GFE agent both include this mean-field approximation for belief distributions of present and past likelihood nodes. The resulting messages from this assumption are variational messages (presented below).
+In this section I introduce the GFE agent that was formally introduced by \textcite{delaar2023}. It can be considered a real Active Inference agent because it does not solely minimize the Bethe free energy but also respects additional motives (mutual information between future hidden states and observations) that lead to information seeking. This makes up for the generalized free energy that Active Inference agents are mandated to minimize (\cite{parr2019}). Note that the generalized free energy is a generalization of the expected free energy as introduced in \cref{sec:0} and similarly leads to information seeking behavior. This generalization is not central to this thesis and is explained by \textcite{parr2019}. The GFE agent is indeed similar to the BFE agent and is also based on the same generative model (\cref{eq:15}) but instead of only realizing preferred observations it also seeks information in the environment, i.e., it is curious. In other words, during inference it infers actions that do not only lead to preferred observation \(o\) but which are also informative regarding the hidden states \(s\) of its generative model. The amount of information that a certain observation yields with respect to its hidden state (that the agent assumes to generate this observation via its generative model) can be quantified via the mutual information between these two variables. Formally, the GFE agent is driven to maximize the mutual information between future hidden state beliefs \(q(s)\) and observation beliefs \(q(o)\). This mechanism enables it to sample actions at present time that maximize this quantity. The mechanism is encoded in the free energy functional (Lagrangian) of the agent and leads to alternative messages at the edges in the corresponding factor graph that resemble future hidden states. Moreover, we will see that messages at edges of future observation beliefs disappear under this motive. Importantly, the mutual information mechanism is only applied to future parts of the factor graph, i.e., it does not apply to parts of the graph that resemble the present or past. Intuitively, the agent is only interested in informative observations that are yet to be observed, i.e., that are in the future. This circumstance comes into play during the lifecycle of the agent, which leads to alternative messages at edges that resemble hidden states and observations depending on the timestep (future timestep or present/past timestep). Moreover, messages resulting from likelihood nodes that resemble the present or past, i.e., where an observation is available, will also take on an alternative form because they will be based on a local mean-field approximation of belief distributions at these nodes. In the case of the GFE agent this will not make a difference in comparison to using messages derived from the Bethe free energy (without mean-field assumption) from \cref{sec:1}. For the Context-GFE agent presented later this will be important to break cyclic dependencies introduced by the context state (see \cref{sec:context-bfe} for more explanation). To allow for comparison between the GFE- and Context-GFE agent both include this mean-field approximation for belief distributions of present and past likelihood nodes. The resulting messages from this assumption are variational messages (presented below).
 
 \subsubsection{GFE-based Messages}
 
@@ -854,7 +862,7 @@ The second change consists of a "p-substitution" in which \(q_a(o|s)\) is substi
     L_{\text{GFE}} = \sum_{o,s} p(o|s)q_a(s) \ln \frac{q_a(o)q_a(s)}{p(o|s)\tilde{p}(o)} + \sum_s \lambda_{ia}(s) \left( q_i(s) - q_a(s) \right).
 \end{align}
 
-The two changes to the Lagrangian are indicated in the corresponding factor graph (\cref{fig:32.2}) by a small bead and a small square where the two edges terminate at node \(a\). In general, having beads at both ends of the edges means that the node local belief distribution \(q_a(o,s)\) assumes a mean-field approximation, i.e, \(q_a(o,s) = q_a(o)q_a(s)\), which is indeed the case in \(\sum_{o,s} q_a(o,s) \ln \frac{q_a(o)q_a(s)}{p(o|s)}\). Moreover, in the case when one of the variables' belief distributions (e.g., \(q_a(o)\)) is substituted by the real likelihood (i.e, \(p(o|s)\)) in the expection of the local free energy (\(\sum_{o,s} p(o|s)q_a(s) \ln \frac{q_a(o)q_a(s)}{p(o|s)}\)), then the corresponding bead of the edge that relates to this variable (edge \(j\) relates to variable \(o\)) is replaced by a rectangle.
+The two changes to the Lagrangian are indicated in the corresponding factor graph (\cref{fig:32.2}) by a small bead and a small square where the two edges terminate at node \(a\). In general, having beads at both ends of the edges means that the node local belief distribution \(q_a(o,s)\) assumes a mean-field approximation, i.e, \(q_a(o,s) = q_a(o)q_a(s)\), which is indeed the case in \(\sum_{o,s} q_a(o,s) \ln \frac{q_a(o)q_a(s)}{p(o|s)}\). Moreover, in the case when one of the variables' belief distributions (e.g., \(q_a(o)\)) is substituted by the real likelihood (i.e, \(p(o|s)\)) in the expectation of the local free energy (\(\sum_{o,s} p(o|s)q_a(s) \ln \frac{q_a(o)q_a(s)}{p(o|s)}\)), then the corresponding bead of the edge that relates to this variable (edge \(j\) relates to variable \(o\)) is replaced by a rectangle.
 
 Next, \(F_{\text{GFE}}\) is rearranged to a form that facilitates following derivations:
 \begin{align}
@@ -871,7 +879,7 @@ Finally, we use the result of \cref{sec:1} for the local stationary point of \(q
 \begin{equation}
     q^*_i(s) \propto \exp \left( \lambda_{ia}(s) \right) \exp \left( \lambda_{i\bullet}(s) \right).
 \end{equation}
-Here, \(\lambda_{i\bullet}\) is the Lagrange multiplier that enforces marginalization between the belief \(q_i(s)\) and the belief of the other node (besided node \(a\)) that the edge \(i\) is connected to (node not shown in \cref{fig:32}), e.g., the transition node. In the next step we will see that \(\exp \left( \lambda_{i\bullet}(s) \right)\) is the GFE-based message, i.e., the central result of this whole derivation.
+Here, \(\lambda_{i\bullet}\) is the Lagrange multiplier that enforces marginalization between the belief \(q_i(s)\) and the belief of the other node (besides node \(a\)) that the edge \(i\) is connected to (node not shown in \cref{fig:32}), e.g., the transition node. In the next step we will see that \(\exp \left( \lambda_{i\bullet}(s) \right)\) is the GFE-based message, i.e., the central result of this whole derivation.
 
 To this end, we use the marginalization constraint \(q_i(s) \overset{!}{=} \sum_o q_a(o,s)\), i.e., \(q_i(s) \overset{!}{=} q_a(s)\) to relate both stationary solutions \(q^*_i(s)\) and \(q^*_a(s)\):
 \begin{alignat}{2}
@@ -881,9 +889,9 @@ To this end, we use the marginalization constraint \(q_i(s) \overset{!}{=} \sum_
      & \textcolor{accorange}{\bm{{\uparrow}{\mu}(}s\bm{)}}                                                  &  & \propto \exp \left( \sum_{o} p(o|s) \ln \frac{p(o|s)\tilde{p}(o)}{q_a(o)} \right) \label{eq:40}
 \end{alignat}
 
-Finally, the GFE-based message that is sent by the likehood node \(a\) upwards in \cref{fig:32.2} is given in \cref{eq:40}.
+Finally, the GFE-based message that is sent by the likelihood node \(a\) upwards in \cref{fig:32.2} is given in \cref{eq:40}.
 
-Although \cref{eq:40} yields the necessary message that enables the agent to seek information in the environment, in practice the message can lead to convergence issues during inference (message passing) as outlined by \textcite{delaar2025}. To accomodate for this problem we derive an alternative message that leads to a more robust message passing algorithm. In general this is achieved by developing an inference procedere that is local to the perception-related factor graph sector. During this procedere \(q_i(s)\) and \(q_j(o)\) are optimized (inferred) until convergence and only then we compute an outgoing message (analog to \(\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s\bm{)}}\) in \cref{fig:32.2}) that is sent to the rest of the graph. The local inference loop consists of three recursive steps. First, we use the current (at loop step \(l-1\)) \(q^{(l-1)}_i(s)\) to compute \(q^{(l)}_j(o)\) via:
+Although \cref{eq:40} yields the necessary message that enables the agent to seek information in the environment, in practice the message can lead to convergence issues during inference (message passing) as outlined by \textcite{delaar2025}. To accommodate for this problem we derive an alternative message that leads to a more robust message passing algorithm. In general this is achieved by developing an inference procedure that is local to the perception-related factor graph sector. During this procedure \(q_i(s)\) and \(q_j(o)\) are optimized (inferred) until convergence and only then we compute an outgoing message (analog to \(\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s\bm{)}}\) in \cref{fig:32.2}) that is sent to the rest of the graph. The local inference loop consists of three recursive steps. First, we use the current (at loop step \(l-1\)) \(q^{(l-1)}_i(s)\) to compute \(q^{(l)}_j(o)\) via:
 \begin{align}
     q^{(l)}_j(o) \propto \sum_s p(o|s) q^{(l-1)}_i(s). \label{eq:41}
 \end{align}
@@ -983,7 +991,7 @@ Finally, we use the marginalization constraint (\(q_i(s) = q_a(s)\)) and the res
 
 \subsubsection{Message Passing Algorithm}
 
-The resulting message passing algorithm (\cref{alg:3}) that enables the agent to perform inference is based on the factor graph (\cref{fig:33}) of its temporal generative model. The factor graph is very similar to the graph from the BFE agent but additionally shows small beads and sqares at future likelihood nodes that resemble the generalized free energy which is used in these parts of the graph and leads to the information seeking behavior of the agent. Again, the graph shows an exemplary integration of an observation \(\hat{o_0}\) as a delta constraint which leads to a variational upward message there. Crucially, using GFE-based- and variational messages leads to a message passing algorithm which necessitates a recursive execution to let all belief distribution converge to a stable solution. In contrast to the algorithm of the BFE agent, this leads to an algorithm that must be run repeatedly (signified by the arrow on the left side in \cref{alg:3}).
+The resulting message passing algorithm (\cref{alg:3}) that enables the agent to perform inference is based on the factor graph (\cref{fig:33}) of its temporal generative model. The factor graph is very similar to the graph from the BFE agent but additionally shows small beads and squares at future likelihood nodes that resemble the generalized free energy which is used in these parts of the graph and leads to the information seeking behavior of the agent. Again, the graph shows an exemplary integration of an observation \(\hat{o}_0\) as a delta constraint which leads to a variational upward message there. Crucially, using GFE-based- and variational messages leads to a message passing algorithm which necessitates a recursive execution to let all belief distribution converge to a stable solution. In contrast to the algorithm of the BFE agent, this leads to an algorithm that must be run repeatedly (signified by the arrow on the left side in \cref{alg:3}).
 
 \begin{figure}[!htbp]
     \centering
@@ -1013,18 +1021,18 @@ The resulting message passing algorithm (\cref{alg:3}) that enables the agent to
             \node[factor, above=1.5cm of B1] (u1) {$p(a_1)$};
 
             % Kanten zwischen Knoten
-            \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_0)}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}}$};
-            \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_0)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$}  node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
-            \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{accblue}{q(o_0)}$} node[pos=0.25, right=0.25, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}}$} node[pos=0.75, right=0.25, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}}$}  node[pos=0, circle, draw=black, fill=white, inner sep=2pt] {};
-            \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_0)}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$};
-            \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_0)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_0\bm{)}}}$};
-            \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_1)}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}}$};
-            \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_1)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\large \textcolor{orange!75!black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\large \textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
+            \draw[edge] (d.east) -- (eq0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_0)}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_0\bm{)}}}$};
+            \draw[edge] (eq0.south) -- (A0.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_0)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}}}$}  node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
+            \draw[edge] (A0.south) -- (c0.north) node[midway, greycircle] {$\delta$} node[midway, left=0.3, varlabel] {$\textcolor{accblue}{q(o_0)}$} node[pos=0.25, right=0.25, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}}$} node[pos=0.75, right=0.25, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}}}$}  node[pos=0, circle, draw=black, fill=white, inner sep=2pt] {};
+            \draw[edge] (eq0.east) -- (B0.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_0)}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_0\bm{)}}}$};
+            \draw[edge] (B0.north) -- (u0.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_0)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_0\bm{)}}}$};
+            \draw[edge] (B0.east) -- (eq1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s_1)}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_1\bm{)}}}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_1\bm{)}}}$};
+            \draw[edge] (eq1.south) -- (A1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle II}_1)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\textcolor{orange!75!black}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
             \draw[edge] (A1.south) -- (c1.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(o_1)}$} node[pos=0, rectangle, draw=black, fill=white, inner sep=2.5pt] {};
-            \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_1)}$} node[near start, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$};
-            \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$\textcolor{accblue}{q(s_2)}$} node[pos=0.89, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}}$} node[pos=0.11, below, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
+            \draw[edge] (eq1.east) -- (B1.west) node[midway, above, varlabel] {$\textcolor{accblue}{q(s^{\scriptscriptstyle I}_1)}$} node[near start, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$} node[near end, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s^{\scriptscriptstyle I}_1\bm{)}}}$};
+            \draw[edge] (B1.east) -| (A2.north) node[pos=0.25, above, varlabel] {$\textcolor{accblue}{q(s_2)}$} node[pos=0.89, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}}$} node[pos=0.11, below, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{\overleftarrow{\mu}(}s_2\bm{)}}}$} node[pos=1, circle, draw=black, fill=white, inner sep=2pt] {};
             \draw[edge] (A2.south) -- (c2.north) node[midway, left, varlabel] {$\textcolor{accblue}{q(o_2)}$} node[pos=0, rectangle, draw=black, fill=white, inner sep=2.5pt] {};
-            \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_1)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\large \textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_1\bm{)}}}$};
+            \draw[edge] (B1.north) -- (u1.south) node[midway, left, varlabel] {$\textcolor{accblue}{q(a_1)}$} node[pos=0.25, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}}}$} node[pos=0.75, right, varlabel, scale=0.7] {${\textcolor{accorange}{\bm{{\uparrow}{\mu}(}a_1\bm{)}}}$};
 
         \end{tikzpicture}
     }
@@ -1033,7 +1041,7 @@ The resulting message passing algorithm (\cref{alg:3}) that enables the agent to
     \label{fig:33}
 \end{figure}
 
-Additionally, the recursive computation of the GFE-based messages is also shown with an arrow at the left side to display the loopy execution. For this, the messages \(\textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}\), \(\textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}\) and beliefs \(\textcolor{accblue}{q(s^{\scriptscriptstyle II}_1)}\), \(\textcolor{accblue}{q(s_2)}\) must be initialized (e.g., uniformly) before the execution is started.
+Additionally, the recursive computation of the GFE-based messages is also shown with an arrow on the left side to display the loopy execution. For this, the messages \(\textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s^{\scriptscriptstyle II}_1\bm{)}}\), \(\textcolor{orange!75!black}{\bm{{\downarrow}{\mu}(}s_2\bm{)}}\) and beliefs \(\textcolor{accblue}{q(s^{\scriptscriptstyle II}_1)}\), \(\textcolor{accblue}{q(s_2)}\) must be initialized (e.g., uniformly) before the execution is started.
 
 \begin{algorithm}[htbp]
     \caption{Message Passing Algorithm of the GFE Agent}
@@ -1042,7 +1050,7 @@ Additionally, the recursive computation of the GFE-based messages is also shown 
     \begin{algorithmic}[1] % Die [1] sorgt für automatische Zeilennummern!
         \linespread{1.4}\selectfont
         \setlength{\leftskip}{0.3cm}
-        \State \tikzmark{algtop3}$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$
+        \State \tikzmark{algtop3}$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$
         \State $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}} \propto \exp \left( \sum_{o_0} q(o_0) p(o_0|s^{\scriptscriptstyle II}_0) \right)$,
         \Statex \quad\quad\tikzmark{onetop3}$q^{(l)}(o_1) \propto \sum_{s^{\scriptscriptstyle II}_1} p(o_1|s^{\scriptscriptstyle II}_1) q^{(l-1)}(s^{\scriptscriptstyle II}_1)$
         \Statex \quad\quad$\bm{{\uparrow}{\mu}}^{(l)}\bm{(}s^{\scriptscriptstyle II}_1\bm{)} \propto \exp \left( \sum_{o_1} p(o_1|s^{\scriptscriptstyle II}_1) \ln \frac{p(o_1|s^{\scriptscriptstyle II}_1)\tilde{p}(o_1)}{q^{(l)}(o_1)} \right)$
@@ -1083,7 +1091,7 @@ Additionally, the recursive computation of the GFE-based messages is also shown 
 \subsection{Context-BFE Agent}
 \label{sec:context-bfe}
 
-The Context-BFE agent is similar to the BFE agent but entails an additional hidden context state as part of its generative model. Specifically, the agent does not only assume that observations are generated by hidden states \(s\) but additionaly assumes a hidden context state \(c\) that also influences observations. In contrast to states \(s\), the context state does not change for each timestep and thus is assumed to be persistent during multiple timesteps. In later simulations, there will only be a single context state during the succession of three regular hidden states \(s\). The corresponding POMDP is given by
+The Context-BFE agent is similar to the BFE agent but entails an additional hidden context state as part of its generative model. It resembles the Bayesian contextual control model from \textcite{schwoebel2021} (without the balancing of habitual- and goal-directed drives) but based on a Forney factor graph representation with corresponding Lagrangian. Specifically, the agent does not only assume that observations are generated by hidden states \(s\) but additionally assumes a hidden context state \(c\) that also influences observations. In contrast to states \(s\), the context state does not change for each timestep and thus is assumed to be persistent during multiple timesteps. In later simulations, there will only be a single context state during the succession of three regular hidden states \(s\). The corresponding POMDP is given by
 \begin{equation}
     \begin{split}
         p(o_0, o_1, o_2, s_0, s_1, s_2, c, a_0, a_1) = \; & \tilde{p}(o_0) p(o_0|s_0,c) p(s_0) p(c)           \\
@@ -1339,7 +1347,7 @@ The \(\bullet\) signs in the lambdas indicate the other nodes (not shown in \cre
     \label{fig:35}
 \end{figure}
 
-The factor graph of the Context-BFE agent with messages is given in \cref{fig:35}. Again, the graph shows an exemplary integration of an observation \(\hat{o_0}\) as a delta constraint. Importantly, likelihood nodes send structured variational messages to break the cyclic dependencies introduced by the additional context state.  Similarly to the GFE agent these special messages of the context-BFE agent also requires recursive execution of the algorithm until convergence of the belief distributions. Moreover, the distributions \(q(o_0,s^{\scriptscriptstyle II}_0)\), \(q(o_1,s^{\scriptscriptstyle II}_1)\), \(q(o_2,s_2)\), \(\textcolor{accblue}{q(c^{\scriptscriptstyle II})}\), \(\textcolor{accblue}{q(c^{\scriptscriptstyle IV})}\), and \(\textcolor{accblue}{q(c^{\scriptscriptstyle III})}\) must be initialized (e.g., uniformly) before execution.
+The factor graph of the Context-BFE agent with messages is given in \cref{fig:35}. Again, the graph shows an exemplary integration of an observation \(\hat{o}_0\) as a delta constraint. Importantly, likelihood nodes send structured variational messages to break the cyclic dependencies introduced by the additional context state.  Similarly to the GFE agent these special messages of the context-BFE agent also requires recursive execution of the algorithm until convergence of the belief distributions. Moreover, the distributions \(q(o_0,s^{\scriptscriptstyle II}_0)\), \(q(o_1,s^{\scriptscriptstyle II}_1)\), \(q(o_2,s_2)\), \(\textcolor{accblue}{q(c^{\scriptscriptstyle II})}\), \(\textcolor{accblue}{q(c^{\scriptscriptstyle IV})}\), and \(\textcolor{accblue}{q(c^{\scriptscriptstyle III})}\) must be initialized (e.g., uniformly) before execution.
 The resulting algorithm is given in \cref{alg:4}.
 \begin{algorithm}[!htbp]
     \caption{Message Passing Algorithm of the Context-BFE Agent}
@@ -1348,8 +1356,8 @@ The resulting algorithm is given in \cref{alg:4}.
     \begin{algorithmic}[1] % Die [1] sorgt für automatische Zeilennummern!
         \linespread{1.4}\selectfont
         \setlength{\leftskip}{0.3cm}
-        \State \tikzmark{algtop4}$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_1\bm{)}} \propto \tilde{p}(o_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,
-        \Statex $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle II}\bm{)}} \propto \exp \left( \sum_{o_0,s^{\scriptscriptstyle II}_0} q(o_0,s^{\scriptscriptstyle II}_0) \ln p(o_0|s^{\scriptscriptstyle II}_0,c^{\scriptscriptstyle II}) \right)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$,
+        \State \tikzmark{algtop4}$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_1\bm{)}} \propto \tilde{p}(o_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,
+        \Statex $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle II}\bm{)}} \propto \exp \left( \sum_{o_0,s^{\scriptscriptstyle II}_0} q(o_0,s^{\scriptscriptstyle II}_0) \ln p(o_0|s^{\scriptscriptstyle II}_0,c^{\scriptscriptstyle II}) \right)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$,
         \Statex $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle IV}\bm{)}} \propto \exp \left( \sum_{o_1,s^{\scriptscriptstyle II}_1} q(o_1,s^{\scriptscriptstyle II}_1) \ln p(o_1|s^{\scriptscriptstyle II}_1,c^{\scriptscriptstyle IV}) \right)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_2\bm{)}} \propto \tilde{p}(o_2)$,
         \Statex $\textcolor{accorange}{\bm{\overleftarrow{\mu}(}c^{\scriptscriptstyle III}\bm{)}} \propto \exp \left( \sum_{o_2,s_2} q(o_2,s_2) \ln p(o_2|s_2,c^{\scriptscriptstyle III}) \right)$,\quad$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}c\bm{)}} \propto p(c)$
         \State $\textcolor{accorange}{\bm{{\uparrow}{\mu}(}s^{\scriptscriptstyle II}_0\bm{)}} \propto \sum_{o_0} \exp \left( \sum_{c^{\scriptscriptstyle II}} q(c^{\scriptscriptstyle II}) \ln p(o_0|s^{\scriptscriptstyle II}_0,c^{\scriptscriptstyle II}) \right) \textcolor{black}{\bm{{\uparrow}{\mu}(}o_0\bm{)}}$,\quad$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}c^{\scriptscriptstyle I}\bm{)}} \propto \textcolor{black}{\bm{\overrightarrow{\mu}(}c\bm{)}} \textcolor{black}{\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle II}\bm{)}}$,
@@ -1386,9 +1394,9 @@ The resulting algorithm is given in \cref{alg:4}.
 
 \subsection{Context-GFE Agent}
 
-In this section I present the derivation of GFE-based messages for the context state \(c\). Following this, the resulting Context-GFE agent will be able to reduce its uncertainty regarding the context state rather than only the hidden state \(s\), which is the central goal of this thesis. The agent is based on the same generative model as the Context-BFE agent, i.e., \cref{eq:35}, and consequently also utilizes the same foundational factor graph (\cref{fig:28}). Interestingly, the derivation also leads to GFE-based messages for the hidden state \(s\), although this was not the central goal. It can be suspected that this circumstance is based on the independence assumption between hidden state \(s\) and the other two variables \(c\) and \(o\) that is made during the derivation.
+This section presents the main methodological contribution of this thesis. I develop the Context-GFE agent that is able to reduce its uncertainty regarding the context state rather than only the hidden state \(s\). This is made possible through a specialized GFE-based message for the context state \(c\). The agent is based on the same generative model as the Context-BFE agent, i.e., \cref{eq:35}, and consequently also utilizes the same foundational factor graph (\cref{fig:28}). Interestingly, the derivation also leads to GFE-based messages for the hidden state \(s\), although this was not the central goal. It can be suspected that this circumstance is based on the independence assumption between hidden state \(s\) and the other two variables \(c\) and \(o\) that is made during the derivation.
 
-\subsubsection{GFE-Based Messages for the Context}
+\subsubsection{GFE-based Messages for the Context}
 
 In this section I derive the GFE-based message (\(\textcolor{accorange}{\bm{{\uparrow}{\mu}(}c\bm{)}}\) in \cref{fig:36.2}) that is sent by future likelihood nodes upwards to transition nodes and enables the agent with contextual information seeking (also including the GFE-based message \(\textcolor{black}{\bm{{\uparrow}{\mu}(}s\bm{)}}\)). The general approach that respects additional variables (like \(c\)) was also formally given by \textcite{delaar2025}.
 
@@ -1453,7 +1461,7 @@ Starting point for this derivation is the Lagrangian \(L\) of the perception-rel
         & + \sum_o \lambda_{ja}(o) \left( q_j(o) - \sum_{s,c} q_a(o,s,c) \right) + \sum_o \lambda_{jb}(o) \left( q_j(o) - \sum_{s,c} q_a(o,s,c) \right).
 \end{alignat}
 
-Similar to the GFE-based messages (\cref{sec:gfe}) we also introduce a mutual information term to the Lagrangian. In this case the term accounts for the variables \(o\) and \(c\), which means the agent is inclined to reduce its contextual uncertainty from observations. The resulting Lagrangain \(L_{\text{MI}}\) is:
+Similar to the GFE-based messages (\cref{sec:gfe}) we also introduce a mutual information term to the Lagrangian. In this case the term accounts for the variables \(o\) and \(c\), which means the agent is inclined to reduce its contextual uncertainty from observations. The resulting Lagrangian \(L_{\text{MI}}\) is:
 \begin{equation}
     L_{\text{MI}} = L + \sum_{o,s} q_a(o,s) \ln \frac{q_a(o)q_a(s)}{q_a(o,s)}
 \end{equation}
@@ -1497,7 +1505,7 @@ As mentioned in \cref{sec:gfe}, using this message can lead to unstable message 
 \end{alignat}
 Equations \cref{eq:46,eq:47,eq:48} are iterated until convergence of \(q_k(c)\) (with \(q_j(o) = q_a(o)\)), which is then used in \cref{eq:49}.
 
-Moreover, the Lagrangian \(L_{\text{GFE}}\) also leads to a GFE-based message \(\bm{{\uparrow}{\mu}(}s\bm{)}\), i.e., for the hidden state \(s\). The derivation is analog to the prior derivation for the GFE-based message over the context. The resulting optimization loop (analog to \cref{eq:46,eq:47,eq:48})) that leads to the message \(\bm{{\uparrow}{\mu}(}s\bm{)}\) is given in the following:
+Moreover, the Lagrangian \(L_{\text{GFE}}\) also leads to a GFE-based message \(\bm{{\uparrow}{\mu}(}s\bm{)}\), i.e., for the hidden state \(s\). The derivation is analog to the prior derivation for the GFE-based message over the context. The resulting optimization loop (analog to \cref{eq:46,eq:47,eq:48}) that leads to the message \(\bm{{\uparrow}{\mu}(}s\bm{)}\) is given in the following:
 \begin{alignat}{2}
     &q^{(l)}_j(o) &&\propto \sum_{s,c} p(o|s,c) q^{(l-1)}_i(s) q_k(c). \\
     & \bm{{\uparrow}{\mu}}^{(l)}\bm{(}s\bm{)}                                                  &  & \propto \exp \left( \sum_{o,c} p(o|s,c)q_a(c) \ln \frac{p(o|s,c)\tilde{p}(o)}{q^{(l)}_a(o)} \right) \\
@@ -1575,7 +1583,8 @@ In this section I give the message passing algorithm of the Context-GFE agent, w
     \begin{algorithmic}[1]
         \linespread{1.4}\selectfont
         \setlength{\leftskip}{0.3cm}
-        \State \tikzmark{algtop5}$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o_0}}$,
+        \setlength{\lineskiplimit}{-5pt}
+        \State \tikzmark{algtop5}$\textcolor{accorange}{\bm{\overrightarrow{\mu}(}s_0\bm{)}} \propto p(s_0)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_0\bm{)}} \propto p(a_0)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}a_1\bm{)}} \propto p(a_1)$,\quad$\textcolor{accorange}{\bm{{\downarrow}{\mu}(}o_0\bm{)}} \propto \delta_{o_0,\hat{o}_0}$,
         \Statex $\textcolor{accorange}{\bm{\overrightarrow{\mu}(}c\bm{)}} \propto p(c)$,\quad$\textcolor{accorange}{\bm{{\uparrow}{\mu}(}c^{\scriptscriptstyle II}\bm{)}} \propto \exp \left( \sum_{o_0,s^{\scriptscriptstyle II}_0} q(o_0)q(s^{\scriptscriptstyle II}_0) \ln p(o_0|s^{\scriptscriptstyle II}_0,c^{\scriptscriptstyle II}) \right)$,
         \Statex \quad\quad\tikzmark{onetop5}$q^{(l)}(o_1) \propto \sum_{s^{\scriptscriptstyle II}_1,c^{\scriptscriptstyle IV}} p(o_1|s^{\scriptscriptstyle II}_1,c^{\scriptscriptstyle IV}) q(s^{\scriptscriptstyle II}_1) q^{(l-1)}(c^{\scriptscriptstyle IV})$
         \Statex \quad\quad$\bm{{\uparrow}{\mu}}^{(l)}\bm{(}c^{\scriptscriptstyle IV}\bm{)} \propto \exp \left( \sum_{o_1,s^{\scriptscriptstyle II}_1} p(o_1|s^{\scriptscriptstyle II}_1,c^{\scriptscriptstyle IV}) q(s^{\scriptscriptstyle II}_1) \ln \frac{p(o_1|s^{\scriptscriptstyle II}_1,c^{\scriptscriptstyle IV})\tilde{p}(o_1)}{q^{(l)}(o_1)} \right)$
@@ -1631,15 +1640,16 @@ In this section I give the message passing algorithm of the Context-GFE agent, w
         \draw[-{Stealth[length=2.2mm, width=1.6mm]}, thick, gray!75!black, rounded corners=5pt]
         ([yshift=0.5ex, xshift=-0.5ex]pic cs:fourbottom5) -- ++(-0.4cm, 0) |- ([xshift=-0.5ex, yshift=0.5ex]pic cs:fourtop5);
     \end{tikzpicture}
-
+    
 \end{algorithm}
+\enlargethispage{5pt}
 
 \section{Simulations}
 \label{sec:3}
 
-In this section I present the simulation procederes that reveal the information seeking behavior of the Context-GFE agent. During the simulations the agent interacts with a T-maze environment that is frequently used for showing these kinds of behaviors (e.g., in \textcite{friston2015}). The simulations consist of three experiments: In the first, the agent is evaluated with respect to its tendendency to show information seeking behavior. The second experiment shows the agent's ability to exploit the acquired information to fulfill a goal. In the third experiment the agent's overall success rate of fulfilling a goal (for which information seeking may help) is evaluated.
+In this section I present the simulation procedures that reveal the information seeking behavior of the Context-GFE agent. During the simulations the agent interacts with a T-maze environment that is frequently used for showing these kinds of behaviors (e.g., in \textcite{friston2015}). The simulations consist of three experiments: In the first, the agent is evaluated with respect to its tendency to show information seeking behavior. The second experiment shows the agent's ability to exploit the acquired information to fulfill a goal. In the third experiment the agent's overall success rate of fulfilling a goal (for which information seeking may help) is evaluated.
 The experiments are not only performed for the Context-GFE agent but also for the other three agents. This is necessary because the GFE agent in particular serves as a comparison instance (also shows information seeking behavior) for the Context-GFE agent. Moreover, the remaining two agents (BFE- and Context-BFE) serve as baselines for the kind of behavior that results from the absence of information seeking.
-In the following, first I detail the setup of the T-maze environment, second give the concrete parameter values for the underlying generative process of the T-maze as well as of the generative models of the agents, and third present the procederes of the three experiments.
+In the following, first I detail the setup of the T-maze environment, second give the concrete parameter values for the underlying generative process of the T-maze as well as of the generative models of the agents, and third present the procedures of the three experiments.
 
 \subsection{The T-Maze Environment}
 
@@ -1690,13 +1700,13 @@ The agent always begins at the start field. Moreover, the agent has a (strong) p
     \label{fig:27}
 \end{figure}
 
-The T-maze environment is precisely discribed by a corresponding generative process that relates actions from the agent, hidden environmental states and observations generated by the environment probabilistically. Specifically, observations \(o\) are generated by (depend on) hidden environmental states \(s\) via the likelihood distribution \(p(o|s)\). Hidden environmental states evolve over time (from \(t\) to \(t+1\)) based on actions \(a\) via \(p(s_{t+1}|s_t, a_t)\). At timestep \(t=0\) hidden environmental states are given by the prior \(p(s_0)\).
+The T-maze environment is precisely described by a corresponding generative process that relates actions from the agent, hidden environmental states and observations generated by the environment probabilistically. Specifically, observations \(o\) are generated by (depend on) hidden environmental states \(s\) via the likelihood distribution \(p(o|s)\). Hidden environmental states evolve over time (from \(t\) to \(t+1\)) based on actions \(a\) via \(p(s_{t+1}|s_t, a_t)\). At timestep \(t=0\) hidden environmental states are given by the prior \(p(s_0)\).
 
 
 \subsection{Parametrization}
 
 Next, I assign concrete probabilities to the distributions of the generative process (of the T-maze) and the generative models of the agents. There are large overlaps between the generative process and the generative models, which is why I give the concrete values here in a single place. However, it is important to realize that the generative process is in general not equal to the generative models of the agents. In the following I will first present the concrete events for which the distributions give probabilities. 
-The events can be categorized into observations, (hidden) states, and actions. Regarding observations and hidden states, these can be defined as a cartesian product of three other sets. These sets are
+The events can be categorized into observations, (hidden) states, and actions. Regarding observations and hidden states, these can be defined as a Cartesian product of three other sets. These sets are
 \begin{equation}
     \text{Field} = \{\text{L}, \text{R}, \text{S}, \text{C}\},
 \end{equation}
@@ -1735,7 +1745,7 @@ or
 \begin{alignat}{1}
     p\bigl(s_0=(\text{S},\text{B})\bigr)=1,
 \end{alignat}
-i.e., at the beginning of a simulation the T-maze type either assumes type A- or B. This is central to the information seeking mechanism of the GFE- and Context-GFE agents because they initially do not know the type and may seek information (about this) to find out.
+i.e., at the beginning of a simulation the T-maze type either assumes type A or B. This is central to the information seeking mechanism of the GFE- and Context-GFE agents because they initially do not know the type and may seek information (about this) to find out.
 
 Following this, the initial hidden states \(s \in S\) at timestep \(k=0\) of both non-context agents are defined as
 \begin{alignat}{1}
@@ -1762,7 +1772,7 @@ The generative process and the non-context agents model the generation of observ
     & p\bigl(o=(\text{L},\text{NR})\bigm|s=(\text{L},\text{B})\bigr) &  & = p\bigl(o=(\text{L},\text{RW})\bigm|s=(\text{L},\text{B})\bigr) &  & = 1-\alpha \nonumber \\
     & p\bigl(o=(\text{R},\text{NR})\bigm|s=(\text{R},\text{B})\bigr) &  & = p\bigl(o=(\text{R},\text{RW})\bigm|s=(\text{R},\text{A})\bigr) &  & = 1-\alpha,
 \end{alignat}
-where \(\alpha\) is a parameter that gets modulated in the simulations (explained below) and other probabilities \(p(o|s)\) are zero. 
+and other probabilities \(p(o|s)\) are zero. The parameter \(\alpha\) indicates how strongly the maze type is correlated with the reward location in the T-maze. In the simulations the modulation of this parameter allows for a detailed analysis of the information seeking behavior of the GFE- and Context-GFE agents.
 
 In the case of the context agents the observations depend on both the hidden state \(s \in \text{Field}\) and the context state \(c \in \text{MazeType}\) via
 \begin{alignat}{3}
@@ -1774,7 +1784,7 @@ In the case of the context agents the observations depend on both the hidden sta
     & p\bigl(o=(\text{L},\text{NR})\bigm|s=\text{L}, c=\text{B}\bigr) &  & = p\bigl(o=(\text{L},\text{RW})\bigm|s=\text{L}, c=\text{B}\bigr) &  & = 1-\alpha \nonumber \\
     & p\bigl(o=(\text{R},\text{NR})\bigm|s=\text{R}, c=\text{B}\bigr) &  & = p\bigl(o=(\text{R},\text{RW})\bigm|s=\text{R}, c=\text{A}\bigr) &  & = 1-\alpha,
 \end{alignat}
-where other probabilities \(p(o|s,c)\) are zero. The parameter \(\alpha\) indicates how strongly the maze type is correlated with the reward location in the T-maze. In the simulations the modulation of this parameter allows for a detailed analysis of the information seeking behavior of the GFE- and Context-GFE agents.
+where other probabilities \(p(o|s,c)\) are zero.
 
 For both the generative process and the generative models of the non-context agents hidden states \(s_{k+1} \in S\) at time \(k+1\) depend on \(s_k \in S\) and actions \(a_k \in A\) at timestep \(k\) with probabilities
 \begin{alignat}{3}
@@ -1811,7 +1821,7 @@ Context agents have qualitatively equal transition probabilities for the hidden 
 and other probabilities \(p(s_{k+1}|s_k,a_k)\) are zero.
 
 The context state of context agents do not have a transition model like the hidden state \(s\), i.e., there is only a single context during a trial in the simulations.
-All four agents have preferences for observations that are independent of the timestep. These preferences are the main drive in all agents that lead to purposeful behavior, i.e., acting to receive prefered observation. In the agents with information seeking these preferences compete with their curiousity. The preferences are defined via the parameter \(r\) in the goal distribution \(\tilde{p}(o)\):
+All four agents have preferences for observations that are independent of the timestep. These preferences are the main drive in all agents that lead to purposeful behavior, i.e., acting to receive preferred observation. In the agents with information seeking these preferences compete with their curiosity. The preferences are defined via the parameter \(r\) in the goal distribution \(\tilde{p}(o)\):
 \begin{alignat}{4}
     & \tilde{p}\bigl(o=(\text{L},\text{RW})\bigr) &  & =\tilde{p}\bigl(o=(\text{R},\text{RW})\bigr) &  & =\tilde{p}\bigl(o=(\text{S},\text{RW})\bigr) &  & =\tilde{p}\bigl(o=(\text{C},\text{RW})\bigr) \propto \exp(r) \nonumber \\
     & \tilde{p}\bigl(o=(\text{L},\text{NR})\bigr) &  & =\tilde{p}\bigl(o=(\text{R},\text{NR})\bigr) &  & =\tilde{p}\bigl(o=(\text{S},\text{NR})\bigr) &  & =\tilde{p}\bigl(o=(\text{C},\text{NR})\bigr) \propto \exp(-r)
@@ -1828,12 +1838,12 @@ In this way, the agents do not have biases for certain actions.
 \subsection{Experiments}
 \label{sec:simulations}
 
-This section presents the schedule of the three experiments (Initial Curiousity, Exploiting Information, and Long-Term Success). Each simulation is run for each agent type (BFE, Context-BFE, GFE, and Context-GFE) and parameters \(\alpha \in [0.0, 0.1, \dots, 1.0]\) and \(r \in [0, 1, \dots, 10]\) of their generative models. The simulations reveal different aspects of the agents' behavior.
+This section presents the schedule of the three experiments (Initial Curiosity, Exploiting Information, and Long-Term Success). Each simulation is run for each agent type (BFE, Context-BFE, GFE, and Context-GFE) and parameters \(\alpha \in [0.0, 0.1, \dots, 1.0]\) and \(r \in [0, 1, \dots, 10]\) of their generative models. The simulations reveal different aspects of the agents' behavior.
 All simulations have in common that the agent begins at the start field of the T-maze where it also initially receives an observation. This circumstance requires further explanation. First, the agent has a prior over its initial position in the T-maze. This prior already entails the information that the agent begins at the start field, i.e., the agent already knows that it is located at this start field. Following this, the observation at this field does not yield any new information for the agent--the observation reveals to the agents its current location which the agent already "knows". Furthermore, this initial observation then has no effect on the agent, i.e., inferred actions are not dependent on this observation.
 
-\subsubsection{Experiment 1: Initial Curiousity}
+\subsubsection{Experiment 1: Initial Curiosity}
 
-This experiment is designed to show the agents' initial drive to visit the cue location in the T-maze. This is not to be understood as an empirical test, i.e., we do not have a cohort of the same agent type and average their behaviors. Instead, for each agent type the simulation is run once and their inclination of initially visiting the cue can directly be read of from their action specific belief distribution in the current timestep. Concretely, the respective agent first gets exposed to the environment (T-maze) where it is initially located at the start position and the environment generates an observation that the agent perceives. Next, the agent performs inference, i.e., its message passing algorithm is executed until convergence. As a result, the agent has inferred all of its belief distributions including the one that prescribes action in the current timestep. This action specific belief distribution contains probabilities over the four possible actions (GtS, GtL, GtR, GtC). The agent's inclination of going to the cue is then exactly the respective probability of GtC. This probability is the central result of this simulation. The procedere is exemplary detailed using the BFE agent in \cref{fig:24}.
+This experiment is designed to show the agents' initial drive to visit the cue location (and arm fields) in the T-maze. This is not to be understood as an empirical test, i.e., we do not have a cohort of the same agent type and average their behaviors. Instead, for each agent type the simulation is run once and their inclination of initially visiting the cue (and arm fields) can directly be read of from their action specific belief distribution in the current timestep. Concretely, the respective agent first gets exposed to the environment (T-maze) where it is initially located at the start position and the environment generates an observation that the agent perceives. Next, the agent performs inference, i.e., its message passing algorithm is executed until convergence. As a result, the agent has inferred all of its belief distributions including the one that prescribes action in the current timestep. This action specific belief distribution contains probabilities over the four possible actions (GtS, GtL, GtR, GtC). The agent's inclination of going to the cue is then exactly the respective probability of GtC, while its motivation of going to the arms is the summed probabilities of both actions GtL and GtR. These probabilities are the central result of this simulation. The procedure is exemplary detailed using the BFE agent in \cref{fig:24}.
 
 
 \begin{figure}[!htbp]
@@ -1923,10 +1933,10 @@ This experiment is designed to show the agents' initial drive to visit the cue l
 
                 \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-                % Sensor-Wellen für Observation o_0
-                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (0.33, 1.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (0.45, 1.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (0.65, 1.8) arc (150:210:0.55);
                 \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
                 \node[field label] at (0, 0.97) {Start};
@@ -2013,10 +2023,10 @@ This experiment is designed to show the agents' initial drive to visit the cue l
             \end{scope}
 
             % --- Text & Panel-Labels oben links/rechts in beiden Boxen ---
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Perception ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Inference};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Inference ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
 
         \end{tikzpicture}
@@ -2028,7 +2038,7 @@ This experiment is designed to show the agents' initial drive to visit the cue l
 
 \subsubsection{Experiment 2: Exploiting Information}
 
-In this experiment, the agent receives the cue which reveals the location of the reward (left arm or right arm) in the T-maze. The result of this experiment is then the agent's inclination of going to the respective arm in the T-maze that the cue indicates as given by the probabilities in its action-specific belief distribution. The simulation spans over timesteps \(t=0\) and \(t=1\). First, the agent receives an observation \(o_0\) generated be the environment (at \(t=0\)). Second, it executes the GtC action and thus moves to the cue field in the environment, i.e., the action is not sampled from the action belief distribution \(q(a_0)\) but is externally triggered (at \(t=0\)). Third, it receives the second observation \(o_1\) while being at the cue field (at \(t=1\)). Fourth, the agent runs its messages passing algorithm to infer its belief distributions. After inference, the result of the experiment is given as the agent's belief (a probability) of executing the specific action that moves it to the arm that is indicated by the cue. The procedere is detailed in \cref{fig:25}.
+In this experiment, the agent receives the cue which reveals the location of the reward (left arm or right arm) in the T-maze. The result of this experiment is then the agent's inclination of going to the respective arm in the T-maze that the cue indicates as given by the probabilities in its action-specific belief distribution. The simulation spans over timesteps \(t=0\) and \(t=1\). First, the agent receives an observation \(o_0\) generated be the environment (at \(t=0\)). Second, it executes the GtC action and thus moves to the cue field in the environment, i.e., the action is not sampled from the action belief distribution \(q(a_0)\) but is externally triggered (at \(t=0\)). Third, it receives the second observation \(o_1\) while being at the cue field (at \(t=1\)). Fourth, the agent runs its messages passing algorithm to infer its belief distributions. After inference, the result of the experiment is given as the agent's belief (a probability) of executing the specific action that moves it to the arm that is indicated by the cue. The procedure is detailed in \cref{fig:25}.
 
 \begin{figure}[!htb]
     \centering
@@ -2124,12 +2134,11 @@ In this experiment, the agent receives the cue which reveals the location of the
 
                 \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-                % Anstelle des Observation-Arrows:
-                % 2-3 feine Sensor-Wellen nach rechts/unten
-                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
-                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}_0}$};
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (0.33, 1.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (0.45, 1.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (0.65, 1.8) arc (150:210:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
                 \node[field label] at (0, 0.97) {Start};
                 \node[field label] at (0, -0.03) {Cue};
@@ -2216,11 +2225,11 @@ In this experiment, the agent receives the cue which reveals the location of the
 
                 \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
 
-                % Box (c): Sensor-Wellen für Observation o_1
-                \draw[gray!80!black, thick] (0.3, 0.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (0.4, 0.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (0.55, 0.8) arc (30:-30:0.55);
-                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 0.5) {$\bm{\hat{o}_1}$};
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (0.33, 0.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (0.45, 0.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (0.65, 0.8) arc (150:210:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 0.5) {$\bm{\hat{o}}_1$};
 
                 \node[field label] at (0, 0.97) {Start};
                 \node[field label] at (0, -0.03) {Cue};
@@ -2309,25 +2318,25 @@ In this experiment, the agent receives the cue which reveals the location of the
             \end{scope}
 
             % --- Text oben rechts in jeder Box ---
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Perception ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Action $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Action ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Observation $t=1$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Perception ($t=1$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Inference};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Inference ($t=1$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
 
         \end{tikzpicture}
     }
-    \caption{The figure presents the four steps of Experiment 2 via the example of the BFE agent. First, the agents receives an observation \(\hat {o_0}\) which makes \(q(o_0\) a delta distribution with all its probability mass at \(\hat {o_0}\) (a). Second, the action "go to cue" is externally triggered and the respective belief distribution \(q(a_0)\) also becomes a delta distribution with its mass at this action (b). Third, being at the cue triggers an observation from the environment that is informative regarding the reward location. Similar to the first observation, it leads to a delta distribution at \(q(o_1)\) (c). Lastly, the agent executes its message passing algorithm to infer all its belief distributions (d). The inclination of moving to the cued arm that promises the reward is then given as a probability in the action-specific belief distribution \(q(a_1)\).}
+    \caption{The figure presents the four steps of Experiment 2 via the example of the BFE agent. First, the agent receives an observation \(\hat {o_0}\) which makes \(q(o_0\) a delta distribution with all its probability mass at \(\hat {o_0}\) (a). Second, the action "go to cue" is externally triggered and the respective belief distribution \(q(a_0)\) also becomes a delta distribution with its mass at this action (b). Third, being at the cue triggers an observation from the environment that is informative regarding the reward location. Similar to the first observation, it leads to a delta distribution at \(q(o_1)\) (c). Lastly, the agent executes its message passing algorithm to infer all its belief distributions (d). The inclination of moving to the cued arm that promises the reward is then given as a probability in the action-specific belief distribution \(q(a_1)\).}
     \label{fig:25}
 \end{figure}
 
 
 \subsubsection{Experiment 3: Long-Term Success}
 
-This experiment is about empirically measuring the agents' succes in receiving the reward during a trial. Specifically, there are two ways how an agent can achieve this: First, it initially "decides" against going to the cue and instead moves to one of the two arms. It is then either lucky and observes the reward or not (detailed in \cref{fig:26}). Second, the agent initially moves to the cue and only then moves to one of the two arms. Again, it then either observes the reward or not (shown in \cref{fig:40}). Generally, a trial consists of three timesteps \(t \in {0,1,2}\) and the agent can either observe the reward in timestep \(t=1\) (when directly moving to an arm) or in timestep \(t=2\) (when first moving to the cue in \(t=1\)). A trial is succesfull when the agent observes the reward in timesteps \(t=1\) or \(t=2\) (a trial is prematurely terminated when it receives in reward in timestep \(t=1\)). There are \(1000\) trials for each agent (and \(\alpha\)- and \(r\) values). The result is the percentage of succesfull trials. Note that in principle there are more behavioral paths than the two shown in \cref{fig:26,fig:40} but these other paths do never lead to the reward, e.g., like always taking actions that keeps the agent at the start field. The two paths presented here are the only paths that have non-zero probabilities of leading to the reward, i.e., also with the two paths the agent might not receive the reward when moving to the wrong arm.
+This experiment is about empirically measuring the agents' success in receiving the reward during a trial. Specifically, there are two ways how an agent can achieve this: First, it initially "decides" against going to the cue and instead moves to one of the two arms. It is then either lucky and observes the reward or not (detailed in \cref{fig:26}). Second, the agent initially moves to the cue and only then moves to one of the two arms. Again, it then either observes the reward or not (shown in \cref{fig:40}). Generally, a trial consists of three timesteps \(t \in {0,1,2}\) and the agent can either observe the reward in timestep \(t=1\) (when directly moving to an arm) or in timestep \(t=2\) (when first moving to the cue in \(t=1\)). A trial is successful when the agent observes the reward in timesteps \(t=1\) or \(t=2\) (a trial is prematurely terminated when it receives in reward in timestep \(t=1\)). There are \(1000\) trials for each agent (and \(\alpha\) and \(r\) values). The result is the percentage of successful trials. Note that in principle there are more behavioral paths than the two shown in \cref{fig:26,fig:40}, but these other paths do never lead to the reward, e.g., like always taking actions that keep the agent at the start field. The two paths presented here are the only paths that have non-zero probabilities of leading to the reward, i.e., also with the two paths the agent might not receive the reward when moving to the wrong arm.
 
 \vfill
 
@@ -2423,10 +2432,10 @@ This experiment is about empirically measuring the agents' succes in receiving t
 
                 \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-                % Sensor-Wellen für Observation o_0
-                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (0.33, 1.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (0.45, 1.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (0.65, 1.8) arc (150:210:0.55);
                 \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
                 \node[field label] at (0, 0.97) {Start};
@@ -2563,10 +2572,10 @@ This experiment is about empirically measuring the agents' succes in receiving t
 
                 \pic[scale=0.8, transform shape] at (-1.0, 2.5) {agent};
 
-                % Sensor-Wellen für Observation o_1
-                \draw[gray!80!black, thick] (-0.7, 2.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (-0.6, 2.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (-0.45, 2.8) arc (30:-30:0.55);
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (-0.67, 2.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (-0.55, 2.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (-0.35, 2.8) arc (150:210:0.55);
                 \node[font=\footnotesize, text=accorange, scale=1.25] at (0.0, 2.5) {$\bm{\hat{o}}_1$};
 
                 \node[field label] at (0, 0.97) {Start};
@@ -2578,16 +2587,16 @@ This experiment is about empirically measuring the agents' succes in receiving t
             \end{scope}
 
             % --- Text & Panel-Labels oben links/rechts in jeder Box ---
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Perception ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Inference};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Inference ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Action $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Action ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Observation $t=1$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Perception ($t=1$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
 
         \end{tikzpicture}
@@ -2705,10 +2714,10 @@ This experiment is about empirically measuring the agents' succes in receiving t
 
                 \pic[scale=0.8, transform shape] at (0, 1.5) {agent};
 
-                % Sensor-Wellen für Observation o_0
-                \draw[gray!80!black, thick] (0.3, 1.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (0.4, 1.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (0.55, 1.8) arc (30:-30:0.55);
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (0.33, 1.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (0.45, 1.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (0.65, 1.8) arc (150:210:0.55);
                 \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 1.5) {$\bm{\hat{o}}_0$};
 
                 \node[field label] at (0, 0.97) {Start};
@@ -2860,10 +2869,10 @@ This experiment is about empirically measuring the agents' succes in receiving t
 
                 \pic[scale=0.8, transform shape] at (0, 0.5) {agent};
 
-                % Sensor-Wellen für Observation o_1
-                \draw[gray!80!black, thick] (0.3, 0.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (0.4, 0.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (0.55, 0.8) arc (30:-30:0.55);
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (0.33, 0.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (0.45, 0.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (0.65, 0.8) arc (150:210:0.55);
                 \node[font=\footnotesize, text=accorange, scale=1.25] at (1.0, 0.5) {$\bm{\hat{o}}_1$};
 
                 \node[field label] at (0, 0.97) {Start};
@@ -3002,11 +3011,11 @@ This experiment is about empirically measuring the agents' succes in receiving t
 
                 \pic[scale=0.8, transform shape] at (-1.0, 2.5) {agent};
 
-                % Sensor-Wellen für Observation o_2
-                \draw[gray!80!black, thick] (-0.7, 2.6) arc (30:-30:0.25);
-                \draw[gray!80!black, thick] (-0.6, 2.7) arc (30:-30:0.4);
-                \draw[gray!80!black, thick] (-0.45, 2.8) arc (30:-30:0.55);
-                \node[font=\footnotesize, text=accorange, scale=1.2] at (0.0, 2.5) {$\bm{\hat{o}}_2$};
+                % Sensor-Wellen für Observation o_0 (Einstreuend / Wahrnehmung)
+                \draw[gray!80!black, thick] (-0.67, 2.6) arc (150:210:0.25);
+                \draw[gray!80!black, thick] (-0.55, 2.7) arc (150:210:0.4);
+                \draw[gray!80!black, thick] (-0.35, 2.8) arc (150:210:0.55);
+                \node[font=\footnotesize, text=accorange, scale=1.25] at (0.0, 2.5) {$\bm{\hat{o}}_2$};
 
                 \node[field label] at (0, 0.97) {Start};
                 \node[field label] at (0, -0.03) {Cue};
@@ -3016,25 +3025,25 @@ This experiment is about empirically measuring the agents' succes in receiving t
             \end{scope}
 
             % --- Header Labels für alle 7 Boxen ---
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Observation $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxA.north west) {Perception ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxA.north east) {(a)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Inference};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxB.north west) {Inference ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxB.north east) {(b)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Action $t=0$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxC.north west) {Action ($t=0$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxC.north east) {(c)};
             
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Observation $t=1$};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxD.north west) {Perception ($t=1$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxD.north east) {(d)};
 
-            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxE.north west) {Inference};
+            \node[toptext, anchor=north west] at ([xshift=10pt, yshift=-8pt]boxE.north west) {Inference ($t=1$)};
             \node[toptext] at ([xshift=-10pt, yshift=-8pt]boxE.north east) {(e)};
 
-            \node[toptext, anchor=north west] at ([xshift=6pt, yshift=-8pt]boxF.north west) {\small Action $t=1$};
+            \node[toptext, anchor=north west] at ([xshift=6pt, yshift=-8pt]boxF.north west) {\small Action ($t=1$)};
             \node[toptext] at ([xshift=-6pt, yshift=-8pt]boxF.north east) {(f)};
 
-            \node[toptext, anchor=north west] at ([xshift=6pt, yshift=-8pt]boxG.north west) {\small Obs. $t=2$};
+            \node[toptext, anchor=north west] at ([xshift=6pt, yshift=-8pt]boxG.north west) {\small Perc. ($t=2$)};
             \node[toptext] at ([xshift=-6pt, yshift=-8pt]boxG.north east) {(g)};
 
         \end{tikzpicture}

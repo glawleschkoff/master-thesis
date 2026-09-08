@@ -2,6 +2,7 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
+\usepackage{csquotes}
 \usepackage{helvet}
 \usepackage{graphicx}
 \usepackage[dvipsnames]{xcolor}
@@ -14,7 +15,8 @@
 \usepackage{appendix}
 \usepackage{standalone}
 \usepackage{tikz}
-\usepackage[backend=biber, style=apa]{biblatex}
+\usepackage{pdfpages}
+\usepackage[backend=biber, style=apa, uniquename=false]{biblatex}
 \usepackage{hyperref}
 \usepackage[capitalise]{cleveref}
 
@@ -40,5 +42,6 @@
 \input{conclusion.tex}
 \printbibliography
 \input{appendix.tex}
+\includepdf{agreement.pdf}
 
 \end{document}
