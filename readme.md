@@ -3,7 +3,7 @@ This repository contains my Master's thesis.
 **Title:** Contextual Information Seeking for Active Inference  
 **Author:** Moritz Glawleschkoff, University Freiburg  
 **First Referee:** Prof. Dr. Stefan Rotter, University Freiburg  
-**Second Referee:** Prof. Dr. Stefan Kiebel, TU Dresden
+**Second Referee:** Prof. Dr. Stefan Kiebel, TU Dresden  
 **Research Supervisor:** Dr. Sarah Schwöbel, TU Dresden  
 **Date:** 9. September 2026  
 
