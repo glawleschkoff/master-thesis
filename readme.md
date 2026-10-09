@@ -20,15 +20,15 @@ Humans navigate complex environments by abstracting situational details into con
 
 ### Model Architecture & Factor Graphs
 
-#### 1. Perception-Action Loop via Variational Message Passing
-The unified operational cycle mapping sensory observation clamping ($\hat{o}_0$), belief propagation across time steps, and future action selection ($\hat{a}_0$) onto Forney-style Factor Graphs:
+#### 1. Perception-Action Loop
+Agents' lifecycle with the recurring stages perception, inference, and action: During perception, observation beliefs are clamped to incoming sensory data; inference propagates messages across the graph to update state beliefs; and action is sampled to close the loop before the cycle repeats.
 
 <p align="center">
   <img src="figures/1.png" alt="Perception-Action Loop" width="850">
 </p>
 
 #### 2. Contextual Generative Model & Belief Propagation
-The full factorized generative model incorporating abstract context priors $p(c)$, equality constraints, and bidirectional variational message passing ($\vec{\mu}, \overleftarrow{\mu}$) to resolve contextual ambiguity:
+The full factorized generative model incorporating abstract context priors $p(c)$, equality constraints, and bidirectional variational message passing to resolve contextual ambiguity:
 
 <p align="center">
   <img src="figures/2.png" alt="Contextual Factor Graph" width="950">
