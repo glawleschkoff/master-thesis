@@ -21,7 +21,7 @@ Humans navigate complex environments by abstracting situational details into con
 ### Model Architecture & Factor Graphs
 
 #### 1. Perception-Action Loop via Variational Message Passing
-The unified operational cycle mapping sensory observation clamping ($\hat{o}_0$), belief propagation across time steps, and future action selection ($\hat{a}_0 \sim q^*(a_0)$) onto Forney-style Factor Graphs:
+The unified operational cycle mapping sensory observation clamping ($\hat{o}_0$), belief propagation across time steps, and future action selection ($\hat{a}_0$) onto Forney-style Factor Graphs:
 
 <p align="center">
   <img src="figures/1.png" alt="Perception-Action Loop" width="850">
