@@ -27,8 +27,8 @@ Agents' lifecycle with the recurring stages perception, inference, and action: D
   <img src="figures/1.png" alt="Perception-Action Loop" width="850">
 </p>
 
-#### 2. Contextual Generative Model & Belief Propagation
-The full factorized generative model incorporating abstract context priors $p(c)$, equality constraints, and bidirectional variational message passing to resolve contextual ambiguity:
+#### 2. Contextual Generative Model
+Forney-style factor graph of the contextual POMDP, formalizing perception, planning, and action across time steps through analytical message passing to resolve contextual ambiguity.
 
 <p align="center">
   <img src="figures/2.png" alt="Contextual Factor Graph" width="950">
